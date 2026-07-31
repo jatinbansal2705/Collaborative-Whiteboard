@@ -16,6 +16,8 @@ export interface AppConfig {
     accessExpiresIn: string;
     refreshSecret: string | undefined;
     refreshExpiresIn: string;
+    issuer: string;
+    audience: string;
     emailSecret: string | undefined;
     emailExpiresIn: string;
     passwordResetSecret: string | undefined;
@@ -68,6 +70,8 @@ export default (): AppConfig => ({
     accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN ?? '15m',
     refreshSecret: process.env.JWT_REFRESH_SECRET,
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN ?? '30d',
+    issuer: process.env.JWT_ISSUER ?? 'collaborative-whiteboard',
+    audience: process.env.JWT_AUDIENCE ?? 'whiteboard-api',
     emailSecret: process.env.JWT_EMAIL_SECRET,
     emailExpiresIn: process.env.JWT_EMAIL_EXPIRES_IN ?? '24h',
     passwordResetSecret: process.env.JWT_PASSWORD_RESET_SECRET,

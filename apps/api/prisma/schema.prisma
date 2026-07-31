@@ -8,19 +8,33 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id            String    @id @default(uuid()) @db.Uuid
-  email         String    @unique @db.VarChar(255)
-  passwordHash  String    @map("password_hash") @db.VarChar(255)
-  name          String?   @db.VarChar(120)
-  avatarUrl     String?   @map("avatar_url") @db.VarChar(2048)
-  emailVerified Boolean   @default(false) @map("email_verified")
-  isActive      Boolean   @default(true) @map("is_active")
-  lastLoginAt   DateTime? @map("last_login_at")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
-  sessions      Session[]
+enum AuthProvider {
+  EMAIL
+  GOOGLE
+}
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model User {
+  id             String       @id @default(uuid()) @db.Uuid
+  email          String       @unique @db.Citext
+  passwordHash   String?      @map("password_hash") @db.VarChar(255)
+  name           String?      @db.VarChar(120)
+  avatarUrl      String?      @map("avatar_url") @db.VarChar(2048)
+  provider       AuthProvider @default(EMAIL)
+  role           UserRole     @default(USER)
+  emailVerifiedAt DateTime?   @map("email_verified_at")
+  isActive       Boolean      @default(true) @map("is_active")
+  lastLoginAt    DateTime?    @map("last_login_at")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  deletedAt      DateTime?    @map("deleted_at")
+  sessions       Session[]
+
+  @@index([role])
   @@map("users")
 }
 
@@ -29,14 +43,18 @@ model Session {
   userId           String    @map("user_id") @db.Uuid
   user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   refreshTokenHash String    @map("refresh_token_hash") @db.VarChar(255)
-  userAgent        String?   @map("user_agent") @db.VarChar(512)
+  familyId         String    @map("family_id") @db.Uuid
+  device           String?   @db.VarChar(512)
   ip               String?   @db.VarChar(64)
   expiresAt        DateTime  @map("expires_at")
+  lastUsedAt       DateTime? @map("last_used_at")
   revokedAt        DateTime? @map("revoked_at")
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")
 
   @@index([userId])
+  @@index([familyId])
   @@index([expiresAt])
+  @@index([refreshTokenHash])
   @@map("sessions")
 }

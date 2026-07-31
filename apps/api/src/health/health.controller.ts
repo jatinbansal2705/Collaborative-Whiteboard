@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Public } from '../common/decorators/public.decorator';
 import {
   HEALTH_PATH,
   SERVICE_NAME,
@@ -40,6 +41,7 @@ export class HealthController {
     private readonly configService: ConfigService,
   ) {}
 
+  @Public()
   @Get()
   @ApiOperation({
     summary: 'Service health check',

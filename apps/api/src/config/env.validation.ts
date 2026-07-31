@@ -21,6 +21,8 @@ export const envValidationSchema = Joi.object({
   JWT_ACCESS_EXPIRES_IN: Joi.string().empty('').default('15m'),
   JWT_REFRESH_SECRET: Joi.string().min(16).empty('').optional(),
   JWT_REFRESH_EXPIRES_IN: Joi.string().empty('').default('30d'),
+  JWT_ISSUER: Joi.string().empty('').default('collaborative-whiteboard'),
+  JWT_AUDIENCE: Joi.string().empty('').default('whiteboard-api'),
   JWT_EMAIL_SECRET: Joi.string().min(16).empty('').optional(),
   JWT_EMAIL_EXPIRES_IN: Joi.string().empty('').default('24h'),
   JWT_PASSWORD_RESET_SECRET: Joi.string().min(16).empty('').optional(),

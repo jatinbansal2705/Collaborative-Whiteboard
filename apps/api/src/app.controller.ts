@@ -1,5 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Public } from './common/decorators/public.decorator';
 import {
   HEALTH_PATH,
   SERVICE_NAME,
@@ -17,6 +18,7 @@ export interface AppInfo {
 @Controller()
 @ApiTags('app')
 export class AppController {
+  @Public()
   @Get()
   @ApiOperation({ summary: 'API service information' })
   getInfo(): AppInfo {

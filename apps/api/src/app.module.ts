@@ -1,6 +1,7 @@
 import { Module, ValidationPipe } from '@nestjs/common';
-import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
-import { ConfigModule } from '@nestjs/config';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
@@ -8,6 +9,9 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
 import configuration from './config/configuration';
 import { envValidationSchema } from './config/env.validation';
 import { HealthModule } from './health/health.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
+import { RolesGuard } from './modules/auth/guards/roles.guard';
 import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
@@ -20,8 +24,20 @@ import { PrismaModule } from './prisma/prisma.module';
       validationOptions: { abortEarly: false, allowUnknown: true },
       load: [configuration],
     }),
+    ThrottlerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        throttlers: [
+          {
+            ttl: configService.get<number>('throttle.ttlMs') ?? 60000,
+            limit: configService.get<number>('throttle.limit') ?? 100,
+          },
+        ],
+      }),
+    }),
     PrismaModule,
     HealthModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [
@@ -38,6 +54,9 @@ import { PrismaModule } from './prisma/prisma.module';
     { provide: APP_INTERCEPTOR, useClass: LoggingInterceptor },
     { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
   ],
 })
 export class AppModule {}

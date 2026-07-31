@@ -32,6 +32,7 @@ async function bootstrap(): Promise<void> {
     .setVersion(SERVICE_VERSION)
     .addTag('app', 'Service information')
     .addTag('health', 'Service health')
+    .addTag('auth', 'Authentication')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       'access-token',
