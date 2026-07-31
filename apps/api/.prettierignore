@@ -1,0 +1,5 @@
+dist/
+coverage/
+src/generated/
+node_modules/
+package-lock.json

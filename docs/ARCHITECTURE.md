@@ -72,6 +72,34 @@ follows the template below. Sessions MUST read all entries before implementing.
 - **Decision**: 15-minute access token + 30-day refresh token stored hashed in `Session` with rotation on use, device/IP metadata, and server-side revocation. Redis denylist for immediate logout.
 - **Consequences**: Requires session table + revocation endpoint; OAuth-less flows remain stateless per request.
 
+### ADR-0007: Uniform API envelope + centralized errors
+
+- **Status**: Accepted
+- **Context**: Frontend needs one shape for success and failure responses, and backend must never leak internals to clients.
+- **Decision**: Every HTTP response uses `{ success, data }` or `{ success: false, data: null, error: { code, message, details } }` via a global transform interceptor and a single all-exceptions filter (maps `HttpException` and Prisma errors P2002/P2003/P2025 to typed codes). Internal details are hidden outside `NODE_ENV=development`.
+- **Consequences**: Consistent client handling; validation errors surface as `VALIDATION_ERROR` with a `details` array.
+
+### ADR-0008: Prisma 7 with generated client + driver adapter
+
+- **Status**: Accepted
+- **Context**: Prisma 7 moved to a driver-adapter + generated-prisma-client model (no `url` in the datasource).
+- **Decision**: `generator client` with `provider = "prisma-client"` writes to `src/generated/prisma` (committed); the runtime uses `@prisma/adapter-pg`; `DATABASE_URL` lives in `prisma.config.ts` + env. Jest resolves the generated `.js` import specifiers via a scoped `moduleNameMapper`.
+- **Consequences**: Type-safe, bundled client; generated code is part of the repo, so the test/build pipeline needs no network.
+
+### ADR-0009: Request-Id correlation + request logging
+
+- **Status**: Accepted
+- **Context**: Distributed debugging needs a single id per request across logs and client responses.
+- **Decision**: Functional Express middleware sets `x-request-id` (honours inbound header, else UUID) on `req.id` and the response; a global logging interceptor records method, path, status, duration with the id. Registered via `app.use` so it covers every route including prefix-excluded paths.
+- **Consequences**: All log lines and HTTP responses are correlated by request id.
+
+### ADR-0010: Joi-validated config with explicit defaults
+
+- **Status**: Accepted
+- **Context**: Env drift between dev, test, and prod causes runtime surprises; `process.env` reads are unchecked.
+- **Decision**: One Joi schema (`env.validation.ts`) validates `process.env` at boot (fail fast, `abortEarly: false`); typed config access via `@nestjs/config` factory (`configuration.ts`). Optional keys use `.empty('')` so blank `.env` placeholders are treated as absent.
+- **Consequences**: Startup fails with a complete list of invalid vars; consumers get typed, defaulted config.
+
 ## Scaling Strategy (summary)
 
 - **Stateless API** — horizontal scaling behind a load balancer.
