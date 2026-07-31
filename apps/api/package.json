@@ -1,0 +1,7 @@
+{
+  "name": "@whiteboard/api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "NestJS backend (TypeScript, Prisma ORM, PostgreSQL, Socket.IO, Redis).",
+  "license": "MIT"
+}

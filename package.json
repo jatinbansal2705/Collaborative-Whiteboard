@@ -1,0 +1,30 @@
+{
+  "name": "collaborative-whiteboard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Production-grade collaborative whiteboard platform (Excalidraw + Miro + FigJam). Monorepo: Next.js web app, NestJS API, shared package.",
+  "license": "MIT",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "dev:web": "npm run dev --workspace @whiteboard/web",
+    "dev:api": "npm run dev --workspace @whiteboard/api",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "format": "npm run format --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "test:coverage": "npm run test:coverage --workspaces --if-present",
+    "clean": "npm run clean --workspaces --if-present && rimraf node_modules apps/*/node_modules apps/*/dist apps/*/.next packages/*/dist"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1"
+  }
+}

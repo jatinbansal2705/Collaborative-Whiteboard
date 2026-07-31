@@ -1,0 +1,66 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+.pnp.cjs
+.yarn/
+.yarnrc
+.lerna-cache/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+coverage/
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+esbuild/
+.turbo/
+
+# Environment
+.env
+.env.local
+.env.*.local
+!.env.example
+.env.development.local
+.env.test.local
+.env.production.local
+.env.dev
+.env.test
+.env.prod
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+pm2-*.log
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vercel/
+.netlify/
+
+# Testing
+.nyc_output/
+playwright-report/
+test-results/
+.lighthouseci/
+
+# Prisma
+apps/api/prisma/*.db
+
+# Misc
+*.pem
+*.key
+*.crt
+*.pfx
