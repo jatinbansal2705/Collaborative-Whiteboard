@@ -264,6 +264,10 @@ export type UserWhereInput = {
   deletedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   sessions?: Prisma.SessionListRelationFilter
   passwordResetTokens?: Prisma.PasswordResetTokenListRelationFilter
+  boardsCreated?: Prisma.BoardListRelationFilter
+  boardMemberships?: Prisma.BoardMemberListRelationFilter
+  boardFavourites?: Prisma.BoardFavouriteListRelationFilter
+  pendingInvites?: Prisma.PendingInviteListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -284,6 +288,10 @@ export type UserOrderByWithRelationInput = {
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   sessions?: Prisma.SessionOrderByRelationAggregateInput
   passwordResetTokens?: Prisma.PasswordResetTokenOrderByRelationAggregateInput
+  boardsCreated?: Prisma.BoardOrderByRelationAggregateInput
+  boardMemberships?: Prisma.BoardMemberOrderByRelationAggregateInput
+  boardFavourites?: Prisma.BoardFavouriteOrderByRelationAggregateInput
+  pendingInvites?: Prisma.PendingInviteOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -307,6 +315,10 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   deletedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   sessions?: Prisma.SessionListRelationFilter
   passwordResetTokens?: Prisma.PasswordResetTokenListRelationFilter
+  boardsCreated?: Prisma.BoardListRelationFilter
+  boardMemberships?: Prisma.BoardMemberListRelationFilter
+  boardFavourites?: Prisma.BoardFavouriteListRelationFilter
+  pendingInvites?: Prisma.PendingInviteListRelationFilter
 }, "id" | "email" | "googleId">
 
 export type UserOrderByWithAggregationInput = {
@@ -369,6 +381,10 @@ export type UserCreateInput = {
   deletedAt?: Date | string | null
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  boardsCreated?: Prisma.BoardCreateNestedManyWithoutCreatedByInput
+  boardMemberships?: Prisma.BoardMemberCreateNestedManyWithoutUserInput
+  boardFavourites?: Prisma.BoardFavouriteCreateNestedManyWithoutUserInput
+  pendingInvites?: Prisma.PendingInviteCreateNestedManyWithoutInvitedByInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -389,6 +405,10 @@ export type UserUncheckedCreateInput = {
   deletedAt?: Date | string | null
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  boardsCreated?: Prisma.BoardUncheckedCreateNestedManyWithoutCreatedByInput
+  boardMemberships?: Prisma.BoardMemberUncheckedCreateNestedManyWithoutUserInput
+  boardFavourites?: Prisma.BoardFavouriteUncheckedCreateNestedManyWithoutUserInput
+  pendingInvites?: Prisma.PendingInviteUncheckedCreateNestedManyWithoutInvitedByInput
 }
 
 export type UserUpdateInput = {
@@ -409,6 +429,10 @@ export type UserUpdateInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  boardsCreated?: Prisma.BoardUpdateManyWithoutCreatedByNestedInput
+  boardMemberships?: Prisma.BoardMemberUpdateManyWithoutUserNestedInput
+  boardFavourites?: Prisma.BoardFavouriteUpdateManyWithoutUserNestedInput
+  pendingInvites?: Prisma.PendingInviteUpdateManyWithoutInvitedByNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -429,6 +453,10 @@ export type UserUncheckedUpdateInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  boardsCreated?: Prisma.BoardUncheckedUpdateManyWithoutCreatedByNestedInput
+  boardMemberships?: Prisma.BoardMemberUncheckedUpdateManyWithoutUserNestedInput
+  boardFavourites?: Prisma.BoardFavouriteUncheckedUpdateManyWithoutUserNestedInput
+  pendingInvites?: Prisma.PendingInviteUncheckedUpdateManyWithoutInvitedByNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -600,6 +628,62 @@ export type UserUpdateOneRequiredWithoutSessionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSessionsInput, Prisma.UserUpdateWithoutSessionsInput>, Prisma.UserUncheckedUpdateWithoutSessionsInput>
 }
 
+export type UserCreateNestedOneWithoutBoardsCreatedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutBoardsCreatedInput, Prisma.UserUncheckedCreateWithoutBoardsCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutBoardsCreatedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutBoardsCreatedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutBoardsCreatedInput, Prisma.UserUncheckedCreateWithoutBoardsCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutBoardsCreatedInput
+  upsert?: Prisma.UserUpsertWithoutBoardsCreatedInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutBoardsCreatedInput, Prisma.UserUpdateWithoutBoardsCreatedInput>, Prisma.UserUncheckedUpdateWithoutBoardsCreatedInput>
+}
+
+export type UserCreateNestedOneWithoutBoardMembershipsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutBoardMembershipsInput, Prisma.UserUncheckedCreateWithoutBoardMembershipsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutBoardMembershipsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutBoardMembershipsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutBoardMembershipsInput, Prisma.UserUncheckedCreateWithoutBoardMembershipsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutBoardMembershipsInput
+  upsert?: Prisma.UserUpsertWithoutBoardMembershipsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutBoardMembershipsInput, Prisma.UserUpdateWithoutBoardMembershipsInput>, Prisma.UserUncheckedUpdateWithoutBoardMembershipsInput>
+}
+
+export type UserCreateNestedOneWithoutBoardFavouritesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutBoardFavouritesInput, Prisma.UserUncheckedCreateWithoutBoardFavouritesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutBoardFavouritesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutBoardFavouritesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutBoardFavouritesInput, Prisma.UserUncheckedCreateWithoutBoardFavouritesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutBoardFavouritesInput
+  upsert?: Prisma.UserUpsertWithoutBoardFavouritesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutBoardFavouritesInput, Prisma.UserUpdateWithoutBoardFavouritesInput>, Prisma.UserUncheckedUpdateWithoutBoardFavouritesInput>
+}
+
+export type UserCreateNestedOneWithoutPendingInvitesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPendingInvitesInput, Prisma.UserUncheckedCreateWithoutPendingInvitesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPendingInvitesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutPendingInvitesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPendingInvitesInput, Prisma.UserUncheckedCreateWithoutPendingInvitesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPendingInvitesInput
+  upsert?: Prisma.UserUpsertWithoutPendingInvitesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPendingInvitesInput, Prisma.UserUpdateWithoutPendingInvitesInput>, Prisma.UserUncheckedUpdateWithoutPendingInvitesInput>
+}
+
 export type UserCreateWithoutPasswordResetTokensInput = {
   id?: string
   email: string
@@ -617,6 +701,10 @@ export type UserCreateWithoutPasswordResetTokensInput = {
   updatedAt?: Date | string
   deletedAt?: Date | string | null
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  boardsCreated?: Prisma.BoardCreateNestedManyWithoutCreatedByInput
+  boardMemberships?: Prisma.BoardMemberCreateNestedManyWithoutUserInput
+  boardFavourites?: Prisma.BoardFavouriteCreateNestedManyWithoutUserInput
+  pendingInvites?: Prisma.PendingInviteCreateNestedManyWithoutInvitedByInput
 }
 
 export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
@@ -636,6 +724,10 @@ export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
   updatedAt?: Date | string
   deletedAt?: Date | string | null
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  boardsCreated?: Prisma.BoardUncheckedCreateNestedManyWithoutCreatedByInput
+  boardMemberships?: Prisma.BoardMemberUncheckedCreateNestedManyWithoutUserInput
+  boardFavourites?: Prisma.BoardFavouriteUncheckedCreateNestedManyWithoutUserInput
+  pendingInvites?: Prisma.PendingInviteUncheckedCreateNestedManyWithoutInvitedByInput
 }
 
 export type UserCreateOrConnectWithoutPasswordResetTokensInput = {
@@ -671,6 +763,10 @@ export type UserUpdateWithoutPasswordResetTokensInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  boardsCreated?: Prisma.BoardUpdateManyWithoutCreatedByNestedInput
+  boardMemberships?: Prisma.BoardMemberUpdateManyWithoutUserNestedInput
+  boardFavourites?: Prisma.BoardFavouriteUpdateManyWithoutUserNestedInput
+  pendingInvites?: Prisma.PendingInviteUpdateManyWithoutInvitedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
@@ -690,6 +786,10 @@ export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  boardsCreated?: Prisma.BoardUncheckedUpdateManyWithoutCreatedByNestedInput
+  boardMemberships?: Prisma.BoardMemberUncheckedUpdateManyWithoutUserNestedInput
+  boardFavourites?: Prisma.BoardFavouriteUncheckedUpdateManyWithoutUserNestedInput
+  pendingInvites?: Prisma.PendingInviteUncheckedUpdateManyWithoutInvitedByNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -709,6 +809,10 @@ export type UserCreateWithoutSessionsInput = {
   updatedAt?: Date | string
   deletedAt?: Date | string | null
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  boardsCreated?: Prisma.BoardCreateNestedManyWithoutCreatedByInput
+  boardMemberships?: Prisma.BoardMemberCreateNestedManyWithoutUserInput
+  boardFavourites?: Prisma.BoardFavouriteCreateNestedManyWithoutUserInput
+  pendingInvites?: Prisma.PendingInviteCreateNestedManyWithoutInvitedByInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -728,6 +832,10 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   updatedAt?: Date | string
   deletedAt?: Date | string | null
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  boardsCreated?: Prisma.BoardUncheckedCreateNestedManyWithoutCreatedByInput
+  boardMemberships?: Prisma.BoardMemberUncheckedCreateNestedManyWithoutUserInput
+  boardFavourites?: Prisma.BoardFavouriteUncheckedCreateNestedManyWithoutUserInput
+  pendingInvites?: Prisma.PendingInviteUncheckedCreateNestedManyWithoutInvitedByInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -763,6 +871,10 @@ export type UserUpdateWithoutSessionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  boardsCreated?: Prisma.BoardUpdateManyWithoutCreatedByNestedInput
+  boardMemberships?: Prisma.BoardMemberUpdateManyWithoutUserNestedInput
+  boardFavourites?: Prisma.BoardFavouriteUpdateManyWithoutUserNestedInput
+  pendingInvites?: Prisma.PendingInviteUpdateManyWithoutInvitedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -782,6 +894,442 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  boardsCreated?: Prisma.BoardUncheckedUpdateManyWithoutCreatedByNestedInput
+  boardMemberships?: Prisma.BoardMemberUncheckedUpdateManyWithoutUserNestedInput
+  boardFavourites?: Prisma.BoardFavouriteUncheckedUpdateManyWithoutUserNestedInput
+  pendingInvites?: Prisma.PendingInviteUncheckedUpdateManyWithoutInvitedByNestedInput
+}
+
+export type UserCreateWithoutBoardsCreatedInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  provider?: $Enums.AuthProvider
+  role?: $Enums.UserRole
+  googleId?: string | null
+  emailVerifiedAt?: Date | string | null
+  verificationSentAt?: Date | string | null
+  isActive?: boolean
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  boardMemberships?: Prisma.BoardMemberCreateNestedManyWithoutUserInput
+  boardFavourites?: Prisma.BoardFavouriteCreateNestedManyWithoutUserInput
+  pendingInvites?: Prisma.PendingInviteCreateNestedManyWithoutInvitedByInput
+}
+
+export type UserUncheckedCreateWithoutBoardsCreatedInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  provider?: $Enums.AuthProvider
+  role?: $Enums.UserRole
+  googleId?: string | null
+  emailVerifiedAt?: Date | string | null
+  verificationSentAt?: Date | string | null
+  isActive?: boolean
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  boardMemberships?: Prisma.BoardMemberUncheckedCreateNestedManyWithoutUserInput
+  boardFavourites?: Prisma.BoardFavouriteUncheckedCreateNestedManyWithoutUserInput
+  pendingInvites?: Prisma.PendingInviteUncheckedCreateNestedManyWithoutInvitedByInput
+}
+
+export type UserCreateOrConnectWithoutBoardsCreatedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutBoardsCreatedInput, Prisma.UserUncheckedCreateWithoutBoardsCreatedInput>
+}
+
+export type UserUpsertWithoutBoardsCreatedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutBoardsCreatedInput, Prisma.UserUncheckedUpdateWithoutBoardsCreatedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutBoardsCreatedInput, Prisma.UserUncheckedCreateWithoutBoardsCreatedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutBoardsCreatedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutBoardsCreatedInput, Prisma.UserUncheckedUpdateWithoutBoardsCreatedInput>
+}
+
+export type UserUpdateWithoutBoardsCreatedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provider?: Prisma.EnumAuthProviderFieldUpdateOperationsInput | $Enums.AuthProvider
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  boardMemberships?: Prisma.BoardMemberUpdateManyWithoutUserNestedInput
+  boardFavourites?: Prisma.BoardFavouriteUpdateManyWithoutUserNestedInput
+  pendingInvites?: Prisma.PendingInviteUpdateManyWithoutInvitedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutBoardsCreatedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provider?: Prisma.EnumAuthProviderFieldUpdateOperationsInput | $Enums.AuthProvider
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  boardMemberships?: Prisma.BoardMemberUncheckedUpdateManyWithoutUserNestedInput
+  boardFavourites?: Prisma.BoardFavouriteUncheckedUpdateManyWithoutUserNestedInput
+  pendingInvites?: Prisma.PendingInviteUncheckedUpdateManyWithoutInvitedByNestedInput
+}
+
+export type UserCreateWithoutBoardMembershipsInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  provider?: $Enums.AuthProvider
+  role?: $Enums.UserRole
+  googleId?: string | null
+  emailVerifiedAt?: Date | string | null
+  verificationSentAt?: Date | string | null
+  isActive?: boolean
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  boardsCreated?: Prisma.BoardCreateNestedManyWithoutCreatedByInput
+  boardFavourites?: Prisma.BoardFavouriteCreateNestedManyWithoutUserInput
+  pendingInvites?: Prisma.PendingInviteCreateNestedManyWithoutInvitedByInput
+}
+
+export type UserUncheckedCreateWithoutBoardMembershipsInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  provider?: $Enums.AuthProvider
+  role?: $Enums.UserRole
+  googleId?: string | null
+  emailVerifiedAt?: Date | string | null
+  verificationSentAt?: Date | string | null
+  isActive?: boolean
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  boardsCreated?: Prisma.BoardUncheckedCreateNestedManyWithoutCreatedByInput
+  boardFavourites?: Prisma.BoardFavouriteUncheckedCreateNestedManyWithoutUserInput
+  pendingInvites?: Prisma.PendingInviteUncheckedCreateNestedManyWithoutInvitedByInput
+}
+
+export type UserCreateOrConnectWithoutBoardMembershipsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutBoardMembershipsInput, Prisma.UserUncheckedCreateWithoutBoardMembershipsInput>
+}
+
+export type UserUpsertWithoutBoardMembershipsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutBoardMembershipsInput, Prisma.UserUncheckedUpdateWithoutBoardMembershipsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutBoardMembershipsInput, Prisma.UserUncheckedCreateWithoutBoardMembershipsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutBoardMembershipsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutBoardMembershipsInput, Prisma.UserUncheckedUpdateWithoutBoardMembershipsInput>
+}
+
+export type UserUpdateWithoutBoardMembershipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provider?: Prisma.EnumAuthProviderFieldUpdateOperationsInput | $Enums.AuthProvider
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  boardsCreated?: Prisma.BoardUpdateManyWithoutCreatedByNestedInput
+  boardFavourites?: Prisma.BoardFavouriteUpdateManyWithoutUserNestedInput
+  pendingInvites?: Prisma.PendingInviteUpdateManyWithoutInvitedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutBoardMembershipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provider?: Prisma.EnumAuthProviderFieldUpdateOperationsInput | $Enums.AuthProvider
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  boardsCreated?: Prisma.BoardUncheckedUpdateManyWithoutCreatedByNestedInput
+  boardFavourites?: Prisma.BoardFavouriteUncheckedUpdateManyWithoutUserNestedInput
+  pendingInvites?: Prisma.PendingInviteUncheckedUpdateManyWithoutInvitedByNestedInput
+}
+
+export type UserCreateWithoutBoardFavouritesInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  provider?: $Enums.AuthProvider
+  role?: $Enums.UserRole
+  googleId?: string | null
+  emailVerifiedAt?: Date | string | null
+  verificationSentAt?: Date | string | null
+  isActive?: boolean
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  boardsCreated?: Prisma.BoardCreateNestedManyWithoutCreatedByInput
+  boardMemberships?: Prisma.BoardMemberCreateNestedManyWithoutUserInput
+  pendingInvites?: Prisma.PendingInviteCreateNestedManyWithoutInvitedByInput
+}
+
+export type UserUncheckedCreateWithoutBoardFavouritesInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  provider?: $Enums.AuthProvider
+  role?: $Enums.UserRole
+  googleId?: string | null
+  emailVerifiedAt?: Date | string | null
+  verificationSentAt?: Date | string | null
+  isActive?: boolean
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  boardsCreated?: Prisma.BoardUncheckedCreateNestedManyWithoutCreatedByInput
+  boardMemberships?: Prisma.BoardMemberUncheckedCreateNestedManyWithoutUserInput
+  pendingInvites?: Prisma.PendingInviteUncheckedCreateNestedManyWithoutInvitedByInput
+}
+
+export type UserCreateOrConnectWithoutBoardFavouritesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutBoardFavouritesInput, Prisma.UserUncheckedCreateWithoutBoardFavouritesInput>
+}
+
+export type UserUpsertWithoutBoardFavouritesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutBoardFavouritesInput, Prisma.UserUncheckedUpdateWithoutBoardFavouritesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutBoardFavouritesInput, Prisma.UserUncheckedCreateWithoutBoardFavouritesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutBoardFavouritesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutBoardFavouritesInput, Prisma.UserUncheckedUpdateWithoutBoardFavouritesInput>
+}
+
+export type UserUpdateWithoutBoardFavouritesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provider?: Prisma.EnumAuthProviderFieldUpdateOperationsInput | $Enums.AuthProvider
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  boardsCreated?: Prisma.BoardUpdateManyWithoutCreatedByNestedInput
+  boardMemberships?: Prisma.BoardMemberUpdateManyWithoutUserNestedInput
+  pendingInvites?: Prisma.PendingInviteUpdateManyWithoutInvitedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutBoardFavouritesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provider?: Prisma.EnumAuthProviderFieldUpdateOperationsInput | $Enums.AuthProvider
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  boardsCreated?: Prisma.BoardUncheckedUpdateManyWithoutCreatedByNestedInput
+  boardMemberships?: Prisma.BoardMemberUncheckedUpdateManyWithoutUserNestedInput
+  pendingInvites?: Prisma.PendingInviteUncheckedUpdateManyWithoutInvitedByNestedInput
+}
+
+export type UserCreateWithoutPendingInvitesInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  provider?: $Enums.AuthProvider
+  role?: $Enums.UserRole
+  googleId?: string | null
+  emailVerifiedAt?: Date | string | null
+  verificationSentAt?: Date | string | null
+  isActive?: boolean
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  boardsCreated?: Prisma.BoardCreateNestedManyWithoutCreatedByInput
+  boardMemberships?: Prisma.BoardMemberCreateNestedManyWithoutUserInput
+  boardFavourites?: Prisma.BoardFavouriteCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutPendingInvitesInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  provider?: $Enums.AuthProvider
+  role?: $Enums.UserRole
+  googleId?: string | null
+  emailVerifiedAt?: Date | string | null
+  verificationSentAt?: Date | string | null
+  isActive?: boolean
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  boardsCreated?: Prisma.BoardUncheckedCreateNestedManyWithoutCreatedByInput
+  boardMemberships?: Prisma.BoardMemberUncheckedCreateNestedManyWithoutUserInput
+  boardFavourites?: Prisma.BoardFavouriteUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutPendingInvitesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPendingInvitesInput, Prisma.UserUncheckedCreateWithoutPendingInvitesInput>
+}
+
+export type UserUpsertWithoutPendingInvitesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPendingInvitesInput, Prisma.UserUncheckedUpdateWithoutPendingInvitesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPendingInvitesInput, Prisma.UserUncheckedCreateWithoutPendingInvitesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPendingInvitesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPendingInvitesInput, Prisma.UserUncheckedUpdateWithoutPendingInvitesInput>
+}
+
+export type UserUpdateWithoutPendingInvitesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provider?: Prisma.EnumAuthProviderFieldUpdateOperationsInput | $Enums.AuthProvider
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  boardsCreated?: Prisma.BoardUpdateManyWithoutCreatedByNestedInput
+  boardMemberships?: Prisma.BoardMemberUpdateManyWithoutUserNestedInput
+  boardFavourites?: Prisma.BoardFavouriteUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPendingInvitesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provider?: Prisma.EnumAuthProviderFieldUpdateOperationsInput | $Enums.AuthProvider
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  boardsCreated?: Prisma.BoardUncheckedUpdateManyWithoutCreatedByNestedInput
+  boardMemberships?: Prisma.BoardMemberUncheckedUpdateManyWithoutUserNestedInput
+  boardFavourites?: Prisma.BoardFavouriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -792,11 +1340,19 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
 export type UserCountOutputType = {
   sessions: number
   passwordResetTokens: number
+  boardsCreated: number
+  boardMemberships: number
+  boardFavourites: number
+  pendingInvites: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sessions?: boolean | UserCountOutputTypeCountSessionsArgs
   passwordResetTokens?: boolean | UserCountOutputTypeCountPasswordResetTokensArgs
+  boardsCreated?: boolean | UserCountOutputTypeCountBoardsCreatedArgs
+  boardMemberships?: boolean | UserCountOutputTypeCountBoardMembershipsArgs
+  boardFavourites?: boolean | UserCountOutputTypeCountBoardFavouritesArgs
+  pendingInvites?: boolean | UserCountOutputTypeCountPendingInvitesArgs
 }
 
 /**
@@ -823,6 +1379,34 @@ export type UserCountOutputTypeCountPasswordResetTokensArgs<ExtArgs extends runt
   where?: Prisma.PasswordResetTokenWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountBoardsCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BoardWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountBoardMembershipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BoardMemberWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountBoardFavouritesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BoardFavouriteWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountPendingInvitesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PendingInviteWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -842,6 +1426,10 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   deletedAt?: boolean
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   passwordResetTokens?: boolean | Prisma.User$passwordResetTokensArgs<ExtArgs>
+  boardsCreated?: boolean | Prisma.User$boardsCreatedArgs<ExtArgs>
+  boardMemberships?: boolean | Prisma.User$boardMembershipsArgs<ExtArgs>
+  boardFavourites?: boolean | Prisma.User$boardFavouritesArgs<ExtArgs>
+  pendingInvites?: boolean | Prisma.User$pendingInvitesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -903,6 +1491,10 @@ export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = run
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   passwordResetTokens?: boolean | Prisma.User$passwordResetTokensArgs<ExtArgs>
+  boardsCreated?: boolean | Prisma.User$boardsCreatedArgs<ExtArgs>
+  boardMemberships?: boolean | Prisma.User$boardMembershipsArgs<ExtArgs>
+  boardFavourites?: boolean | Prisma.User$boardFavouritesArgs<ExtArgs>
+  pendingInvites?: boolean | Prisma.User$pendingInvitesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -913,6 +1505,10 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     sessions: Prisma.$SessionPayload<ExtArgs>[]
     passwordResetTokens: Prisma.$PasswordResetTokenPayload<ExtArgs>[]
+    boardsCreated: Prisma.$BoardPayload<ExtArgs>[]
+    boardMemberships: Prisma.$BoardMemberPayload<ExtArgs>[]
+    boardFavourites: Prisma.$BoardFavouritePayload<ExtArgs>[]
+    pendingInvites: Prisma.$PendingInvitePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1326,6 +1922,10 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   sessions<T extends Prisma.User$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   passwordResetTokens<T extends Prisma.User$passwordResetTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$passwordResetTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PasswordResetTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  boardsCreated<T extends Prisma.User$boardsCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$boardsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BoardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  boardMemberships<T extends Prisma.User$boardMembershipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$boardMembershipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BoardMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  boardFavourites<T extends Prisma.User$boardFavouritesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$boardFavouritesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BoardFavouritePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  pendingInvites<T extends Prisma.User$pendingInvitesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$pendingInvitesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PendingInvitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1808,6 +2408,102 @@ export type User$passwordResetTokensArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.PasswordResetTokenScalarFieldEnum | Prisma.PasswordResetTokenScalarFieldEnum[]
+}
+
+/**
+ * User.boardsCreated
+ */
+export type User$boardsCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Board
+   */
+  select?: Prisma.BoardSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Board
+   */
+  omit?: Prisma.BoardOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BoardInclude<ExtArgs> | null
+  where?: Prisma.BoardWhereInput
+  orderBy?: Prisma.BoardOrderByWithRelationInput | Prisma.BoardOrderByWithRelationInput[]
+  cursor?: Prisma.BoardWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BoardScalarFieldEnum | Prisma.BoardScalarFieldEnum[]
+}
+
+/**
+ * User.boardMemberships
+ */
+export type User$boardMembershipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BoardMember
+   */
+  select?: Prisma.BoardMemberSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BoardMember
+   */
+  omit?: Prisma.BoardMemberOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BoardMemberInclude<ExtArgs> | null
+  where?: Prisma.BoardMemberWhereInput
+  orderBy?: Prisma.BoardMemberOrderByWithRelationInput | Prisma.BoardMemberOrderByWithRelationInput[]
+  cursor?: Prisma.BoardMemberWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BoardMemberScalarFieldEnum | Prisma.BoardMemberScalarFieldEnum[]
+}
+
+/**
+ * User.boardFavourites
+ */
+export type User$boardFavouritesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BoardFavourite
+   */
+  select?: Prisma.BoardFavouriteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BoardFavourite
+   */
+  omit?: Prisma.BoardFavouriteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BoardFavouriteInclude<ExtArgs> | null
+  where?: Prisma.BoardFavouriteWhereInput
+  orderBy?: Prisma.BoardFavouriteOrderByWithRelationInput | Prisma.BoardFavouriteOrderByWithRelationInput[]
+  cursor?: Prisma.BoardFavouriteWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BoardFavouriteScalarFieldEnum | Prisma.BoardFavouriteScalarFieldEnum[]
+}
+
+/**
+ * User.pendingInvites
+ */
+export type User$pendingInvitesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PendingInvite
+   */
+  select?: Prisma.PendingInviteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PendingInvite
+   */
+  omit?: Prisma.PendingInviteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PendingInviteInclude<ExtArgs> | null
+  where?: Prisma.PendingInviteWhereInput
+  orderBy?: Prisma.PendingInviteOrderByWithRelationInput | Prisma.PendingInviteOrderByWithRelationInput[]
+  cursor?: Prisma.PendingInviteWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PendingInviteScalarFieldEnum | Prisma.PendingInviteScalarFieldEnum[]
 }
 
 /**

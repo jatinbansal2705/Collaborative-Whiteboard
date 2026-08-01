@@ -72,6 +72,12 @@ import { UserRepository } from './repositories/user.repository';
         }),
     },
   ],
-  exports: [JwtAuthGuard, RolesGuard, SessionGuard, TokenService],
+  exports: [
+    JwtAuthGuard,
+    RolesGuard,
+    SessionGuard,
+    TokenService,
+    UserRepository,
+  ],
 })
 export class AuthModule {}

@@ -18,6 +18,23 @@ enum UserRole {
   ADMIN
 }
 
+enum BoardMemberRole {
+  OWNER
+  EDITOR
+  COMMENTER
+  VIEWER
+}
+
+enum BoardStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum ShareLinkMode {
+  PUBLIC
+  PRIVATE
+}
+
 model User {
   id                 String               @id @default(uuid()) @db.Uuid
   email              String               @unique @db.Citext
@@ -36,6 +53,10 @@ model User {
   deletedAt          DateTime?            @map("deleted_at")
   sessions           Session[]
   passwordResetTokens PasswordResetToken[]
+  boardsCreated      Board[]
+  boardMemberships   BoardMember[]
+  boardFavourites    BoardFavourite[]
+  pendingInvites     PendingInvite[]
 
   @@index([role])
   @@map("users")
@@ -73,4 +94,98 @@ model Session {
   @@index([expiresAt])
   @@index([refreshTokenHash])
   @@map("sessions")
+}
+
+model Board {
+  id           String          @id @default(uuid()) @db.Uuid
+  title        String          @db.VarChar(255)
+  data         Json            @default("{}")
+  thumbnailUrl String?         @map("thumbnail_url") @db.VarChar(2048)
+  isTemplate   Boolean         @default(false) @map("is_template")
+  isArchived   Boolean         @default(false) @map("is_archived")
+  status       BoardStatus     @default(ACTIVE)
+  memberCount  Int             @default(1) @map("member_count")
+  createdById  String          @map("created_by_id") @db.Uuid
+  createdBy    User            @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  members      BoardMember[]
+  favourites   BoardFavourite[]
+  shareLinks   ShareLink[]
+  pendingInvites PendingInvite[]
+  createdAt    DateTime        @default(now()) @map("created_at")
+  updatedAt    DateTime        @updatedAt @map("updated_at")
+  deletedAt    DateTime?       @map("deleted_at")
+
+  @@index([createdById])
+  @@index([isArchived])
+  @@index([status])
+  @@index([title])
+  @@index([title(ops: raw("gin_trgm_ops"))], type: Gin, name: "boards_title_trgm_idx")
+  @@index([updatedAt])
+  @@index([deletedAt])
+  @@map("boards")
+}
+
+model BoardMember {
+  id        String          @id @default(uuid()) @db.Uuid
+  boardId   String          @map("board_id") @db.Uuid
+  board     Board           @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  userId    String          @map("user_id") @db.Uuid
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      BoardMemberRole @default(VIEWER)
+  addedBy   String?         @map("added_by") @db.Uuid
+  createdAt DateTime        @default(now()) @map("created_at")
+  updatedAt DateTime        @updatedAt @map("updated_at")
+
+  @@unique([boardId, userId])
+  @@index([userId])
+  @@map("board_members")
+}
+
+model BoardFavourite {
+  id        String   @id @default(uuid()) @db.Uuid
+  boardId   String   @map("board_id") @db.Uuid
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  userId    String   @map("user_id") @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([boardId, userId])
+  @@index([userId])
+  @@map("board_favourites")
+}
+
+model ShareLink {
+  id          String          @id @default(uuid()) @db.Uuid
+  boardId     String          @map("board_id") @db.Uuid
+  board       Board           @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  token       String          @unique @db.VarChar(128)
+  role        BoardMemberRole @default(VIEWER)
+  mode        ShareLinkMode   @default(PRIVATE)
+  createdById String?         @map("created_by_id") @db.Uuid
+  expiresAt   DateTime?       @map("expires_at")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+  deletedAt   DateTime?       @map("deleted_at")
+
+  @@index([boardId])
+  @@map("share_links")
+}
+
+model PendingInvite {
+  id          String          @id @default(uuid()) @db.Uuid
+  boardId     String          @map("board_id") @db.Uuid
+  board       Board           @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  email       String          @db.Citext
+  role        BoardMemberRole @default(VIEWER)
+  invitedById String          @map("invited_by_id") @db.Uuid
+  invitedBy   User            @relation(fields: [invitedById], references: [id], onDelete: Restrict)
+  token       String?         @unique @db.VarChar(128)
+  expiresAt   DateTime?       @map("expires_at")
+  acceptedAt  DateTime?       @map("accepted_at")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  @@unique([boardId, email])
+  @@index([email])
+  @@map("pending_invites")
 }

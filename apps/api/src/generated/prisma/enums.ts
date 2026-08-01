@@ -23,3 +23,29 @@ export const UserRole = {
 } as const
 
 export type UserRole = (typeof UserRole)[keyof typeof UserRole]
+
+
+export const BoardMemberRole = {
+  OWNER: 'OWNER',
+  EDITOR: 'EDITOR',
+  COMMENTER: 'COMMENTER',
+  VIEWER: 'VIEWER'
+} as const
+
+export type BoardMemberRole = (typeof BoardMemberRole)[keyof typeof BoardMemberRole]
+
+
+export const BoardStatus = {
+  ACTIVE: 'ACTIVE',
+  ARCHIVED: 'ARCHIVED'
+} as const
+
+export type BoardStatus = (typeof BoardStatus)[keyof typeof BoardStatus]
+
+
+export const ShareLinkMode = {
+  PUBLIC: 'PUBLIC',
+  PRIVATE: 'PRIVATE'
+} as const
+
+export type ShareLinkMode = (typeof ShareLinkMode)[keyof typeof ShareLinkMode]

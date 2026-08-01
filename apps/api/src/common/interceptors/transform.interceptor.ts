@@ -24,6 +24,14 @@ function isStream(value: unknown): boolean {
   );
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function isPreWrapped(value: unknown): boolean {
+  return isRecord(value) && 'data' in value && 'meta' in value;
+}
+
 @Injectable()
 export class TransformInterceptor<T> implements NestInterceptor<
   T,
@@ -48,6 +56,9 @@ export class TransformInterceptor<T> implements NestInterceptor<
           return { success: true, data: null };
         }
         if (isStream(data)) {
+          return data;
+        }
+        if (isPreWrapped(data)) {
           return data;
         }
         return { success: true, data };

@@ -33,6 +33,7 @@ async function bootstrap(): Promise<void> {
     .addTag('app', 'Service information')
     .addTag('health', 'Service health')
     .addTag('auth', 'Authentication')
+    .addTag('boards', 'Boards, membership and sharing')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       'access-token',

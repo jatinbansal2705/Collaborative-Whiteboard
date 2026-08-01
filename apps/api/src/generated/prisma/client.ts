@@ -54,3 +54,28 @@ export type PasswordResetToken = Prisma.PasswordResetTokenModel
  * 
  */
 export type Session = Prisma.SessionModel
+/**
+ * Model Board
+ * 
+ */
+export type Board = Prisma.BoardModel
+/**
+ * Model BoardMember
+ * 
+ */
+export type BoardMember = Prisma.BoardMemberModel
+/**
+ * Model BoardFavourite
+ * 
+ */
+export type BoardFavourite = Prisma.BoardFavouriteModel
+/**
+ * Model ShareLink
+ * 
+ */
+export type ShareLink = Prisma.ShareLinkModel
+/**
+ * Model PendingInvite
+ * 
+ */
+export type PendingInvite = Prisma.PendingInviteModel

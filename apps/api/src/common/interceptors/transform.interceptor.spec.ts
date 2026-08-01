@@ -59,6 +59,22 @@ describe('TransformInterceptor', () => {
     expect(result).toBe('<html>swagger ui</html>');
   });
 
+  it('passes pre-wrapped payloads with meta through untouched', async () => {
+    const interceptor = new TransformInterceptor();
+
+    const result = await lastValueFrom(
+      interceptor.intercept(
+        createExecutionContext('/api/v1'),
+        createCallHandler({ data: [{ id: '1' }], meta: { hasNextPage: true } }),
+      ),
+    );
+
+    expect(result).toEqual({
+      data: [{ id: '1' }],
+      meta: { hasNextPage: true },
+    });
+  });
+
   it('passes non-http contexts through untouched', async () => {
     const interceptor = new TransformInterceptor();
     const nonHttpContext = {

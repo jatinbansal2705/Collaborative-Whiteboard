@@ -121,6 +121,13 @@ follows the template below. Sessions MUST read all entries before implementing.
 - **Decision**: `@Throttle` decorators with env-overridable constants: login/register `AUTH_RATE_LIMIT` per minute, `forgot-password` `AUTH_FORGOT_RATE_LIMIT` per hour, `resend-verification` `AUTH_RESEND_RATE_LIMIT` per minute; `verificationSentAt` enforces a 60s resend cooldown per account.
 - **Consequences**: Brute force and inbox flooding are bounded; tests raise the limits via env so e2e suites stay fast.
 
+### ADR-0014: Board role hierarchy + cursor pagination
+
+- **Status**: Accepted
+- **Context**: Board permissions are graded (VIEWER → COMMENTER → EDITOR → OWNER) and dashboards need stable, scalable list pagination.
+- **Decision**: Board access is enforced by a dedicated `BoardAccessGuard` using a `BoardAccess({ minRole, ownerOnly })` decorator; it resolves the `:id`/`:boardId` param, looks up the caller's `BoardMember` row, and compares ranks (`BOARD_ROLE_RANK`). Guards only gate membership — services independently verify the board is not soft-deleted. Listing uses keyset (cursor) pagination over a base64url `[value, id]` cursor with the id as a tiebreaker, so pages stay stable under concurrent inserts/updates; date fields are serialized to ISO strings and `memberCount` stays numeric. `memberCount` is denormalized on `Board` (increment/decrement on membership changes) and the title search uses a `pg_trgm` GIN index.
+- **Consequences**: Deleting the soft-delete owner transfer updates `Board.createdBy`; changing a role to OWNER demotes the prior owner to EDITOR. Pagination is O(1) per page and duplicate-safe; offset page numbers are not offered.
+
 ## Scaling Strategy (summary)
 
 - **Stateless API** — horizontal scaling behind a load balancer.

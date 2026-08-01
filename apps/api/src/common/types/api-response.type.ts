@@ -9,6 +9,12 @@ export interface ApiSuccessResponse<T> {
   data: T;
 }
 
+export interface ApiSuccessWithMetaResponse<T, M> {
+  success: true;
+  data: T;
+  meta: M;
+}
+
 export interface ApiErrorResponse {
   success: false;
   data: null;
