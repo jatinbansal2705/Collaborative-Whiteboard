@@ -22,6 +22,8 @@ export interface AppConfig {
     emailExpiresIn: string;
     passwordResetSecret: string | undefined;
     passwordResetExpiresIn: string;
+    oauthHandoffSecret: string | undefined;
+    oauthHandoffExpiresIn: string;
   };
   google: {
     clientId: string | undefined;
@@ -76,6 +78,8 @@ export default (): AppConfig => ({
     emailExpiresIn: process.env.JWT_EMAIL_EXPIRES_IN ?? '24h',
     passwordResetSecret: process.env.JWT_PASSWORD_RESET_SECRET,
     passwordResetExpiresIn: process.env.JWT_PASSWORD_RESET_EXPIRES_IN ?? '1h',
+    oauthHandoffSecret: process.env.JWT_OAUTH_HANDOFF_SECRET,
+    oauthHandoffExpiresIn: process.env.JWT_OAUTH_HANDOFF_EXPIRES_IN ?? '5m',
   },
   google: {
     clientId: process.env.GOOGLE_CLIENT_ID,

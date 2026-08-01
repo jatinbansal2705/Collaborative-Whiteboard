@@ -4,19 +4,38 @@ import { randomUUID } from 'node:crypto';
 import { hash as argon2Hash, verify as argon2Verify } from 'argon2';
 import type { Session, User } from '../../generated/prisma/client';
 import { parseDurationToMs } from '../../common/utils/duration';
+import { EmailService } from '../email/email.service';
 import {
   accountDisabled,
   emailAlreadyRegistered,
+  emailAlreadyVerified,
+  emailNotVerified,
+  googleAccountAlreadyLinked,
+  googleEmailNotVerified,
   invalidCredentials,
+  invalidEmailVerificationToken,
+  invalidOAuthHandoffCode,
+  invalidPasswordResetToken,
   invalidRefreshToken,
+  passwordResetTokenExpired,
+  passwordResetTokenUsed,
   refreshTokenExpired,
+  resendCooldown,
   tokenReuseDetected,
 } from './auth.errors';
+import { VERIFICATION_RESEND_COOLDOWN_MS } from './auth.constants';
 import { TokenService } from './auth-token.service';
 import type { AuthenticatedUser } from '../../common/types/authenticated-user.type';
 import type { AuthResult, RefreshResult } from './dto/auth-response.dto';
+import type { ForgotPasswordDto } from './dto/forgot-password.dto';
+import type { GoogleOAuthProfile } from './google/google-oauth.types';
 import type { LoginDto } from './dto/login.dto';
+import type { MessageResult } from './dto/message-result.dto';
 import type { RegisterDto } from './dto/register.dto';
+import type { ResendVerificationDto } from './dto/resend-verification.dto';
+import type { ResetPasswordDto } from './dto/reset-password.dto';
+import type { VerifyEmailDto } from './dto/verify-email.dto';
+import { PasswordResetTokenRepository } from './repositories/password-reset-token.repository';
 import { SessionRepository } from './repositories/session.repository';
 import { UserRepository } from './repositories/user.repository';
 import type { TokenPair } from './types/token.types';
@@ -35,6 +54,8 @@ export class AuthService {
     private readonly tokenService: TokenService,
     private readonly userRepository: UserRepository,
     private readonly sessionRepository: SessionRepository,
+    private readonly passwordResetTokenRepository: PasswordResetTokenRepository,
+    private readonly emailService: EmailService,
     private readonly configService: ConfigService,
   ) {
     this.accessExpiresInMs = parseDurationToMs(
@@ -59,6 +80,11 @@ export class AuthService {
       role: 'USER',
     });
 
+    await this.userRepository.update(user.id, {
+      verificationSentAt: new Date(),
+    });
+    await this.sendVerificationEmail(user);
+
     return this.issueTokens(user, ctx, 'register');
   }
 
@@ -80,7 +106,181 @@ export class AuthService {
       throw accountDisabled();
     }
 
+    if (user.emailVerifiedAt === null) {
+      throw emailNotVerified();
+    }
+
     return this.issueTokens(user, ctx, 'login');
+  }
+
+  async verifyEmail(dto: VerifyEmailDto): Promise<MessageResult> {
+    const verified = await this.tokenService.verifyEmailVerificationToken(
+      dto.token,
+    );
+    const user = await this.userRepository.findById(verified.userId);
+    if (user === null || user.email !== verified.email) {
+      throw invalidEmailVerificationToken();
+    }
+    if (user.emailVerifiedAt !== null) {
+      throw emailAlreadyVerified();
+    }
+
+    await this.userRepository.update(user.id, {
+      emailVerifiedAt: new Date(),
+    });
+    return { message: 'Email verified' };
+  }
+
+  async resendVerification(dto: ResendVerificationDto): Promise<MessageResult> {
+    const user = await this.userRepository.findByEmail(dto.email);
+    if (user === null || user.emailVerifiedAt !== null) {
+      return {
+        message:
+          'If the email is registered and unverified, a verification link has been sent.',
+      };
+    }
+
+    if (user.verificationSentAt !== null) {
+      const elapsed = Date.now() - user.verificationSentAt.getTime();
+      if (elapsed < VERIFICATION_RESEND_COOLDOWN_MS) {
+        throw resendCooldown();
+      }
+    }
+
+    await this.userRepository.update(user.id, {
+      verificationSentAt: new Date(),
+    });
+    await this.sendVerificationEmail(user);
+    return { message: 'Verification email sent' };
+  }
+
+  async forgotPassword(dto: ForgotPasswordDto): Promise<MessageResult> {
+    const user = await this.userRepository.findByEmail(dto.email);
+    if (user === null || !user.isActive) {
+      return {
+        message:
+          'If an account exists for this email, a password reset link has been sent.',
+      };
+    }
+
+    const token = this.tokenService.signPasswordResetToken({
+      userId: user.id,
+      email: user.email,
+    });
+    const expiresAt = new Date(
+      Date.now() + parseDurationToMs(this.passwordResetExpiresIn()),
+    );
+    await this.passwordResetTokenRepository.create({
+      userId: user.id,
+      tokenHash: this.tokenService.hashPasswordResetToken(token),
+      expiresAt,
+    });
+
+    await this.safelySend(() =>
+      this.emailService.sendPasswordResetEmail({
+        to: user.email,
+        name: user.name ?? undefined,
+        resetLink: this.resetLink(token),
+      }),
+    );
+
+    return {
+      message:
+        'If an account exists for this email, a password reset link has been sent.',
+    };
+  }
+
+  async resetPassword(dto: ResetPasswordDto): Promise<MessageResult> {
+    const verified = await this.tokenService.verifyPasswordResetToken(
+      dto.token,
+    );
+    const tokenHash = this.tokenService.hashPasswordResetToken(dto.token);
+    const record =
+      await this.passwordResetTokenRepository.findByHash(tokenHash);
+    if (record === null || record.userId !== verified.userId) {
+      throw invalidPasswordResetToken();
+    }
+    if (record.usedAt !== null) {
+      throw passwordResetTokenUsed();
+    }
+    if (record.expiresAt <= new Date()) {
+      throw passwordResetTokenExpired();
+    }
+
+    const user = await this.userRepository.findById(verified.userId);
+    if (user === null) {
+      throw invalidPasswordResetToken();
+    }
+
+    const passwordHash = await this.hashPassword(dto.password);
+    await this.userRepository.update(user.id, {
+      passwordHash,
+      emailVerifiedAt: new Date(),
+    });
+    await this.passwordResetTokenRepository.markUsed(record.id);
+    await this.sessionRepository.revokeAllForUser(user.id);
+
+    return { message: 'Password has been reset' };
+  }
+
+  async googleOAuthCallback(
+    profile: GoogleOAuthProfile,
+    ctx: RequestContext,
+  ): Promise<string> {
+    if (!profile.emailVerified) {
+      throw googleEmailNotVerified();
+    }
+
+    let user = await this.userRepository.findByGoogleId(profile.googleId);
+    if (user === null) {
+      user = await this.findOrCreateGoogleUser(profile);
+    }
+
+    if (!user.isActive) {
+      throw accountDisabled();
+    }
+
+    const pair = await this.createSession(user, ctx);
+    await this.userRepository.update(user.id, { lastLoginAt: new Date() });
+
+    return this.tokenService.signOAuthHandoffToken({
+      userId: user.id,
+      sessionId: pair.sessionId,
+      refreshTokenHash: this.tokenService.hashRefreshToken(pair.refreshToken),
+    });
+  }
+
+  async exchangeOAuthHandoff(
+    code: string,
+    ctx: RequestContext,
+  ): Promise<AuthResult> {
+    const verified = await this.tokenService.verifyOAuthHandoffToken(code);
+
+    const session = await this.sessionRepository.findByRefreshTokenHash(
+      verified.refreshTokenHash,
+    );
+    if (
+      session === null ||
+      session.revokedAt !== null ||
+      session.expiresAt <= new Date() ||
+      session.userId !== verified.userId ||
+      session.id !== verified.sessionId
+    ) {
+      throw invalidOAuthHandoffCode();
+    }
+
+    const user = await this.userRepository.findById(verified.userId);
+    if (user === null || !user.isActive) {
+      throw invalidOAuthHandoffCode();
+    }
+
+    const pair = await this.rotateSession(session, user, ctx);
+    return {
+      accessToken: pair.accessToken,
+      refreshToken: pair.refreshToken,
+      expiresIn: pair.expiresIn,
+      user: this.toUserResponse(user),
+    };
   }
 
   async refresh(
@@ -203,6 +403,7 @@ export class AuthService {
       }),
       refreshToken,
       expiresIn: this.accessExpiresInMs,
+      sessionId: session.id,
     };
 
     this.logger.debug(`Session created family=${session.familyId}`);
@@ -244,11 +445,88 @@ export class AuthService {
       }),
       refreshToken,
       expiresIn: this.accessExpiresInMs,
+      sessionId: session.id,
     };
   }
 
   private refreshExpiresIn(): string {
     return this.configService.get<string>('jwt.refreshExpiresIn') ?? '30d';
+  }
+
+  private passwordResetExpiresIn(): string {
+    return this.configService.get<string>('jwt.passwordResetExpiresIn') ?? '1h';
+  }
+
+  private frontendUrl(): string {
+    return (
+      this.configService.get<string>('app.frontendUrl') ??
+      'http://localhost:3001'
+    );
+  }
+
+  private async findOrCreateGoogleUser(
+    profile: GoogleOAuthProfile,
+  ): Promise<User> {
+    const existing = await this.userRepository.findByEmail(profile.email);
+    if (existing !== null) {
+      if (
+        existing.googleId !== null &&
+        existing.googleId !== profile.googleId
+      ) {
+        throw googleAccountAlreadyLinked();
+      }
+      return this.userRepository.update(existing.id, {
+        googleId: profile.googleId,
+        provider: 'GOOGLE',
+        name: profile.name ?? existing.name,
+        avatarUrl: profile.avatarUrl ?? existing.avatarUrl,
+        emailVerifiedAt: existing.emailVerifiedAt ?? new Date(),
+      });
+    }
+
+    return this.userRepository.create({
+      email: profile.email,
+      passwordHash: null,
+      name: profile.name,
+      avatarUrl: profile.avatarUrl,
+      provider: 'GOOGLE',
+      role: 'USER',
+      googleId: profile.googleId,
+      emailVerifiedAt: new Date(),
+    });
+  }
+
+  private async sendVerificationEmail(user: User): Promise<void> {
+    const token = this.tokenService.signEmailVerificationToken({
+      userId: user.id,
+      email: user.email,
+    });
+    await this.safelySend(() =>
+      this.emailService.sendVerificationEmail({
+        to: user.email,
+        name: user.name ?? undefined,
+        verificationLink: this.verificationLink(token),
+      }),
+    );
+  }
+
+  private async safelySend(send: () => Promise<void>): Promise<void> {
+    try {
+      await send();
+    } catch (error) {
+      this.logger.error(
+        'Failed to send email',
+        error instanceof Error ? error.stack : String(error),
+      );
+    }
+  }
+
+  private verificationLink(token: string): string {
+    return `${this.frontendUrl()}/auth/verify-email?token=${encodeURIComponent(token)}`;
+  }
+
+  private resetLink(token: string): string {
+    return `${this.frontendUrl()}/auth/reset-password?token=${encodeURIComponent(token)}`;
   }
 
   private async hashPassword(password: string): Promise<string> {

@@ -7,6 +7,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import type { Request } from 'express';
 import type { UserRole } from '../../../generated/prisma/client';
+import type { AuthenticatedUser } from '../../../common/types/authenticated-user.type';
 import { getRequiredRoles } from '../../../common/guards/guard-utils';
 
 const ROLE_RANK: Record<UserRole, number> = { USER: 1, ADMIN: 2 };
@@ -22,7 +23,7 @@ export class RolesGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest<Request>();
-    const user = request.user;
+    const user = request.user as AuthenticatedUser | undefined;
     if (user === undefined) {
       throw new ForbiddenException({
         code: 'FORBIDDEN',

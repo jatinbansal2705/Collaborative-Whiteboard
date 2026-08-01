@@ -27,6 +27,8 @@ export const envValidationSchema = Joi.object({
   JWT_EMAIL_EXPIRES_IN: Joi.string().empty('').default('24h'),
   JWT_PASSWORD_RESET_SECRET: Joi.string().min(16).empty('').optional(),
   JWT_PASSWORD_RESET_EXPIRES_IN: Joi.string().empty('').default('1h'),
+  JWT_OAUTH_HANDOFF_SECRET: Joi.string().min(16).empty('').optional(),
+  JWT_OAUTH_HANDOFF_EXPIRES_IN: Joi.string().empty('').default('5m'),
 
   GOOGLE_CLIENT_ID: optionalString.optional(),
   GOOGLE_CLIENT_SECRET: optionalString.optional(),

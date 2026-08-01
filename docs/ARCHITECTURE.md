@@ -100,6 +100,27 @@ follows the template below. Sessions MUST read all entries before implementing.
 - **Decision**: One Joi schema (`env.validation.ts`) validates `process.env` at boot (fail fast, `abortEarly: false`); typed config access via `@nestjs/config` factory (`configuration.ts`). Optional keys use `.empty('')` so blank `.env` placeholders are treated as absent.
 - **Consequences**: Startup fails with a complete list of invalid vars; consumers get typed, defaulted config.
 
+### ADR-0011: OAuth handoff-code pattern
+
+- **Status**: Accepted
+- **Context**: The Google callback redirect cannot hand tokens back through the URL (they would leak into logs/history), and a stateful server session cookie is awkward for an SPA with CORS and a separate frontend origin.
+- **Decision**: The callback authenticates server-side, creates a real session, and returns a short-lived (5 min) JWT "handoff code" carrying `sid` + the refresh-token hash. The frontend exchanges it for tokens at `POST /auth/google/exchange`, which validates the code against the live session and rotates it. CSRF is mitigated by a random nonce stored in the httpOnly `whiteboard_oauth_state` cookie (10 min, sameSite lax) and compared to the `state` query param; with passport's `NullStore` the state is checked manually in the controller.
+- **Consequences**: Tokens never appear in URLs or logs; the exchange is single-use by rotation; a leaked code is useless after the session expires.
+
+### ADR-0012: Email verification + hashed single-use reset tokens
+
+- **Status**: Accepted
+- **Context**: Accounts need a verified-email gate, and reset tokens stored in plaintext are a DB-leak risk.
+- **Decision**: `User.emailVerifiedAt` gates login; Google accounts are treated as verified. Verification and reset links are short-lived JWTs with an embedded jti. Reset tokens are stored as sha256 hashes (`PasswordResetToken.tokenHash`, unique) with an expiry and a `usedAt` mark, domain-separated from refresh-token hashing. `forgot-password`/`resend-verification` always return generic messages; email delivery failures are logged by `AuthService.safelySend`, never surfaced.
+- **Consequences**: A DB dump cannot be replayed to reset passwords; account enumeration is mitigated; email outages do not break the auth response contract.
+
+### ADR-0013: Per-route auth rate limiting
+
+- **Status**: Accepted
+- **Context**: The global throttler is too coarse for credential-stuffing and email-spam vectors on auth endpoints.
+- **Decision**: `@Throttle` decorators with env-overridable constants: login/register `AUTH_RATE_LIMIT` per minute, `forgot-password` `AUTH_FORGOT_RATE_LIMIT` per hour, `resend-verification` `AUTH_RESEND_RATE_LIMIT` per minute; `verificationSentAt` enforces a 60s resend cooldown per account.
+- **Consequences**: Brute force and inbox flooding are bounded; tests raise the limits via env so e2e suites stay fast.
+
 ## Scaling Strategy (summary)
 
 - **Stateless API** — horizontal scaling behind a load balancer.

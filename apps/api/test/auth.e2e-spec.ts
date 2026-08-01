@@ -10,6 +10,7 @@ import type {
   ApiErrorResponse,
   ApiSuccessResponse,
 } from '../src/common/types/api-response.type';
+import { TokenService } from '../src/modules/auth/auth-token.service';
 
 process.env.DATABASE_URL ??=
   'postgresql://whiteboard:whiteboard@localhost:5432/whiteboard?schema=public';
@@ -23,6 +24,8 @@ interface FakeUser {
   provider: string;
   role: string;
   emailVerifiedAt: Date | null;
+  verificationSentAt: Date | null;
+  googleId: string | null;
   isActive: boolean;
   lastLoginAt: Date | null;
   createdAt: Date;
@@ -44,9 +47,20 @@ interface FakeSession {
   updatedAt: Date;
 }
 
+interface FakePasswordResetToken {
+  id: string;
+  userId: string;
+  tokenHash: string;
+  expiresAt: Date;
+  usedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 type UserWhere = {
   id?: string;
   email?: string;
+  googleId?: string;
   deletedAt?: Date | null;
 };
 
@@ -57,13 +71,20 @@ type SessionWhere = {
   revokedAt?: Date | null;
 };
 
+type PasswordResetTokenWhere = {
+  id?: string;
+  tokenHash?: string;
+};
+
 class FakePrismaService {
   users = new Map<string, FakeUser>();
   sessions = new Map<string, FakeSession>();
+  passwordResetTokens = new Map<string, FakePasswordResetToken>();
 
   reset(): void {
     this.users.clear();
     this.sessions.clear();
+    this.passwordResetTokens.clear();
   }
 
   findUserByEmail(email: string): FakeUser | null {
@@ -90,11 +111,13 @@ class FakePrismaService {
         email: data.email,
         passwordHash: data.passwordHash ?? null,
         name: data.name ?? null,
-        avatarUrl: null,
+        avatarUrl: data.avatarUrl ?? null,
         provider: data.provider ?? 'EMAIL',
         role: data.role ?? 'USER',
-        emailVerifiedAt: null,
-        isActive: true,
+        emailVerifiedAt: data.emailVerifiedAt ?? null,
+        verificationSentAt: data.verificationSentAt ?? null,
+        googleId: data.googleId ?? null,
+        isActive: data.isActive ?? true,
         lastLoginAt: null,
         createdAt: now,
         updatedAt: now,
@@ -197,6 +220,65 @@ class FakePrismaService {
     },
   };
 
+  readonly passwordResetToken = {
+    findUnique: ({
+      where,
+    }: {
+      where: PasswordResetTokenWhere;
+    }): FakePasswordResetToken | null => {
+      const rows = [...this.passwordResetTokens.values()];
+      return (
+        rows.find(
+          (token) =>
+            (where.id === undefined || token.id === where.id) &&
+            (where.tokenHash === undefined ||
+              token.tokenHash === where.tokenHash),
+        ) ?? null
+      );
+    },
+    create: ({
+      data,
+    }: {
+      data: Partial<FakePasswordResetToken> & {
+        userId: string;
+        tokenHash: string;
+        expiresAt: Date;
+      };
+    }): FakePasswordResetToken => {
+      const now = new Date();
+      const token: FakePasswordResetToken = {
+        id: data.id ?? randomUUID(),
+        userId: data.userId,
+        tokenHash: data.tokenHash,
+        expiresAt: data.expiresAt,
+        usedAt: null,
+        createdAt: now,
+        updatedAt: now,
+      };
+      this.passwordResetTokens.set(token.id, token);
+      return token;
+    },
+    update: ({
+      where,
+      data,
+    }: {
+      where: { id: string };
+      data: Partial<FakePasswordResetToken>;
+    }): FakePasswordResetToken => {
+      const existing = this.passwordResetTokens.get(where.id);
+      if (existing === undefined) {
+        throw new Error('Password reset token not found');
+      }
+      const updated: FakePasswordResetToken = {
+        ...existing,
+        ...data,
+        updatedAt: new Date(),
+      };
+      this.passwordResetTokens.set(updated.id, updated);
+      return updated;
+    },
+  };
+
   private findUser(where: UserWhere): FakeUser | null {
     const rows = [...this.users.values()];
     const match = rows.find(
@@ -204,6 +286,7 @@ class FakePrismaService {
         (where.id === undefined || user.id === where.id) &&
         (where.email === undefined ||
           user.email.toLowerCase() === where.email.toLowerCase()) &&
+        (where.googleId === undefined || user.googleId === where.googleId) &&
         (where.deletedAt === undefined || user.deletedAt === where.deletedAt),
     );
     return match ?? null;
@@ -241,6 +324,7 @@ interface AuthBody {
 
 describe('Auth (e2e)', () => {
   let app: INestApplication<App>;
+  let tokenService: TokenService;
   const fakePrisma = new FakePrismaService();
 
   beforeAll(async () => {
@@ -254,6 +338,7 @@ describe('Auth (e2e)', () => {
     app = moduleFixture.createNestApplication();
     setupApp(app);
     await app.init();
+    tokenService = app.get(TokenService);
   });
 
   afterAll(async () => {
@@ -277,11 +362,24 @@ describe('Auth (e2e)', () => {
       .post('/api/v1/auth/login')
       .send({ email, password });
 
+  const verifyEmailOf = async (
+    userId: string,
+    email: string,
+  ): Promise<void> => {
+    const token = tokenService.signEmailVerificationToken({ userId, email });
+    await request(app.getHttpServer())
+      .post('/api/v1/auth/verify-email')
+      .send({ token })
+      .expect(201);
+  };
+
   const registerAndLogin = async (
     email: string,
   ): Promise<{ auth: AuthBody; password: string }> => {
     const password = 'StrongPassw0rd1';
-    await register(email, password).expect(201);
+    const regResponse = await register(email, password).expect(201);
+    const regData = readSuccess<AuthBody>(regResponse).data;
+    await verifyEmailOf(regData.user.id, email);
     const response = await login(email, password).expect(201);
     return { auth: readSuccess<AuthBody>(response).data, password };
   };
@@ -299,6 +397,7 @@ describe('Auth (e2e)', () => {
     const stored = fakePrisma.findUserByEmail('alice@example.com');
     expect(stored?.passwordHash).toMatch(/^\$argon2/);
     expect(stored?.passwordHash).not.toContain('StrongPassw0rd1');
+    expect(stored?.emailVerifiedAt).toBeNull();
   });
 
   it('rejects a duplicate registration with EMAIL_ALREADY_REGISTERED', async () => {
@@ -321,6 +420,15 @@ describe('Auth (e2e)', () => {
     });
   });
 
+  it('blocks login until the email is verified with EMAIL_NOT_VERIFIED', async () => {
+    await register('grace@example.com').expect(201);
+
+    const response = await login('grace@example.com').expect(403);
+    expect(readError(response).error).toMatchObject({
+      code: 'EMAIL_NOT_VERIFIED',
+    });
+  });
+
   it('returns the current user from /auth/me', async () => {
     const { auth } = await registerAndLogin('dave@example.com');
 
@@ -339,6 +447,269 @@ describe('Auth (e2e)', () => {
       .expect(401);
 
     expect(readError(response).error.code).toBe('UNAUTHORIZED');
+  });
+
+  it('verifies an email and allows login', async () => {
+    await register('heidi@example.com').expect(201);
+    const stored = fakePrisma.findUserByEmail('heidi@example.com');
+    expect(stored?.emailVerifiedAt).toBeNull();
+
+    await verifyEmailOf(stored!.id, 'heidi@example.com');
+
+    const updated = fakePrisma.findUserByEmail('heidi@example.com');
+    expect(updated?.emailVerifiedAt).not.toBeNull();
+    await login('heidi@example.com').expect(201);
+  });
+
+  it('rejects an invalid verification token with INVALID_EMAIL_VERIFICATION_TOKEN', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/api/v1/auth/verify-email')
+      .send({ token: 'not-a-real-token' })
+      .expect(400);
+
+    expect(readError(response).error).toMatchObject({
+      code: 'INVALID_EMAIL_VERIFICATION_TOKEN',
+    });
+  });
+
+  it('rejects re-verifying an already verified email with EMAIL_ALREADY_VERIFIED', async () => {
+    const regResponse = await register('ivan@example.com').expect(201);
+    const regData = readSuccess<AuthBody>(regResponse).data;
+    await verifyEmailOf(regData.user.id, 'ivan@example.com');
+
+    const response = await request(app.getHttpServer())
+      .post('/api/v1/auth/verify-email')
+      .send({
+        token: tokenService.signEmailVerificationToken({
+          userId: regData.user.id,
+          email: 'ivan@example.com',
+        }),
+      })
+      .expect(409);
+
+    expect(readError(response).error).toMatchObject({
+      code: 'EMAIL_ALREADY_VERIFIED',
+    });
+  });
+
+  it('resends a verification email after the cooldown', async () => {
+    await register('judy@example.com').expect(201);
+    const stored = fakePrisma.findUserByEmail('judy@example.com');
+    fakePrisma.user.update({
+      where: { id: stored!.id },
+      data: { verificationSentAt: new Date(Date.now() - 2 * 60_000) },
+    });
+
+    const response = await request(app.getHttpServer())
+      .post('/api/v1/auth/resend-verification')
+      .send({ email: 'judy@example.com' })
+      .expect(201);
+
+    expect(readSuccess<{ message: string }>(response).data.message).toContain(
+      'sent',
+    );
+    const updated = fakePrisma.findUserByEmail('judy@example.com');
+    expect(updated?.verificationSentAt).not.toBeNull();
+  });
+
+  it('enforces the resend cooldown with RESEND_COOLDOWN', async () => {
+    await register('karl@example.com').expect(201);
+
+    const response = await request(app.getHttpServer())
+      .post('/api/v1/auth/resend-verification')
+      .send({ email: 'karl@example.com' })
+      .expect(403);
+
+    expect(readError(response).error).toMatchObject({
+      code: 'RESEND_COOLDOWN',
+    });
+  });
+
+  it('forgot-password stores a hashed token and returns a generic message', async () => {
+    const regResponse = await register('lisa@example.com').expect(201);
+    const regData = readSuccess<AuthBody>(regResponse).data;
+    await verifyEmailOf(regData.user.id, 'lisa@example.com');
+
+    const response = await request(app.getHttpServer())
+      .post('/api/v1/auth/forgot-password')
+      .send({ email: 'lisa@example.com' })
+      .expect(201);
+
+    expect(readSuccess<{ message: string }>(response).data.message).toContain(
+      'reset',
+    );
+    const tokens = [...fakePrisma.passwordResetTokens.values()];
+    expect(tokens).toHaveLength(1);
+    expect(tokens[0].userId).toBe(regData.user.id);
+    expect(tokens[0].tokenHash).toMatch(/^[0-9a-f]{64}$/);
+  });
+
+  it('forgot-password hides unknown accounts behind a generic message', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/api/v1/auth/forgot-password')
+      .send({ email: 'nobody@example.com' })
+      .expect(201);
+
+    expect(readSuccess<{ message: string }>(response).data.message).toContain(
+      'reset',
+    );
+    expect(fakePrisma.passwordResetTokens.size).toBe(0);
+  });
+
+  it('reset-password changes the password and revokes sessions', async () => {
+    const { auth } = await registerAndLogin('mike@example.com');
+
+    const rawToken = tokenService.signPasswordResetToken({
+      userId: auth.user.id,
+      email: 'mike@example.com',
+    });
+    fakePrisma.passwordResetToken.create({
+      data: {
+        userId: auth.user.id,
+        tokenHash: tokenService.hashPasswordResetToken(rawToken),
+        expiresAt: new Date(Date.now() + 60 * 60_000),
+      },
+    });
+
+    const newPassword = 'NewPassw0rd2!';
+    await request(app.getHttpServer())
+      .post('/api/v1/auth/reset-password')
+      .send({
+        token: rawToken,
+        password: newPassword,
+        confirmPassword: newPassword,
+      })
+      .expect(201);
+
+    const oldSession = await request(app.getHttpServer())
+      .get('/api/v1/auth/me')
+      .set('Authorization', `Bearer ${auth.accessToken}`)
+      .expect(401);
+    expect(readError(oldSession).error.code).toBe('UNAUTHORIZED');
+
+    const relogin = await login('mike@example.com', newPassword).expect(201);
+    expect(readSuccess<AuthBody>(relogin).data.accessToken).toBeTruthy();
+  });
+
+  it('rejects reset-password with an invalid token', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/api/v1/auth/reset-password')
+      .send({
+        token: 'not-a-real-token',
+        password: 'NewPassw0rd2!',
+        confirmPassword: 'NewPassw0rd2!',
+      })
+      .expect(400);
+
+    expect(readError(response).error).toMatchObject({
+      code: 'INVALID_PASSWORD_RESET_TOKEN',
+    });
+  });
+
+  it('rejects reset-password with an already used token', async () => {
+    const regResponse = await register('nina@example.com').expect(201);
+    const regData = readSuccess<AuthBody>(regResponse).data;
+    const rawToken = tokenService.signPasswordResetToken({
+      userId: regData.user.id,
+      email: 'nina@example.com',
+    });
+    fakePrisma.passwordResetToken.create({
+      data: {
+        userId: regData.user.id,
+        tokenHash: tokenService.hashPasswordResetToken(rawToken),
+        expiresAt: new Date(Date.now() + 60 * 60_000),
+      },
+    });
+
+    const body = {
+      token: rawToken,
+      password: 'NewPassw0rd2!',
+      confirmPassword: 'NewPassw0rd2!',
+    };
+    await request(app.getHttpServer())
+      .post('/api/v1/auth/reset-password')
+      .send(body)
+      .expect(201);
+
+    const response = await request(app.getHttpServer())
+      .post('/api/v1/auth/reset-password')
+      .send(body)
+      .expect(400);
+
+    expect(readError(response).error).toMatchObject({
+      code: 'PASSWORD_RESET_TOKEN_USED',
+    });
+  });
+
+  it('redirects to Google and sets a state cookie on /auth/google', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/api/v1/auth/google')
+      .expect(302);
+
+    expect(response.headers.location).toContain('accounts.google.com');
+    const cookies = response.headers['set-cookie'] as unknown as string[];
+    expect(cookies.join('')).toContain('whiteboard_oauth_state=');
+  });
+
+  it('rejects /auth/google/callback without a code with INVALID_OAUTH_STATE', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/api/v1/auth/google/callback')
+      .expect(400);
+
+    expect(readError(response).error).toMatchObject({
+      code: 'INVALID_OAUTH_STATE',
+    });
+  });
+
+  it('exchanges a valid handoff code for tokens via /auth/google/exchange', async () => {
+    const user = fakePrisma.user.create({
+      data: {
+        email: 'google-user@example.com',
+        provider: 'GOOGLE',
+        googleId: 'google-id-1',
+        emailVerifiedAt: new Date(),
+        passwordHash: null,
+      },
+    });
+    const sessionId = randomUUID();
+    const refreshTokenHash =
+      'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
+    fakePrisma.session.create({
+      data: {
+        id: sessionId,
+        userId: user.id,
+        refreshTokenHash,
+        familyId: randomUUID(),
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60_000),
+      },
+    });
+
+    const code = tokenService.signOAuthHandoffToken({
+      userId: user.id,
+      sessionId,
+      refreshTokenHash,
+    });
+
+    const response = await request(app.getHttpServer())
+      .post('/api/v1/auth/google/exchange')
+      .send({ code })
+      .expect(201);
+
+    const data = readSuccess<AuthBody>(response).data;
+    expect(data.accessToken).toBeTruthy();
+    expect(data.refreshToken).toBeTruthy();
+    expect(data.user.email).toBe('google-user@example.com');
+  });
+
+  it('rejects an invalid handoff code with INVALID_OAUTH_HANDOFF_CODE', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/api/v1/auth/google/exchange')
+      .send({ code: 'not-a-real-code' })
+      .expect(400);
+
+    expect(readError(response).error).toMatchObject({
+      code: 'INVALID_OAUTH_HANDOFF_CODE',
+    });
   });
 
   it('rotates refresh tokens and revokes the family on reuse', async () => {

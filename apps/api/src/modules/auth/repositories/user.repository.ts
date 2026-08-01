@@ -9,10 +9,13 @@ import { PrismaService } from '../../../prisma/prisma.service';
 
 export interface UserRepositoryCreateInput {
   email: string;
-  passwordHash: string;
+  passwordHash: string | null;
   name?: string;
+  avatarUrl?: string;
   provider?: AuthProvider;
   role?: UserRole;
+  googleId?: string;
+  emailVerifiedAt?: Date;
 }
 
 @Injectable()
@@ -28,6 +31,12 @@ export class UserRepository {
   async findByEmail(email: string): Promise<User | null> {
     return this.prisma.user.findFirst({
       where: { email, deletedAt: null },
+    });
+  }
+
+  async findByGoogleId(googleId: string): Promise<User | null> {
+    return this.prisma.user.findFirst({
+      where: { googleId, deletedAt: null },
     });
   }
 
@@ -52,8 +61,11 @@ export class UserRepository {
         email: data.email,
         passwordHash: data.passwordHash,
         name: data.name,
+        avatarUrl: data.avatarUrl,
         provider: data.provider,
         role: data.role,
+        googleId: data.googleId,
+        emailVerifiedAt: data.emailVerifiedAt,
       },
     });
   }
