@@ -17,6 +17,12 @@ export const envValidationSchema = Joi.object({
   DATABASE_URL: Joi.string().uri().required(),
   REDIS_URL: Joi.string().uri().empty('').default('redis://localhost:6379'),
 
+  REALTIME_PRESENCE_TTL_MS: Joi.number().integer().positive().default(90000),
+  REALTIME_CURSOR_MIN_INTERVAL_MS: Joi.number()
+    .integer()
+    .positive()
+    .default(25),
+
   JWT_ACCESS_SECRET: Joi.string().min(16).empty('').optional(),
   JWT_ACCESS_EXPIRES_IN: Joi.string().empty('').default('15m'),
   JWT_REFRESH_SECRET: Joi.string().min(16).empty('').optional(),

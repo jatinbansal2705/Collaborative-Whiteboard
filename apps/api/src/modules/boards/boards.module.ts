@@ -1,5 +1,6 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
+import { RealtimeModule } from '../realtime/realtime.module';
 import { BoardRepository } from './board.repository';
 import { BoardsController } from './boards.controller';
 import { BoardsService } from './boards.service';
@@ -9,7 +10,7 @@ import { InviteRepository } from './invite.repository';
 import { MemberRepository } from './member.repository';
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, forwardRef(() => RealtimeModule)],
   controllers: [BoardsController],
   providers: [
     BoardsService,
@@ -19,5 +20,6 @@ import { MemberRepository } from './member.repository';
     InviteRepository,
     BoardAccessGuard,
   ],
+  exports: [BoardRepository, MemberRepository],
 })
 export class BoardsModule {}

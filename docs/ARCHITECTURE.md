@@ -48,14 +48,14 @@ follows the template below. Sessions MUST read all entries before implementing.
 
 - **Status**: Accepted
 - **Context**: Realtime features (presence, cursors, drawing) must survive multiple API instances.
-- **Decision**: Socket.IO Redis adapter (pub/sub) with presence registry in Redis. Board events are scoped to per-board rooms. Details land in Phase 6.
+- **Decision**: Socket.IO Redis adapter (pub/sub) with presence registry in Redis. Board events are scoped to per-board rooms (`board:<boardId>`). Implemented in Phase 6: `RedisService` owns three ioredis clients (primary + a pub/sub pair handed to the adapter via a custom `SocketIoAdapter`).
 - **Consequences**: Adds Redis as a hard dependency of the API; makes presence queryable outside a single Node process.
 
 ### ADR-0004: Last-write-wins with per-element versioning
 
-- **Status**: Proposed
+- **Status**: Accepted
 - **Context**: Concurrent edits to the same board element by multiple users.
-- **Decision**: Each board element carries a monotonic version + lastModifiedBy; server accepts LWW per element with an optional CRDT upgrade path (see Future Enhancements).
+- **Decision**: Each board element carries a monotonic version + lastModifiedBy; the server accepts LWW per element via an atomic compare-and-set in Redis (`board:version:<boardId>:<elementId>`, strictly-higher versions win) and rejects stale writes with `STALE_VERSION`. An optional CRDT upgrade path remains (see Future Enhancements).
 - **Consequences**: Simple, predictable conflict model. Concurrent edits to different elements never conflict. Fine-grained merge conflicts are out of scope for v1.
 
 ### ADR-0005: Debounced autosave + offline queue
@@ -127,6 +127,13 @@ follows the template below. Sessions MUST read all entries before implementing.
 - **Context**: Board permissions are graded (VIEWER → COMMENTER → EDITOR → OWNER) and dashboards need stable, scalable list pagination.
 - **Decision**: Board access is enforced by a dedicated `BoardAccessGuard` using a `BoardAccess({ minRole, ownerOnly })` decorator; it resolves the `:id`/`:boardId` param, looks up the caller's `BoardMember` row, and compares ranks (`BOARD_ROLE_RANK`). Guards only gate membership — services independently verify the board is not soft-deleted. Listing uses keyset (cursor) pagination over a base64url `[value, id]` cursor with the id as a tiebreaker, so pages stay stable under concurrent inserts/updates; date fields are serialized to ISO strings and `memberCount` stays numeric. `memberCount` is denormalized on `Board` (increment/decrement on membership changes) and the title search uses a `pg_trgm` GIN index.
 - **Consequences**: Deleting the soft-delete owner transfer updates `Board.createdBy`; changing a role to OWNER demotes the prior owner to EDITOR. Pagination is O(1) per page and duplicate-safe; offset page numbers are not offered.
+
+### ADR-0015: Socket handshake auth + Redis presence registry
+
+- **Status**: Accepted
+- **Context**: The `/boards` Socket.IO namespace must only accept authenticated users, and presence/cursor/draw features need a shareable member registry across instances.
+- **Decision**: Authentication runs as socket.io middleware (`server.use`) — the token is read from `auth.token` or the `Authorization: Bearer` header, verified via `TokenService.verifyAccessToken`, and stored on `socket.data.user`. Middleware (not `handleConnection`) buffers client packets until the async check finishes, and a rejection emits `connect_error` carrying the standard `{ ok: false, error: { code, message } }` envelope before the client disconnects. Presence is stored two ways in Redis — `presence:board:<boardId>` (socketId → record, the roster source) and `presence:user:<userId>` (used to locate sockets for kicks) — with TTLs refreshed on every write so stale entries expire. All client events are validated against the shared Zod schemas and answered with `{ ok: true, data }` / `{ ok: false, error }`.
+- **Consequences**: Unauthenticated sockets never join rooms or send events; the roster is queryable by any API instance; the ack envelope mirrors the REST contract for uniform client handling. Cursor traffic is throttled per socket (`cursorMinIntervalMs`) with latest-position coalescing. Board lifecycle hooks (`RealtimeService.closeBoard`/`kick`) fire from `BoardsService` on delete, member removal, and leave.
 
 ## Scaling Strategy (summary)
 

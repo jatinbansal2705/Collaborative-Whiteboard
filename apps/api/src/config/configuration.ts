@@ -11,6 +11,10 @@ export interface AppConfig {
     url: string;
     redisUrl: string;
   };
+  realtime: {
+    presenceTtlMs: number;
+    cursorMinIntervalMs: number;
+  };
   jwt: {
     accessSecret: string | undefined;
     accessExpiresIn: string;
@@ -66,6 +70,16 @@ export default (): AppConfig => ({
   database: {
     url: process.env.DATABASE_URL ?? '',
     redisUrl: process.env.REDIS_URL ?? 'redis://localhost:6379',
+  },
+  realtime: {
+    presenceTtlMs: parseInt(
+      process.env.REALTIME_PRESENCE_TTL_MS ?? '90000',
+      10,
+    ),
+    cursorMinIntervalMs: parseInt(
+      process.env.REALTIME_CURSOR_MIN_INTERVAL_MS ?? '25',
+      10,
+    ),
   },
   jwt: {
     accessSecret: process.env.JWT_ACCESS_SECRET,

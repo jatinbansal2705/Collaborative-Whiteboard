@@ -80,6 +80,10 @@ describe('BoardsService', () => {
     findById: jest.fn(),
     findByEmail: jest.fn(),
   };
+  const realtimeService = {
+    kick: jest.fn(),
+    closeBoard: jest.fn(),
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -89,6 +93,7 @@ describe('BoardsService', () => {
       favouriteRepository as never,
       inviteRepository as never,
       userRepository as never,
+      realtimeService as never,
     );
   });
 

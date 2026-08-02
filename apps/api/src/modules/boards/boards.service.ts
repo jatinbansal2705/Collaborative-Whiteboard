@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import type {
   Board,
   BoardMemberRole,
@@ -7,6 +7,12 @@ import type {
 } from '../../generated/prisma/client';
 import type { AuthenticatedUser } from '../../common/types/authenticated-user.type';
 import { UserRepository } from '../auth/repositories/user.repository';
+import {
+  KICK_REASON_BOARD_DELETED,
+  KICK_REASON_LEFT,
+  KICK_REASON_REMOVED,
+} from '../realtime/realtime.constants';
+import { RealtimeService } from '../realtime/realtime.service';
 import {
   BOARD_COPY_SUFFIX,
   BOARD_TITLE_MAX_LENGTH,
@@ -71,6 +77,8 @@ export class BoardsService {
     private readonly favouriteRepository: FavouriteRepository,
     private readonly inviteRepository: InviteRepository,
     private readonly userRepository: UserRepository,
+    @Inject(forwardRef(() => RealtimeService))
+    private readonly realtimeService: RealtimeService,
   ) {}
 
   async list(
@@ -177,6 +185,7 @@ export class BoardsService {
   ): Promise<{ deleted: boolean; id: string }> {
     await this.requireBoard(boardId);
     await this.boardRepository.softDelete(boardId);
+    await this.realtimeService.closeBoard(boardId, KICK_REASON_BOARD_DELETED);
     return { deleted: true, id: boardId };
   }
 
@@ -350,6 +359,7 @@ export class BoardsService {
       }
       await this.memberRepository.remove(boardId, user.id);
       await this.boardRepository.decrementMemberCount(boardId);
+      await this.realtimeService.kick(boardId, user.id, KICK_REASON_LEFT);
       return;
     }
 
@@ -366,6 +376,7 @@ export class BoardsService {
 
     await this.memberRepository.remove(boardId, targetUserId);
     await this.boardRepository.decrementMemberCount(boardId);
+    await this.realtimeService.kick(boardId, targetUserId, KICK_REASON_REMOVED);
   }
 
   async createTemplate(

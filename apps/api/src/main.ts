@@ -5,6 +5,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { setupApp } from './app.setup';
 import { AppModule } from './app.module';
 import { getLogLevels } from './common/logger/log-levels';
+import { SocketIoAdapter } from './modules/realtime/socket-io.adapter';
+import { RedisService } from './redis/redis.service';
 import {
   HEALTH_PATH,
   SERVICE_NAME,
@@ -23,6 +25,10 @@ async function bootstrap(): Promise<void> {
   app.useLogger(getLogLevels(appConfig?.logLevel ?? 'info'));
 
   setupApp(app);
+
+  app.useWebSocketAdapter(
+    new SocketIoAdapter(app, app.get(RedisService), app.get(ConfigService)),
+  );
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Collaborative Whiteboard API')

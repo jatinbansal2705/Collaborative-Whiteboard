@@ -15,7 +15,7 @@ Build plan for the Collaborative Whiteboard platform. Each phase is an independe
 | 3 | Authentication Core | User/Session models, register/login/logout/refresh/me, JWT + refresh rotation, Argon2, JwtAuthGuard, RolesGuard, RBAC | `feat(api): auth core with jwt + rbac` | ✅ Done |
 | 4 | Authentication Flows | Google OAuth, email verification, forgot/reset password, email service, rate limiting | `feat(api): google oauth + password flows` | ✅ Done |
 | 5 | Board & Dashboard Domain | Board/BoardMember/Favourite/Template/ShareLink models, CRUD, archive/restore/duplicate, search/filter/sort, board authorization | `feat(api): board management apis` | ✅ Done |
-| 6 | Realtime Layer | Socket.IO gateway, JWT handshake, board rooms, presence, cursors, draw events, Redis adapter | `feat(api): socket gateway + presence` | ⬜ Pending |
+| 6 | Realtime Layer | Socket.IO gateway, JWT handshake, board rooms, presence, cursors, draw events, Redis adapter | `feat(api): socket gateway + presence` | ✅ Done |
 | 7 | Collaboration APIs | Comment threads, mentions, chat + typing, read receipts, notifications + email | `feat(api): collaboration + notifications` | ⬜ Pending |
 | 8 | Frontend Foundation | Next.js 15, Tailwind, shadcn/ui, Zustand, RHF + Zod, API client with retry/refresh, error handling, theming | `feat(web): nextjs + tailwind + shadcn + zustand` | ⬜ Pending |
 | 9 | Auth UI + Dashboard | Login/signup/reset/verify pages, Google button, dashboard tabs, search/filter/sort, board CRUD, templates, states | `feat(web): auth pages + dashboard` | ⬜ Pending |

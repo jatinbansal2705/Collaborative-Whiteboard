@@ -38,7 +38,9 @@ export class CreateBoardDto {
   @IsObject()
   data?: Record<string, unknown>;
 
-  @ApiPropertyOptional({ description: 'Admins only; ignored for regular users' })
+  @ApiPropertyOptional({
+    description: 'Admins only; ignored for regular users',
+  })
   @IsOptional()
   @IsBoolean()
   isTemplate?: boolean;

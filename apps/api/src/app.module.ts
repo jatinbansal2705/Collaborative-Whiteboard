@@ -14,6 +14,8 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from './modules/auth/guards/roles.guard';
 import { BoardsModule } from './modules/boards/boards.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { RedisModule } from './redis/redis.module';
+import { RealtimeModule } from './modules/realtime/realtime.module';
 
 @Module({
   imports: [
@@ -37,9 +39,11 @@ import { PrismaModule } from './prisma/prisma.module';
       }),
     }),
     PrismaModule,
+    RedisModule,
     HealthModule,
     AuthModule,
     BoardsModule,
+    RealtimeModule,
   ],
   controllers: [AppController],
   providers: [
