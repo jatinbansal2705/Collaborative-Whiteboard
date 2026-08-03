@@ -130,6 +130,30 @@ describe('board store', () => {
     expect(selectCurrentBoard(useBoardStore.getState())).toEqual(detail);
   });
 
+  it('patchBoard updates fields of a single board in place', () => {
+    useBoardStore
+      .getState()
+      .setBoards(listResult([summary('b1', 'A'), summary('b2', 'B')]));
+
+    useBoardStore
+      .getState()
+      .patchBoard('b1', { isFavourite: true, isArchived: true });
+
+    const boards = selectBoards(useBoardStore.getState());
+    expect(boards).toHaveLength(2);
+    expect(boards[0].isFavourite).toBe(true);
+    expect(boards[0].isArchived).toBe(true);
+    expect(boards[1].isFavourite).toBe(false);
+  });
+
+  it('patchBoard is a no-op for an unknown id', () => {
+    useBoardStore.getState().setBoards(listResult([summary('b1', 'A')]));
+
+    useBoardStore.getState().patchBoard('missing', { title: 'Nope' });
+
+    expect(selectBoards(useBoardStore.getState())[0].title).toBe('A');
+  });
+
   it('reset restores the initial state', () => {
     useBoardStore
       .getState()

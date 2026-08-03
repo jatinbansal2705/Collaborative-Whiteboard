@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  blankBoardSchema,
   boardTitleSchema,
   createBoardSchema,
   listBoardsQuerySchema,
+  renameBoardSchema,
   updateBoardSchema,
 } from '@/lib/validators/board';
 
@@ -51,6 +53,32 @@ describe('updateBoardSchema', () => {
         thumbnailUrl: 'https://example.com/thumb.png',
       }).success,
     ).toBe(true);
+  });
+});
+
+describe('renameBoardSchema', () => {
+  it('requires a trimmed non-empty title', () => {
+    expect(renameBoardSchema.safeParse({ title: '  Q3  ' }).success).toBe(true);
+    expect(renameBoardSchema.safeParse({ title: '   ' }).success).toBe(false);
+  });
+
+  it('rejects a title over the max length', () => {
+    expect(
+      renameBoardSchema.safeParse({ title: 'a'.repeat(256) }).success,
+    ).toBe(false);
+  });
+});
+
+describe('blankBoardSchema', () => {
+  it('accepts a trimmed non-empty title', () => {
+    expect(blankBoardSchema.parse({ title: '  Roadmap  ' })).toEqual({
+      title: 'Roadmap',
+    });
+  });
+
+  it('rejects an empty or whitespace-only title', () => {
+    expect(blankBoardSchema.safeParse({ title: '' }).success).toBe(false);
+    expect(blankBoardSchema.safeParse({ title: '   ' }).success).toBe(false);
   });
 });
 

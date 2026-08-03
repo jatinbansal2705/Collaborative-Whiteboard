@@ -26,7 +26,7 @@ import type {
 
 const DEFAULT_API_BASE_URL = 'http://localhost:3000/api/v1';
 
-function getApiBaseUrl(): string {
+export function getApiBaseUrl(): string {
   return process.env.NEXT_PUBLIC_API_URL ?? DEFAULT_API_BASE_URL;
 }
 

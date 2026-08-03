@@ -13,6 +13,7 @@ interface BoardState {
   setCurrentBoard: (board: BoardDetail | null) => void;
   upsertBoard: (board: BoardSummary) => void;
   removeBoard: (id: string) => void;
+  patchBoard: (id: string, patch: Partial<BoardSummary>) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   reset: () => void;
@@ -56,6 +57,12 @@ export const useBoardStore = create<BoardState>()((set) => ({
   removeBoard: (id) =>
     set((state) => ({
       boards: state.boards.filter((board) => board.id !== id),
+    })),
+  patchBoard: (id, patch) =>
+    set((state) => ({
+      boards: state.boards.map((board) =>
+        board.id === id ? { ...board, ...patch } : board,
+      ),
     })),
   setLoading: (isLoading) => set({ isLoading }),
   setError: (error) => set({ error, isLoading: false }),

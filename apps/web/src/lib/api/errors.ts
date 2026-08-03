@@ -75,3 +75,22 @@ export function fromCause(
 ): ApiError {
   return new ApiError(message, { code, status, retryable: true, cause });
 }
+
+/** True when the thrown value is an ApiError carrying the given server code. */
+export function hasApiErrorCode(error: unknown, code: string): boolean {
+  return isApiError(error) && error.code === code;
+}
+
+/** Safe message extraction for UI surfaces; never leaks internal details. */
+export function getErrorMessage(
+  error: unknown,
+  fallback = 'Something went wrong. Please try again.',
+): string {
+  if (isApiError(error) && error.message.trim().length > 0) {
+    return error.message;
+  }
+  if (error instanceof Error && error.message.trim().length > 0) {
+    return error.message;
+  }
+  return fallback;
+}

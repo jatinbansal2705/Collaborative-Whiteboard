@@ -36,6 +36,13 @@ export const createBoardSchema = z
 
 export type CreateBoardInput = z.infer<typeof createBoardSchema>;
 
+/** Title-only create form used by the dashboard "New board" dialog. */
+export const blankBoardSchema = z.object({
+  title: boardTitleSchema,
+});
+
+export type BlankBoardInput = z.infer<typeof blankBoardSchema>;
+
 export const updateBoardSchema = z
   .object({
     title: boardTitleSchema.optional(),
@@ -52,6 +59,13 @@ export const updateBoardSchema = z
   });
 
 export type UpdateBoardInput = z.infer<typeof updateBoardSchema>;
+
+/** Title-only rename used by the dashboard rename dialog. */
+export const renameBoardSchema = z.object({
+  title: boardTitleSchema,
+});
+
+export type RenameBoardInput = z.infer<typeof renameBoardSchema>;
 
 export const boardTabSchema = z.enum(['recent', 'shared', 'favourited']);
 export const boardSortBySchema = z.enum([
