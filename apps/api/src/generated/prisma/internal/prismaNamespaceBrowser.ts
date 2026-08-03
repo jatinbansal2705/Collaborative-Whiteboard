@@ -58,7 +58,12 @@ export const ModelName = {
   BoardMember: 'BoardMember',
   BoardFavourite: 'BoardFavourite',
   ShareLink: 'ShareLink',
-  PendingInvite: 'PendingInvite'
+  PendingInvite: 'PendingInvite',
+  CommentThread: 'CommentThread',
+  Comment: 'Comment',
+  ChatMessage: 'ChatMessage',
+  ChatReadReceipt: 'ChatReadReceipt',
+  Notification: 'Notification'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -198,6 +203,75 @@ export const PendingInviteScalarFieldEnum = {
 } as const
 
 export type PendingInviteScalarFieldEnum = (typeof PendingInviteScalarFieldEnum)[keyof typeof PendingInviteScalarFieldEnum]
+
+
+export const CommentThreadScalarFieldEnum = {
+  id: 'id',
+  boardId: 'boardId',
+  x: 'x',
+  y: 'y',
+  resolvedAt: 'resolvedAt',
+  resolvedBy: 'resolvedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+} as const
+
+export type CommentThreadScalarFieldEnum = (typeof CommentThreadScalarFieldEnum)[keyof typeof CommentThreadScalarFieldEnum]
+
+
+export const CommentScalarFieldEnum = {
+  id: 'id',
+  threadId: 'threadId',
+  authorId: 'authorId',
+  body: 'body',
+  mentions: 'mentions',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+} as const
+
+export type CommentScalarFieldEnum = (typeof CommentScalarFieldEnum)[keyof typeof CommentScalarFieldEnum]
+
+
+export const ChatMessageScalarFieldEnum = {
+  id: 'id',
+  boardId: 'boardId',
+  authorId: 'authorId',
+  body: 'body',
+  attachmentUrl: 'attachmentUrl',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+} as const
+
+export type ChatMessageScalarFieldEnum = (typeof ChatMessageScalarFieldEnum)[keyof typeof ChatMessageScalarFieldEnum]
+
+
+export const ChatReadReceiptScalarFieldEnum = {
+  id: 'id',
+  boardId: 'boardId',
+  userId: 'userId',
+  lastReadMessageId: 'lastReadMessageId',
+  lastReadAt: 'lastReadAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ChatReadReceiptScalarFieldEnum = (typeof ChatReadReceiptScalarFieldEnum)[keyof typeof ChatReadReceiptScalarFieldEnum]
+
+
+export const NotificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  type: 'type',
+  payload: 'payload',
+  readAt: 'readAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
 
 
 export const SortOrder = {

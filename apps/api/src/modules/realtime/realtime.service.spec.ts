@@ -9,6 +9,7 @@ import type { AccessTokenVerified } from '../auth/auth-token.service';
 import { UserRepository } from '../auth/repositories/user.repository';
 import { BoardRepository } from '../boards/board.repository';
 import { MemberRepository } from '../boards/member.repository';
+import { ChatService } from '../chat/chat.service';
 import { PresenceService } from './presence.service';
 import {
   RealtimeService,
@@ -19,6 +20,7 @@ import type { RealtimeConfig } from './realtime.constants';
 const CONFIG: RealtimeConfig = {
   presenceTtlMs: 90_000,
   cursorMinIntervalMs: 1_000,
+  chatTypingThrottleMs: 100,
 };
 
 const USER: AccessTokenVerified = {
@@ -122,6 +124,7 @@ describe('RealtimeService', () => {
   let memberRepository: jest.Mocked<Pick<MemberRepository, 'findMembership'>>;
   let boardRepository: jest.Mocked<Pick<BoardRepository, 'findById'>>;
   let userRepository: jest.Mocked<Pick<UserRepository, 'findById'>>;
+  let chatService: jest.Mocked<Pick<ChatService, 'recordReadReceipt'>>;
 
   beforeEach(() => {
     presenceService = {
@@ -144,6 +147,12 @@ describe('RealtimeService', () => {
     userRepository = {
       findById: jest.fn().mockResolvedValue(userRow()),
     };
+    chatService = {
+      recordReadReceipt: jest.fn().mockResolvedValue({
+        lastReadMessageId: 'message-1',
+        lastReadAt: new Date('2026-08-02T00:00:00.000Z'),
+      }),
+    };
 
     service = new RealtimeService(
       presenceService as unknown as PresenceService,
@@ -151,6 +160,7 @@ describe('RealtimeService', () => {
       memberRepository as unknown as MemberRepository,
       boardRepository as unknown as BoardRepository,
       userRepository as unknown as UserRepository,
+      chatService as unknown as ChatService,
     );
   });
 

@@ -27,3 +27,9 @@ export const staleVersionError = (id: string, version: number): SocketError =>
     SOCKET_ERROR_CODES.STALE_VERSION,
     `Element ${id} is stale (incoming version ${version})`,
   );
+
+export const chatMessageNotFoundError = (): SocketError =>
+  socketError(
+    SOCKET_ERROR_CODES.MESSAGE_NOT_FOUND,
+    'Chat message not found on this board',
+  );

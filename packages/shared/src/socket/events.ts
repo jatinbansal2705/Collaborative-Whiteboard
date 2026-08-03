@@ -10,6 +10,11 @@
  *  - `draw:patch`                     -> `draw:patch` broadcast (room, excluding sender)
  *  - `element:create` / `element:delete` -> same-named broadcast (room, excluding sender)
  *  - `selection:update`               -> `selection:update` broadcast (room, excluding sender)
+ *  - `chat:typing`                    -> `chat:typing` broadcast (room, excluding sender, throttled)
+ *  - `chat:read`                      -> `chat:read` broadcast (room, excluding sender)
+ *  - `chat:message` (server->client)  -> `chat:message` broadcast (room)
+ *  - `comment:created` / `comment:resolved` (server->client) -> room broadcast
+ *  - `notification:new` (server->client) -> targeted to the recipient's `user:<id>` room
  *  - `kick`                           -> targeted socket, then disconnect
  *  - `board:deleted`                  -> room broadcast, then disconnect
  */
@@ -19,6 +24,12 @@ export const BOARD_ROOM_PREFIX = 'board:';
 
 export const boardRoom = (boardId: string): string =>
   `${BOARD_ROOM_PREFIX}${boardId}`;
+
+export const USER_ROOM_PREFIX = 'user:';
+
+/** Private per-user room used to deliver notifications to all of a user's sockets. */
+export const userRoom = (userId: string): string =>
+  `${USER_ROOM_PREFIX}${userId}`;
 
 export const SOCKET_EVENTS = {
   JOIN: 'board:join',
@@ -33,6 +44,12 @@ export const SOCKET_EVENTS = {
   BOARD_DATA: 'board:data',
   KICK: 'kick',
   BOARD_DELETED: 'board:deleted',
+  CHAT_TYPING: 'chat:typing',
+  CHAT_READ: 'chat:read',
+  CHAT_MESSAGE: 'chat:message',
+  COMMENT_CREATED: 'comment:created',
+  COMMENT_RESOLVED: 'comment:resolved',
+  NOTIFICATION_NEW: 'notification:new',
 } as const;
 
 export type SocketEventName =
@@ -62,6 +79,7 @@ export const SOCKET_ERROR_CODES = {
   INTERNAL_ERROR: 'INTERNAL_ERROR',
   KICKED: 'KICKED',
   BOARD_DELETED: 'BOARD_DELETED',
+  MESSAGE_NOT_FOUND: 'MESSAGE_NOT_FOUND',
 } as const;
 
 export type SocketErrorCode =

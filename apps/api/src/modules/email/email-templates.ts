@@ -79,3 +79,22 @@ export const renderPasswordResetEmail = (data: LinkEmailData): string =>
     buttonLabel: 'Reset password',
     buttonUrl: data.link,
   });
+
+export const mentionEmailSubject = (): string =>
+  'You were mentioned on a whiteboard';
+
+export const renderMentionEmail = (data: {
+  name?: string;
+  actorName: string | null;
+  bodyPreview: string;
+  link: string;
+}): string => {
+  const actor = escapeHtml(data.actorName ?? 'Someone');
+  const preview = escapeHtml(data.bodyPreview);
+  return baseLayout({
+    headline: data.name !== undefined ? `Hi ${data.name},` : 'Hi there,',
+    body: `${actor} mentioned you in a comment on a whiteboard.<br /><br />“${preview}”`,
+    buttonLabel: 'View comment',
+    buttonUrl: data.link,
+  });
+};

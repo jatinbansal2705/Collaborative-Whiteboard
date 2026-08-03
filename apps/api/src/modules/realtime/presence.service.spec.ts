@@ -7,6 +7,7 @@ import { InMemoryRedis } from './testing/in-memory-redis';
 const CONFIG: RealtimeConfig = {
   presenceTtlMs: 90_000,
   cursorMinIntervalMs: 25,
+  chatTypingThrottleMs: 1000,
 };
 
 describe('PresenceService', () => {

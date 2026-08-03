@@ -3,13 +3,16 @@ import { ConfigService } from '@nestjs/config';
 import { createTransport, type Transporter } from 'nodemailer';
 import { emailDeliveryFailed } from './email.errors';
 import {
+  mentionEmailSubject,
   passwordResetEmailSubject,
+  renderMentionEmail,
   renderPasswordResetEmail,
   renderVerificationEmail,
   verificationEmailSubject,
 } from './email-templates';
 import {
   EmailService,
+  type SendMentionEmailOptions,
   type SendPasswordResetEmailOptions,
   type SendVerificationEmailOptions,
 } from './email.service';
@@ -65,6 +68,19 @@ export class NodemailerEmailService extends EmailService {
       renderPasswordResetEmail({
         name: options.name,
         link: options.resetLink,
+      }),
+    );
+  }
+
+  async sendMentionEmail(options: SendMentionEmailOptions): Promise<void> {
+    await this.send(
+      options.to,
+      mentionEmailSubject(),
+      renderMentionEmail({
+        name: options.name,
+        actorName: options.actorName,
+        bodyPreview: options.bodyPreview,
+        link: options.commentLink,
       }),
     );
   }

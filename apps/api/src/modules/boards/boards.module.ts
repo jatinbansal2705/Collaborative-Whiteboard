@@ -20,6 +20,6 @@ import { MemberRepository } from './member.repository';
     InviteRepository,
     BoardAccessGuard,
   ],
-  exports: [BoardRepository, MemberRepository],
+  exports: [BoardRepository, MemberRepository, BoardAccessGuard],
 })
 export class BoardsModule {}

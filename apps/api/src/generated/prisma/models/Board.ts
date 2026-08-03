@@ -273,6 +273,9 @@ export type BoardWhereInput = {
   favourites?: Prisma.BoardFavouriteListRelationFilter
   shareLinks?: Prisma.ShareLinkListRelationFilter
   pendingInvites?: Prisma.PendingInviteListRelationFilter
+  commentThreads?: Prisma.CommentThreadListRelationFilter
+  chatMessages?: Prisma.ChatMessageListRelationFilter
+  chatReadReceipts?: Prisma.ChatReadReceiptListRelationFilter
 }
 
 export type BoardOrderByWithRelationInput = {
@@ -293,6 +296,9 @@ export type BoardOrderByWithRelationInput = {
   favourites?: Prisma.BoardFavouriteOrderByRelationAggregateInput
   shareLinks?: Prisma.ShareLinkOrderByRelationAggregateInput
   pendingInvites?: Prisma.PendingInviteOrderByRelationAggregateInput
+  commentThreads?: Prisma.CommentThreadOrderByRelationAggregateInput
+  chatMessages?: Prisma.ChatMessageOrderByRelationAggregateInput
+  chatReadReceipts?: Prisma.ChatReadReceiptOrderByRelationAggregateInput
 }
 
 export type BoardWhereUniqueInput = Prisma.AtLeast<{
@@ -316,6 +322,9 @@ export type BoardWhereUniqueInput = Prisma.AtLeast<{
   favourites?: Prisma.BoardFavouriteListRelationFilter
   shareLinks?: Prisma.ShareLinkListRelationFilter
   pendingInvites?: Prisma.PendingInviteListRelationFilter
+  commentThreads?: Prisma.CommentThreadListRelationFilter
+  chatMessages?: Prisma.ChatMessageListRelationFilter
+  chatReadReceipts?: Prisma.ChatReadReceiptListRelationFilter
 }, "id">
 
 export type BoardOrderByWithAggregationInput = {
@@ -373,6 +382,9 @@ export type BoardCreateInput = {
   favourites?: Prisma.BoardFavouriteCreateNestedManyWithoutBoardInput
   shareLinks?: Prisma.ShareLinkCreateNestedManyWithoutBoardInput
   pendingInvites?: Prisma.PendingInviteCreateNestedManyWithoutBoardInput
+  commentThreads?: Prisma.CommentThreadCreateNestedManyWithoutBoardInput
+  chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutBoardInput
+  chatReadReceipts?: Prisma.ChatReadReceiptCreateNestedManyWithoutBoardInput
 }
 
 export type BoardUncheckedCreateInput = {
@@ -392,6 +404,9 @@ export type BoardUncheckedCreateInput = {
   favourites?: Prisma.BoardFavouriteUncheckedCreateNestedManyWithoutBoardInput
   shareLinks?: Prisma.ShareLinkUncheckedCreateNestedManyWithoutBoardInput
   pendingInvites?: Prisma.PendingInviteUncheckedCreateNestedManyWithoutBoardInput
+  commentThreads?: Prisma.CommentThreadUncheckedCreateNestedManyWithoutBoardInput
+  chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutBoardInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUncheckedCreateNestedManyWithoutBoardInput
 }
 
 export type BoardUpdateInput = {
@@ -411,6 +426,9 @@ export type BoardUpdateInput = {
   favourites?: Prisma.BoardFavouriteUpdateManyWithoutBoardNestedInput
   shareLinks?: Prisma.ShareLinkUpdateManyWithoutBoardNestedInput
   pendingInvites?: Prisma.PendingInviteUpdateManyWithoutBoardNestedInput
+  commentThreads?: Prisma.CommentThreadUpdateManyWithoutBoardNestedInput
+  chatMessages?: Prisma.ChatMessageUpdateManyWithoutBoardNestedInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardUncheckedUpdateInput = {
@@ -430,6 +448,9 @@ export type BoardUncheckedUpdateInput = {
   favourites?: Prisma.BoardFavouriteUncheckedUpdateManyWithoutBoardNestedInput
   shareLinks?: Prisma.ShareLinkUncheckedUpdateManyWithoutBoardNestedInput
   pendingInvites?: Prisma.PendingInviteUncheckedUpdateManyWithoutBoardNestedInput
+  commentThreads?: Prisma.CommentThreadUncheckedUpdateManyWithoutBoardNestedInput
+  chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutBoardNestedInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUncheckedUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardCreateManyInput = {
@@ -652,6 +673,48 @@ export type BoardUpdateOneRequiredWithoutPendingInvitesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BoardUpdateToOneWithWhereWithoutPendingInvitesInput, Prisma.BoardUpdateWithoutPendingInvitesInput>, Prisma.BoardUncheckedUpdateWithoutPendingInvitesInput>
 }
 
+export type BoardCreateNestedOneWithoutCommentThreadsInput = {
+  create?: Prisma.XOR<Prisma.BoardCreateWithoutCommentThreadsInput, Prisma.BoardUncheckedCreateWithoutCommentThreadsInput>
+  connectOrCreate?: Prisma.BoardCreateOrConnectWithoutCommentThreadsInput
+  connect?: Prisma.BoardWhereUniqueInput
+}
+
+export type BoardUpdateOneRequiredWithoutCommentThreadsNestedInput = {
+  create?: Prisma.XOR<Prisma.BoardCreateWithoutCommentThreadsInput, Prisma.BoardUncheckedCreateWithoutCommentThreadsInput>
+  connectOrCreate?: Prisma.BoardCreateOrConnectWithoutCommentThreadsInput
+  upsert?: Prisma.BoardUpsertWithoutCommentThreadsInput
+  connect?: Prisma.BoardWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BoardUpdateToOneWithWhereWithoutCommentThreadsInput, Prisma.BoardUpdateWithoutCommentThreadsInput>, Prisma.BoardUncheckedUpdateWithoutCommentThreadsInput>
+}
+
+export type BoardCreateNestedOneWithoutChatMessagesInput = {
+  create?: Prisma.XOR<Prisma.BoardCreateWithoutChatMessagesInput, Prisma.BoardUncheckedCreateWithoutChatMessagesInput>
+  connectOrCreate?: Prisma.BoardCreateOrConnectWithoutChatMessagesInput
+  connect?: Prisma.BoardWhereUniqueInput
+}
+
+export type BoardUpdateOneRequiredWithoutChatMessagesNestedInput = {
+  create?: Prisma.XOR<Prisma.BoardCreateWithoutChatMessagesInput, Prisma.BoardUncheckedCreateWithoutChatMessagesInput>
+  connectOrCreate?: Prisma.BoardCreateOrConnectWithoutChatMessagesInput
+  upsert?: Prisma.BoardUpsertWithoutChatMessagesInput
+  connect?: Prisma.BoardWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BoardUpdateToOneWithWhereWithoutChatMessagesInput, Prisma.BoardUpdateWithoutChatMessagesInput>, Prisma.BoardUncheckedUpdateWithoutChatMessagesInput>
+}
+
+export type BoardCreateNestedOneWithoutChatReadReceiptsInput = {
+  create?: Prisma.XOR<Prisma.BoardCreateWithoutChatReadReceiptsInput, Prisma.BoardUncheckedCreateWithoutChatReadReceiptsInput>
+  connectOrCreate?: Prisma.BoardCreateOrConnectWithoutChatReadReceiptsInput
+  connect?: Prisma.BoardWhereUniqueInput
+}
+
+export type BoardUpdateOneRequiredWithoutChatReadReceiptsNestedInput = {
+  create?: Prisma.XOR<Prisma.BoardCreateWithoutChatReadReceiptsInput, Prisma.BoardUncheckedCreateWithoutChatReadReceiptsInput>
+  connectOrCreate?: Prisma.BoardCreateOrConnectWithoutChatReadReceiptsInput
+  upsert?: Prisma.BoardUpsertWithoutChatReadReceiptsInput
+  connect?: Prisma.BoardWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BoardUpdateToOneWithWhereWithoutChatReadReceiptsInput, Prisma.BoardUpdateWithoutChatReadReceiptsInput>, Prisma.BoardUncheckedUpdateWithoutChatReadReceiptsInput>
+}
+
 export type BoardCreateWithoutCreatedByInput = {
   id?: string
   title: string
@@ -668,6 +731,9 @@ export type BoardCreateWithoutCreatedByInput = {
   favourites?: Prisma.BoardFavouriteCreateNestedManyWithoutBoardInput
   shareLinks?: Prisma.ShareLinkCreateNestedManyWithoutBoardInput
   pendingInvites?: Prisma.PendingInviteCreateNestedManyWithoutBoardInput
+  commentThreads?: Prisma.CommentThreadCreateNestedManyWithoutBoardInput
+  chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutBoardInput
+  chatReadReceipts?: Prisma.ChatReadReceiptCreateNestedManyWithoutBoardInput
 }
 
 export type BoardUncheckedCreateWithoutCreatedByInput = {
@@ -686,6 +752,9 @@ export type BoardUncheckedCreateWithoutCreatedByInput = {
   favourites?: Prisma.BoardFavouriteUncheckedCreateNestedManyWithoutBoardInput
   shareLinks?: Prisma.ShareLinkUncheckedCreateNestedManyWithoutBoardInput
   pendingInvites?: Prisma.PendingInviteUncheckedCreateNestedManyWithoutBoardInput
+  commentThreads?: Prisma.CommentThreadUncheckedCreateNestedManyWithoutBoardInput
+  chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutBoardInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUncheckedCreateNestedManyWithoutBoardInput
 }
 
 export type BoardCreateOrConnectWithoutCreatedByInput = {
@@ -748,6 +817,9 @@ export type BoardCreateWithoutMembersInput = {
   favourites?: Prisma.BoardFavouriteCreateNestedManyWithoutBoardInput
   shareLinks?: Prisma.ShareLinkCreateNestedManyWithoutBoardInput
   pendingInvites?: Prisma.PendingInviteCreateNestedManyWithoutBoardInput
+  commentThreads?: Prisma.CommentThreadCreateNestedManyWithoutBoardInput
+  chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutBoardInput
+  chatReadReceipts?: Prisma.ChatReadReceiptCreateNestedManyWithoutBoardInput
 }
 
 export type BoardUncheckedCreateWithoutMembersInput = {
@@ -766,6 +838,9 @@ export type BoardUncheckedCreateWithoutMembersInput = {
   favourites?: Prisma.BoardFavouriteUncheckedCreateNestedManyWithoutBoardInput
   shareLinks?: Prisma.ShareLinkUncheckedCreateNestedManyWithoutBoardInput
   pendingInvites?: Prisma.PendingInviteUncheckedCreateNestedManyWithoutBoardInput
+  commentThreads?: Prisma.CommentThreadUncheckedCreateNestedManyWithoutBoardInput
+  chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutBoardInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUncheckedCreateNestedManyWithoutBoardInput
 }
 
 export type BoardCreateOrConnectWithoutMembersInput = {
@@ -800,6 +875,9 @@ export type BoardUpdateWithoutMembersInput = {
   favourites?: Prisma.BoardFavouriteUpdateManyWithoutBoardNestedInput
   shareLinks?: Prisma.ShareLinkUpdateManyWithoutBoardNestedInput
   pendingInvites?: Prisma.PendingInviteUpdateManyWithoutBoardNestedInput
+  commentThreads?: Prisma.CommentThreadUpdateManyWithoutBoardNestedInput
+  chatMessages?: Prisma.ChatMessageUpdateManyWithoutBoardNestedInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardUncheckedUpdateWithoutMembersInput = {
@@ -818,6 +896,9 @@ export type BoardUncheckedUpdateWithoutMembersInput = {
   favourites?: Prisma.BoardFavouriteUncheckedUpdateManyWithoutBoardNestedInput
   shareLinks?: Prisma.ShareLinkUncheckedUpdateManyWithoutBoardNestedInput
   pendingInvites?: Prisma.PendingInviteUncheckedUpdateManyWithoutBoardNestedInput
+  commentThreads?: Prisma.CommentThreadUncheckedUpdateManyWithoutBoardNestedInput
+  chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutBoardNestedInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUncheckedUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardCreateWithoutFavouritesInput = {
@@ -836,6 +917,9 @@ export type BoardCreateWithoutFavouritesInput = {
   members?: Prisma.BoardMemberCreateNestedManyWithoutBoardInput
   shareLinks?: Prisma.ShareLinkCreateNestedManyWithoutBoardInput
   pendingInvites?: Prisma.PendingInviteCreateNestedManyWithoutBoardInput
+  commentThreads?: Prisma.CommentThreadCreateNestedManyWithoutBoardInput
+  chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutBoardInput
+  chatReadReceipts?: Prisma.ChatReadReceiptCreateNestedManyWithoutBoardInput
 }
 
 export type BoardUncheckedCreateWithoutFavouritesInput = {
@@ -854,6 +938,9 @@ export type BoardUncheckedCreateWithoutFavouritesInput = {
   members?: Prisma.BoardMemberUncheckedCreateNestedManyWithoutBoardInput
   shareLinks?: Prisma.ShareLinkUncheckedCreateNestedManyWithoutBoardInput
   pendingInvites?: Prisma.PendingInviteUncheckedCreateNestedManyWithoutBoardInput
+  commentThreads?: Prisma.CommentThreadUncheckedCreateNestedManyWithoutBoardInput
+  chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutBoardInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUncheckedCreateNestedManyWithoutBoardInput
 }
 
 export type BoardCreateOrConnectWithoutFavouritesInput = {
@@ -888,6 +975,9 @@ export type BoardUpdateWithoutFavouritesInput = {
   members?: Prisma.BoardMemberUpdateManyWithoutBoardNestedInput
   shareLinks?: Prisma.ShareLinkUpdateManyWithoutBoardNestedInput
   pendingInvites?: Prisma.PendingInviteUpdateManyWithoutBoardNestedInput
+  commentThreads?: Prisma.CommentThreadUpdateManyWithoutBoardNestedInput
+  chatMessages?: Prisma.ChatMessageUpdateManyWithoutBoardNestedInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardUncheckedUpdateWithoutFavouritesInput = {
@@ -906,6 +996,9 @@ export type BoardUncheckedUpdateWithoutFavouritesInput = {
   members?: Prisma.BoardMemberUncheckedUpdateManyWithoutBoardNestedInput
   shareLinks?: Prisma.ShareLinkUncheckedUpdateManyWithoutBoardNestedInput
   pendingInvites?: Prisma.PendingInviteUncheckedUpdateManyWithoutBoardNestedInput
+  commentThreads?: Prisma.CommentThreadUncheckedUpdateManyWithoutBoardNestedInput
+  chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutBoardNestedInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUncheckedUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardCreateWithoutShareLinksInput = {
@@ -924,6 +1017,9 @@ export type BoardCreateWithoutShareLinksInput = {
   members?: Prisma.BoardMemberCreateNestedManyWithoutBoardInput
   favourites?: Prisma.BoardFavouriteCreateNestedManyWithoutBoardInput
   pendingInvites?: Prisma.PendingInviteCreateNestedManyWithoutBoardInput
+  commentThreads?: Prisma.CommentThreadCreateNestedManyWithoutBoardInput
+  chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutBoardInput
+  chatReadReceipts?: Prisma.ChatReadReceiptCreateNestedManyWithoutBoardInput
 }
 
 export type BoardUncheckedCreateWithoutShareLinksInput = {
@@ -942,6 +1038,9 @@ export type BoardUncheckedCreateWithoutShareLinksInput = {
   members?: Prisma.BoardMemberUncheckedCreateNestedManyWithoutBoardInput
   favourites?: Prisma.BoardFavouriteUncheckedCreateNestedManyWithoutBoardInput
   pendingInvites?: Prisma.PendingInviteUncheckedCreateNestedManyWithoutBoardInput
+  commentThreads?: Prisma.CommentThreadUncheckedCreateNestedManyWithoutBoardInput
+  chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutBoardInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUncheckedCreateNestedManyWithoutBoardInput
 }
 
 export type BoardCreateOrConnectWithoutShareLinksInput = {
@@ -976,6 +1075,9 @@ export type BoardUpdateWithoutShareLinksInput = {
   members?: Prisma.BoardMemberUpdateManyWithoutBoardNestedInput
   favourites?: Prisma.BoardFavouriteUpdateManyWithoutBoardNestedInput
   pendingInvites?: Prisma.PendingInviteUpdateManyWithoutBoardNestedInput
+  commentThreads?: Prisma.CommentThreadUpdateManyWithoutBoardNestedInput
+  chatMessages?: Prisma.ChatMessageUpdateManyWithoutBoardNestedInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardUncheckedUpdateWithoutShareLinksInput = {
@@ -994,6 +1096,9 @@ export type BoardUncheckedUpdateWithoutShareLinksInput = {
   members?: Prisma.BoardMemberUncheckedUpdateManyWithoutBoardNestedInput
   favourites?: Prisma.BoardFavouriteUncheckedUpdateManyWithoutBoardNestedInput
   pendingInvites?: Prisma.PendingInviteUncheckedUpdateManyWithoutBoardNestedInput
+  commentThreads?: Prisma.CommentThreadUncheckedUpdateManyWithoutBoardNestedInput
+  chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutBoardNestedInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUncheckedUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardCreateWithoutPendingInvitesInput = {
@@ -1012,6 +1117,9 @@ export type BoardCreateWithoutPendingInvitesInput = {
   members?: Prisma.BoardMemberCreateNestedManyWithoutBoardInput
   favourites?: Prisma.BoardFavouriteCreateNestedManyWithoutBoardInput
   shareLinks?: Prisma.ShareLinkCreateNestedManyWithoutBoardInput
+  commentThreads?: Prisma.CommentThreadCreateNestedManyWithoutBoardInput
+  chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutBoardInput
+  chatReadReceipts?: Prisma.ChatReadReceiptCreateNestedManyWithoutBoardInput
 }
 
 export type BoardUncheckedCreateWithoutPendingInvitesInput = {
@@ -1030,6 +1138,9 @@ export type BoardUncheckedCreateWithoutPendingInvitesInput = {
   members?: Prisma.BoardMemberUncheckedCreateNestedManyWithoutBoardInput
   favourites?: Prisma.BoardFavouriteUncheckedCreateNestedManyWithoutBoardInput
   shareLinks?: Prisma.ShareLinkUncheckedCreateNestedManyWithoutBoardInput
+  commentThreads?: Prisma.CommentThreadUncheckedCreateNestedManyWithoutBoardInput
+  chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutBoardInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUncheckedCreateNestedManyWithoutBoardInput
 }
 
 export type BoardCreateOrConnectWithoutPendingInvitesInput = {
@@ -1064,6 +1175,9 @@ export type BoardUpdateWithoutPendingInvitesInput = {
   members?: Prisma.BoardMemberUpdateManyWithoutBoardNestedInput
   favourites?: Prisma.BoardFavouriteUpdateManyWithoutBoardNestedInput
   shareLinks?: Prisma.ShareLinkUpdateManyWithoutBoardNestedInput
+  commentThreads?: Prisma.CommentThreadUpdateManyWithoutBoardNestedInput
+  chatMessages?: Prisma.ChatMessageUpdateManyWithoutBoardNestedInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardUncheckedUpdateWithoutPendingInvitesInput = {
@@ -1082,6 +1196,309 @@ export type BoardUncheckedUpdateWithoutPendingInvitesInput = {
   members?: Prisma.BoardMemberUncheckedUpdateManyWithoutBoardNestedInput
   favourites?: Prisma.BoardFavouriteUncheckedUpdateManyWithoutBoardNestedInput
   shareLinks?: Prisma.ShareLinkUncheckedUpdateManyWithoutBoardNestedInput
+  commentThreads?: Prisma.CommentThreadUncheckedUpdateManyWithoutBoardNestedInput
+  chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutBoardNestedInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUncheckedUpdateManyWithoutBoardNestedInput
+}
+
+export type BoardCreateWithoutCommentThreadsInput = {
+  id?: string
+  title: string
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  thumbnailUrl?: string | null
+  isTemplate?: boolean
+  isArchived?: boolean
+  status?: $Enums.BoardStatus
+  memberCount?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  createdBy: Prisma.UserCreateNestedOneWithoutBoardsCreatedInput
+  members?: Prisma.BoardMemberCreateNestedManyWithoutBoardInput
+  favourites?: Prisma.BoardFavouriteCreateNestedManyWithoutBoardInput
+  shareLinks?: Prisma.ShareLinkCreateNestedManyWithoutBoardInput
+  pendingInvites?: Prisma.PendingInviteCreateNestedManyWithoutBoardInput
+  chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutBoardInput
+  chatReadReceipts?: Prisma.ChatReadReceiptCreateNestedManyWithoutBoardInput
+}
+
+export type BoardUncheckedCreateWithoutCommentThreadsInput = {
+  id?: string
+  title: string
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  thumbnailUrl?: string | null
+  isTemplate?: boolean
+  isArchived?: boolean
+  status?: $Enums.BoardStatus
+  memberCount?: number
+  createdById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.BoardMemberUncheckedCreateNestedManyWithoutBoardInput
+  favourites?: Prisma.BoardFavouriteUncheckedCreateNestedManyWithoutBoardInput
+  shareLinks?: Prisma.ShareLinkUncheckedCreateNestedManyWithoutBoardInput
+  pendingInvites?: Prisma.PendingInviteUncheckedCreateNestedManyWithoutBoardInput
+  chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutBoardInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUncheckedCreateNestedManyWithoutBoardInput
+}
+
+export type BoardCreateOrConnectWithoutCommentThreadsInput = {
+  where: Prisma.BoardWhereUniqueInput
+  create: Prisma.XOR<Prisma.BoardCreateWithoutCommentThreadsInput, Prisma.BoardUncheckedCreateWithoutCommentThreadsInput>
+}
+
+export type BoardUpsertWithoutCommentThreadsInput = {
+  update: Prisma.XOR<Prisma.BoardUpdateWithoutCommentThreadsInput, Prisma.BoardUncheckedUpdateWithoutCommentThreadsInput>
+  create: Prisma.XOR<Prisma.BoardCreateWithoutCommentThreadsInput, Prisma.BoardUncheckedCreateWithoutCommentThreadsInput>
+  where?: Prisma.BoardWhereInput
+}
+
+export type BoardUpdateToOneWithWhereWithoutCommentThreadsInput = {
+  where?: Prisma.BoardWhereInput
+  data: Prisma.XOR<Prisma.BoardUpdateWithoutCommentThreadsInput, Prisma.BoardUncheckedUpdateWithoutCommentThreadsInput>
+}
+
+export type BoardUpdateWithoutCommentThreadsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTemplate?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
+  memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.UserUpdateOneRequiredWithoutBoardsCreatedNestedInput
+  members?: Prisma.BoardMemberUpdateManyWithoutBoardNestedInput
+  favourites?: Prisma.BoardFavouriteUpdateManyWithoutBoardNestedInput
+  shareLinks?: Prisma.ShareLinkUpdateManyWithoutBoardNestedInput
+  pendingInvites?: Prisma.PendingInviteUpdateManyWithoutBoardNestedInput
+  chatMessages?: Prisma.ChatMessageUpdateManyWithoutBoardNestedInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUpdateManyWithoutBoardNestedInput
+}
+
+export type BoardUncheckedUpdateWithoutCommentThreadsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTemplate?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
+  memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.BoardMemberUncheckedUpdateManyWithoutBoardNestedInput
+  favourites?: Prisma.BoardFavouriteUncheckedUpdateManyWithoutBoardNestedInput
+  shareLinks?: Prisma.ShareLinkUncheckedUpdateManyWithoutBoardNestedInput
+  pendingInvites?: Prisma.PendingInviteUncheckedUpdateManyWithoutBoardNestedInput
+  chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutBoardNestedInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUncheckedUpdateManyWithoutBoardNestedInput
+}
+
+export type BoardCreateWithoutChatMessagesInput = {
+  id?: string
+  title: string
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  thumbnailUrl?: string | null
+  isTemplate?: boolean
+  isArchived?: boolean
+  status?: $Enums.BoardStatus
+  memberCount?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  createdBy: Prisma.UserCreateNestedOneWithoutBoardsCreatedInput
+  members?: Prisma.BoardMemberCreateNestedManyWithoutBoardInput
+  favourites?: Prisma.BoardFavouriteCreateNestedManyWithoutBoardInput
+  shareLinks?: Prisma.ShareLinkCreateNestedManyWithoutBoardInput
+  pendingInvites?: Prisma.PendingInviteCreateNestedManyWithoutBoardInput
+  commentThreads?: Prisma.CommentThreadCreateNestedManyWithoutBoardInput
+  chatReadReceipts?: Prisma.ChatReadReceiptCreateNestedManyWithoutBoardInput
+}
+
+export type BoardUncheckedCreateWithoutChatMessagesInput = {
+  id?: string
+  title: string
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  thumbnailUrl?: string | null
+  isTemplate?: boolean
+  isArchived?: boolean
+  status?: $Enums.BoardStatus
+  memberCount?: number
+  createdById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.BoardMemberUncheckedCreateNestedManyWithoutBoardInput
+  favourites?: Prisma.BoardFavouriteUncheckedCreateNestedManyWithoutBoardInput
+  shareLinks?: Prisma.ShareLinkUncheckedCreateNestedManyWithoutBoardInput
+  pendingInvites?: Prisma.PendingInviteUncheckedCreateNestedManyWithoutBoardInput
+  commentThreads?: Prisma.CommentThreadUncheckedCreateNestedManyWithoutBoardInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUncheckedCreateNestedManyWithoutBoardInput
+}
+
+export type BoardCreateOrConnectWithoutChatMessagesInput = {
+  where: Prisma.BoardWhereUniqueInput
+  create: Prisma.XOR<Prisma.BoardCreateWithoutChatMessagesInput, Prisma.BoardUncheckedCreateWithoutChatMessagesInput>
+}
+
+export type BoardUpsertWithoutChatMessagesInput = {
+  update: Prisma.XOR<Prisma.BoardUpdateWithoutChatMessagesInput, Prisma.BoardUncheckedUpdateWithoutChatMessagesInput>
+  create: Prisma.XOR<Prisma.BoardCreateWithoutChatMessagesInput, Prisma.BoardUncheckedCreateWithoutChatMessagesInput>
+  where?: Prisma.BoardWhereInput
+}
+
+export type BoardUpdateToOneWithWhereWithoutChatMessagesInput = {
+  where?: Prisma.BoardWhereInput
+  data: Prisma.XOR<Prisma.BoardUpdateWithoutChatMessagesInput, Prisma.BoardUncheckedUpdateWithoutChatMessagesInput>
+}
+
+export type BoardUpdateWithoutChatMessagesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTemplate?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
+  memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.UserUpdateOneRequiredWithoutBoardsCreatedNestedInput
+  members?: Prisma.BoardMemberUpdateManyWithoutBoardNestedInput
+  favourites?: Prisma.BoardFavouriteUpdateManyWithoutBoardNestedInput
+  shareLinks?: Prisma.ShareLinkUpdateManyWithoutBoardNestedInput
+  pendingInvites?: Prisma.PendingInviteUpdateManyWithoutBoardNestedInput
+  commentThreads?: Prisma.CommentThreadUpdateManyWithoutBoardNestedInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUpdateManyWithoutBoardNestedInput
+}
+
+export type BoardUncheckedUpdateWithoutChatMessagesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTemplate?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
+  memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.BoardMemberUncheckedUpdateManyWithoutBoardNestedInput
+  favourites?: Prisma.BoardFavouriteUncheckedUpdateManyWithoutBoardNestedInput
+  shareLinks?: Prisma.ShareLinkUncheckedUpdateManyWithoutBoardNestedInput
+  pendingInvites?: Prisma.PendingInviteUncheckedUpdateManyWithoutBoardNestedInput
+  commentThreads?: Prisma.CommentThreadUncheckedUpdateManyWithoutBoardNestedInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUncheckedUpdateManyWithoutBoardNestedInput
+}
+
+export type BoardCreateWithoutChatReadReceiptsInput = {
+  id?: string
+  title: string
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  thumbnailUrl?: string | null
+  isTemplate?: boolean
+  isArchived?: boolean
+  status?: $Enums.BoardStatus
+  memberCount?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  createdBy: Prisma.UserCreateNestedOneWithoutBoardsCreatedInput
+  members?: Prisma.BoardMemberCreateNestedManyWithoutBoardInput
+  favourites?: Prisma.BoardFavouriteCreateNestedManyWithoutBoardInput
+  shareLinks?: Prisma.ShareLinkCreateNestedManyWithoutBoardInput
+  pendingInvites?: Prisma.PendingInviteCreateNestedManyWithoutBoardInput
+  commentThreads?: Prisma.CommentThreadCreateNestedManyWithoutBoardInput
+  chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutBoardInput
+}
+
+export type BoardUncheckedCreateWithoutChatReadReceiptsInput = {
+  id?: string
+  title: string
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  thumbnailUrl?: string | null
+  isTemplate?: boolean
+  isArchived?: boolean
+  status?: $Enums.BoardStatus
+  memberCount?: number
+  createdById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.BoardMemberUncheckedCreateNestedManyWithoutBoardInput
+  favourites?: Prisma.BoardFavouriteUncheckedCreateNestedManyWithoutBoardInput
+  shareLinks?: Prisma.ShareLinkUncheckedCreateNestedManyWithoutBoardInput
+  pendingInvites?: Prisma.PendingInviteUncheckedCreateNestedManyWithoutBoardInput
+  commentThreads?: Prisma.CommentThreadUncheckedCreateNestedManyWithoutBoardInput
+  chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutBoardInput
+}
+
+export type BoardCreateOrConnectWithoutChatReadReceiptsInput = {
+  where: Prisma.BoardWhereUniqueInput
+  create: Prisma.XOR<Prisma.BoardCreateWithoutChatReadReceiptsInput, Prisma.BoardUncheckedCreateWithoutChatReadReceiptsInput>
+}
+
+export type BoardUpsertWithoutChatReadReceiptsInput = {
+  update: Prisma.XOR<Prisma.BoardUpdateWithoutChatReadReceiptsInput, Prisma.BoardUncheckedUpdateWithoutChatReadReceiptsInput>
+  create: Prisma.XOR<Prisma.BoardCreateWithoutChatReadReceiptsInput, Prisma.BoardUncheckedCreateWithoutChatReadReceiptsInput>
+  where?: Prisma.BoardWhereInput
+}
+
+export type BoardUpdateToOneWithWhereWithoutChatReadReceiptsInput = {
+  where?: Prisma.BoardWhereInput
+  data: Prisma.XOR<Prisma.BoardUpdateWithoutChatReadReceiptsInput, Prisma.BoardUncheckedUpdateWithoutChatReadReceiptsInput>
+}
+
+export type BoardUpdateWithoutChatReadReceiptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTemplate?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
+  memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.UserUpdateOneRequiredWithoutBoardsCreatedNestedInput
+  members?: Prisma.BoardMemberUpdateManyWithoutBoardNestedInput
+  favourites?: Prisma.BoardFavouriteUpdateManyWithoutBoardNestedInput
+  shareLinks?: Prisma.ShareLinkUpdateManyWithoutBoardNestedInput
+  pendingInvites?: Prisma.PendingInviteUpdateManyWithoutBoardNestedInput
+  commentThreads?: Prisma.CommentThreadUpdateManyWithoutBoardNestedInput
+  chatMessages?: Prisma.ChatMessageUpdateManyWithoutBoardNestedInput
+}
+
+export type BoardUncheckedUpdateWithoutChatReadReceiptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTemplate?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
+  memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.BoardMemberUncheckedUpdateManyWithoutBoardNestedInput
+  favourites?: Prisma.BoardFavouriteUncheckedUpdateManyWithoutBoardNestedInput
+  shareLinks?: Prisma.ShareLinkUncheckedUpdateManyWithoutBoardNestedInput
+  pendingInvites?: Prisma.PendingInviteUncheckedUpdateManyWithoutBoardNestedInput
+  commentThreads?: Prisma.CommentThreadUncheckedUpdateManyWithoutBoardNestedInput
+  chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardCreateManyCreatedByInput = {
@@ -1114,6 +1531,9 @@ export type BoardUpdateWithoutCreatedByInput = {
   favourites?: Prisma.BoardFavouriteUpdateManyWithoutBoardNestedInput
   shareLinks?: Prisma.ShareLinkUpdateManyWithoutBoardNestedInput
   pendingInvites?: Prisma.PendingInviteUpdateManyWithoutBoardNestedInput
+  commentThreads?: Prisma.CommentThreadUpdateManyWithoutBoardNestedInput
+  chatMessages?: Prisma.ChatMessageUpdateManyWithoutBoardNestedInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardUncheckedUpdateWithoutCreatedByInput = {
@@ -1132,6 +1552,9 @@ export type BoardUncheckedUpdateWithoutCreatedByInput = {
   favourites?: Prisma.BoardFavouriteUncheckedUpdateManyWithoutBoardNestedInput
   shareLinks?: Prisma.ShareLinkUncheckedUpdateManyWithoutBoardNestedInput
   pendingInvites?: Prisma.PendingInviteUncheckedUpdateManyWithoutBoardNestedInput
+  commentThreads?: Prisma.CommentThreadUncheckedUpdateManyWithoutBoardNestedInput
+  chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutBoardNestedInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUncheckedUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardUncheckedUpdateManyWithoutCreatedByInput = {
@@ -1158,6 +1581,9 @@ export type BoardCountOutputType = {
   favourites: number
   shareLinks: number
   pendingInvites: number
+  commentThreads: number
+  chatMessages: number
+  chatReadReceipts: number
 }
 
 export type BoardCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1165,6 +1591,9 @@ export type BoardCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.
   favourites?: boolean | BoardCountOutputTypeCountFavouritesArgs
   shareLinks?: boolean | BoardCountOutputTypeCountShareLinksArgs
   pendingInvites?: boolean | BoardCountOutputTypeCountPendingInvitesArgs
+  commentThreads?: boolean | BoardCountOutputTypeCountCommentThreadsArgs
+  chatMessages?: boolean | BoardCountOutputTypeCountChatMessagesArgs
+  chatReadReceipts?: boolean | BoardCountOutputTypeCountChatReadReceiptsArgs
 }
 
 /**
@@ -1205,6 +1634,27 @@ export type BoardCountOutputTypeCountPendingInvitesArgs<ExtArgs extends runtime.
   where?: Prisma.PendingInviteWhereInput
 }
 
+/**
+ * BoardCountOutputType without action
+ */
+export type BoardCountOutputTypeCountCommentThreadsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CommentThreadWhereInput
+}
+
+/**
+ * BoardCountOutputType without action
+ */
+export type BoardCountOutputTypeCountChatMessagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ChatMessageWhereInput
+}
+
+/**
+ * BoardCountOutputType without action
+ */
+export type BoardCountOutputTypeCountChatReadReceiptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ChatReadReceiptWhereInput
+}
+
 
 export type BoardSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1224,6 +1674,9 @@ export type BoardSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   favourites?: boolean | Prisma.Board$favouritesArgs<ExtArgs>
   shareLinks?: boolean | Prisma.Board$shareLinksArgs<ExtArgs>
   pendingInvites?: boolean | Prisma.Board$pendingInvitesArgs<ExtArgs>
+  commentThreads?: boolean | Prisma.Board$commentThreadsArgs<ExtArgs>
+  chatMessages?: boolean | Prisma.Board$chatMessagesArgs<ExtArgs>
+  chatReadReceipts?: boolean | Prisma.Board$chatReadReceiptsArgs<ExtArgs>
   _count?: boolean | Prisma.BoardCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["board"]>
 
@@ -1281,6 +1734,9 @@ export type BoardInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   favourites?: boolean | Prisma.Board$favouritesArgs<ExtArgs>
   shareLinks?: boolean | Prisma.Board$shareLinksArgs<ExtArgs>
   pendingInvites?: boolean | Prisma.Board$pendingInvitesArgs<ExtArgs>
+  commentThreads?: boolean | Prisma.Board$commentThreadsArgs<ExtArgs>
+  chatMessages?: boolean | Prisma.Board$chatMessagesArgs<ExtArgs>
+  chatReadReceipts?: boolean | Prisma.Board$chatReadReceiptsArgs<ExtArgs>
   _count?: boolean | Prisma.BoardCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BoardIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1298,6 +1754,9 @@ export type $BoardPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     favourites: Prisma.$BoardFavouritePayload<ExtArgs>[]
     shareLinks: Prisma.$ShareLinkPayload<ExtArgs>[]
     pendingInvites: Prisma.$PendingInvitePayload<ExtArgs>[]
+    commentThreads: Prisma.$CommentThreadPayload<ExtArgs>[]
+    chatMessages: Prisma.$ChatMessagePayload<ExtArgs>[]
+    chatReadReceipts: Prisma.$ChatReadReceiptPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1711,6 +2170,9 @@ export interface Prisma__BoardClient<T, Null = never, ExtArgs extends runtime.Ty
   favourites<T extends Prisma.Board$favouritesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Board$favouritesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BoardFavouritePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   shareLinks<T extends Prisma.Board$shareLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Board$shareLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShareLinkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   pendingInvites<T extends Prisma.Board$pendingInvitesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Board$pendingInvitesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PendingInvitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  commentThreads<T extends Prisma.Board$commentThreadsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Board$commentThreadsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommentThreadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  chatMessages<T extends Prisma.Board$chatMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Board$chatMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  chatReadReceipts<T extends Prisma.Board$chatReadReceiptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Board$chatReadReceiptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatReadReceiptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2246,6 +2708,78 @@ export type Board$pendingInvitesArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.PendingInviteScalarFieldEnum | Prisma.PendingInviteScalarFieldEnum[]
+}
+
+/**
+ * Board.commentThreads
+ */
+export type Board$commentThreadsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CommentThread
+   */
+  select?: Prisma.CommentThreadSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CommentThread
+   */
+  omit?: Prisma.CommentThreadOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CommentThreadInclude<ExtArgs> | null
+  where?: Prisma.CommentThreadWhereInput
+  orderBy?: Prisma.CommentThreadOrderByWithRelationInput | Prisma.CommentThreadOrderByWithRelationInput[]
+  cursor?: Prisma.CommentThreadWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CommentThreadScalarFieldEnum | Prisma.CommentThreadScalarFieldEnum[]
+}
+
+/**
+ * Board.chatMessages
+ */
+export type Board$chatMessagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ChatMessage
+   */
+  select?: Prisma.ChatMessageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ChatMessage
+   */
+  omit?: Prisma.ChatMessageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ChatMessageInclude<ExtArgs> | null
+  where?: Prisma.ChatMessageWhereInput
+  orderBy?: Prisma.ChatMessageOrderByWithRelationInput | Prisma.ChatMessageOrderByWithRelationInput[]
+  cursor?: Prisma.ChatMessageWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ChatMessageScalarFieldEnum | Prisma.ChatMessageScalarFieldEnum[]
+}
+
+/**
+ * Board.chatReadReceipts
+ */
+export type Board$chatReadReceiptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ChatReadReceipt
+   */
+  select?: Prisma.ChatReadReceiptSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ChatReadReceipt
+   */
+  omit?: Prisma.ChatReadReceiptOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ChatReadReceiptInclude<ExtArgs> | null
+  where?: Prisma.ChatReadReceiptWhereInput
+  orderBy?: Prisma.ChatReadReceiptOrderByWithRelationInput | Prisma.ChatReadReceiptOrderByWithRelationInput[]
+  cursor?: Prisma.ChatReadReceiptWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ChatReadReceiptScalarFieldEnum | Prisma.ChatReadReceiptScalarFieldEnum[]
 }
 
 /**

@@ -22,6 +22,14 @@ export const envValidationSchema = Joi.object({
     .integer()
     .positive()
     .default(25),
+  REALTIME_CHAT_TYPING_THROTTLE_MS: Joi.number()
+    .integer()
+    .positive()
+    .default(1000),
+
+  EMAIL_QUEUE_NAME: Joi.string().empty('').default('email'),
+  EMAIL_QUEUE_ATTEMPTS: Joi.number().integer().positive().default(3),
+  EMAIL_QUEUE_BACKOFF_MS: Joi.number().integer().positive().default(5000),
 
   JWT_ACCESS_SECRET: Joi.string().min(16).empty('').optional(),
   JWT_ACCESS_EXPIRES_IN: Joi.string().empty('').default('15m'),

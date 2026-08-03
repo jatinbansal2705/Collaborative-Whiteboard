@@ -98,6 +98,20 @@ export type SelectionUpdatePayload = z.infer<
   typeof selectionUpdatePayloadSchema
 >;
 
+/** Client -> server: a typing indicator update (server throttles + broadcasts). */
+export const chatTypingPayloadSchema = z.object({
+  boardId: boardIdSchema,
+  isTyping: z.boolean(),
+});
+export type ChatTypingPayload = z.infer<typeof chatTypingPayloadSchema>;
+
+/** Client -> server: advance the caller's read receipt to a chat message. */
+export const chatReadPayloadSchema = z.object({
+  boardId: boardIdSchema,
+  lastReadMessageId: z.string().uuid(),
+});
+export type ChatReadPayload = z.infer<typeof chatReadPayloadSchema>;
+
 // ---------------------------------------------------------------------------
 // Server -> client payloads
 // ---------------------------------------------------------------------------
@@ -188,6 +202,75 @@ export const boardDeletedPayloadSchema = z.object({
 });
 export type BoardDeletedPayload = z.infer<typeof boardDeletedPayloadSchema>;
 
+/** Server -> client: a member started/stopped typing in a board. */
+export const chatTypingEventSchema = z.object({
+  boardId: boardIdSchema,
+  userId: z.string().uuid(),
+  isTyping: z.boolean(),
+});
+export type ChatTypingEvent = z.infer<typeof chatTypingEventSchema>;
+
+/** Server -> client: a member advanced their read receipt. */
+export const chatReadEventSchema = z.object({
+  boardId: boardIdSchema,
+  userId: z.string().uuid(),
+  lastReadMessageId: z.string().uuid(),
+  readAt: z.string(),
+});
+export type ChatReadEvent = z.infer<typeof chatReadEventSchema>;
+
+/** A persisted chat message, as returned by the chat REST API. */
+export const chatMessageSchema = z.object({
+  id: z.string().uuid(),
+  boardId: boardIdSchema,
+  authorId: z.string().uuid(),
+  body: z.string().nullable(),
+  attachmentUrl: z.string().max(2048).nullable(),
+  createdAt: z.string(),
+  author: z.object({
+    id: z.string().uuid(),
+    name: z.string().max(120).nullable(),
+    avatarUrl: z.string().max(2048).nullable(),
+  }),
+});
+export type ChatMessageEvent = z.infer<typeof chatMessageSchema>;
+
+/** Server -> client: a new chat message was persisted on the board. */
+export const chatMessageEventSchema = z.object({
+  boardId: boardIdSchema,
+  message: chatMessageSchema,
+});
+export type ChatMessageEventPayload = z.infer<typeof chatMessageEventSchema>;
+
+/** Server -> client: a comment was added to a thread on the board. */
+export const commentCreatedEventSchema = z.object({
+  boardId: boardIdSchema,
+  threadId: z.string().uuid(),
+  commentId: z.string().uuid(),
+  userId: z.string().uuid(),
+});
+export type CommentCreatedEvent = z.infer<typeof commentCreatedEventSchema>;
+
+/** Server -> client: a thread was resolved or unresolved. */
+export const commentResolvedEventSchema = z.object({
+  boardId: boardIdSchema,
+  threadId: z.string().uuid(),
+  userId: z.string().uuid(),
+  resolved: z.boolean(),
+  resolvedAt: z.string().nullable(),
+});
+export type CommentResolvedEvent = z.infer<typeof commentResolvedEventSchema>;
+
+/** Server -> client: a new in-app notification for the targeted user. */
+export const notificationNewEventSchema = z.object({
+  notificationId: z.string().uuid(),
+  type: z.string().min(1).max(64),
+  payload: z.record(z.string(), z.unknown()).nullable(),
+  readAt: z.string().nullable(),
+  createdAt: z.string(),
+});
+export type NotificationNewEvent = z.infer<typeof notificationNewEventSchema>;
+
 // ---------------------------------------------------------------------------
 // Ack data
 // ---------------------------------------------------------------------------
@@ -234,5 +317,16 @@ export const presenceRosterAckDataSchema = z.object({
   presence: z.array(presenceMemberSchema),
 });
 export type PresenceRosterAckData = z.infer<typeof presenceRosterAckDataSchema>;
+
+export const chatTypingAckDataSchema = z.object({
+  throttled: z.boolean(),
+});
+export type ChatTypingAckData = z.infer<typeof chatTypingAckDataSchema>;
+
+export const chatReadAckDataSchema = z.object({
+  lastReadMessageId: z.string().uuid(),
+  readAt: z.string(),
+});
+export type ChatReadAckData = z.infer<typeof chatReadAckDataSchema>;
 
 export type { PresenceActivity };

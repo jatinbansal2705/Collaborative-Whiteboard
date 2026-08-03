@@ -35,6 +35,14 @@ enum ShareLinkMode {
   PRIVATE
 }
 
+enum NotificationType {
+  INVITE
+  COMMENT
+  MENTION
+  BOARD_SHARED
+  CHAT_MENTION
+}
+
 model User {
   id                 String               @id @default(uuid()) @db.Uuid
   email              String               @unique @db.Citext
@@ -57,6 +65,11 @@ model User {
   boardMemberships   BoardMember[]
   boardFavourites    BoardFavourite[]
   pendingInvites     PendingInvite[]
+  comments           Comment[]
+  commentThreadsResolved CommentThread[] @relation("ThreadResolver")
+  chatMessages       ChatMessage[]
+  chatReadReceipts   ChatReadReceipt[]
+  notifications      Notification[]
 
   @@index([role])
   @@map("users")
@@ -111,6 +124,9 @@ model Board {
   favourites   BoardFavourite[]
   shareLinks   ShareLink[]
   pendingInvites PendingInvite[]
+  commentThreads CommentThread[]
+  chatMessages ChatMessage[]
+  chatReadReceipts ChatReadReceipt[]
   createdAt    DateTime        @default(now()) @map("created_at")
   updatedAt    DateTime        @updatedAt @map("updated_at")
   deletedAt    DateTime?       @map("deleted_at")
@@ -188,4 +204,89 @@ model PendingInvite {
   @@unique([boardId, email])
   @@index([email])
   @@map("pending_invites")
+}
+
+model CommentThread {
+  id         String     @id @default(uuid()) @db.Uuid
+  boardId    String     @map("board_id") @db.Uuid
+  board      Board      @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  x          Float
+  y          Float
+  resolvedAt DateTime?  @map("resolved_at")
+  resolvedBy String?    @map("resolved_by") @db.Uuid
+  resolver   User?      @relation("ThreadResolver", fields: [resolvedBy], references: [id], onDelete: SetNull)
+  comments   Comment[]
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @updatedAt @map("updated_at")
+  deletedAt  DateTime?  @map("deleted_at")
+
+  @@index([boardId])
+  @@index([resolvedBy])
+  @@map("comment_threads")
+}
+
+model Comment {
+  id        String         @id @default(uuid()) @db.Uuid
+  threadId  String         @map("thread_id") @db.Uuid
+  thread    CommentThread  @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  authorId  String         @map("author_id") @db.Uuid
+  author    User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  body      String         @db.Text
+  mentions  Json           @default("[]")
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+  deletedAt DateTime?      @map("deleted_at")
+
+  @@index([threadId])
+  @@index([authorId])
+  @@map("comments")
+}
+
+model ChatMessage {
+  id             String   @id @default(uuid()) @db.Uuid
+  boardId        String   @map("board_id") @db.Uuid
+  board          Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  authorId       String   @map("author_id") @db.Uuid
+  author         User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  body           String?  @db.Text
+  attachmentUrl  String?  @map("attachment_url") @db.VarChar(2048)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
+  readReceipts   ChatReadReceipt[]
+
+  @@index([boardId, createdAt])
+  @@index([authorId])
+  @@map("chat_messages")
+}
+
+model ChatReadReceipt {
+  id                String      @id @default(uuid()) @db.Uuid
+  boardId           String      @map("board_id") @db.Uuid
+  board             Board       @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  userId            String      @map("user_id") @db.Uuid
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastReadMessageId String      @map("last_read_message_id") @db.Uuid
+  lastReadMessage   ChatMessage @relation(fields: [lastReadMessageId], references: [id], onDelete: Cascade)
+  lastReadAt        DateTime    @default(now()) @map("last_read_at")
+  createdAt         DateTime    @default(now()) @map("created_at")
+  updatedAt         DateTime    @updatedAt @map("updated_at")
+
+  @@unique([boardId, userId])
+  @@index([userId])
+  @@map("chat_read_receipts")
+}
+
+model Notification {
+  id        String           @id @default(uuid()) @db.Uuid
+  userId    String           @map("user_id") @db.Uuid
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  payload   Json             @default("{}")
+  readAt    DateTime?        @map("read_at")
+  createdAt DateTime         @default(now()) @map("created_at")
+  updatedAt DateTime         @updatedAt @map("updated_at")
+
+  @@index([userId, readAt])
+  @@map("notifications")
 }

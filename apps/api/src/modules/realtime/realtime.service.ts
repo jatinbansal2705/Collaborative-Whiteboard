@@ -3,9 +3,20 @@ import {
   PRESENCE_ACTIVITY,
   SOCKET_EVENTS,
   boardRoom,
+  userRoom,
   type BoardDataPayload,
   type BoardDeletedPayload,
   type BoardMemberRole,
+  type ChatReadAckData,
+  type ChatReadEvent,
+  type ChatReadPayload,
+  type ChatTypingAckData,
+  type ChatTypingEvent,
+  type ChatTypingPayload,
+  type ChatMessageEvent,
+  type ChatMessageEventPayload,
+  type CommentCreatedEvent,
+  type CommentResolvedEvent,
   type CursorMoveAckData,
   type CursorMoveEvent,
   type CursorMovePayload,
@@ -22,6 +33,7 @@ import {
   type KickPayload,
   type LeaveAckData,
   type LeaveBoardPayload,
+  type NotificationNewEvent,
   type PresenceMember,
   type PresenceRosterPayload,
   type PresenceUpdateAckData,
@@ -38,9 +50,11 @@ import { BoardRepository } from '../boards/board.repository';
 import { MemberRepository } from '../boards/member.repository';
 import { UserRepository } from '../auth/repositories/user.repository';
 import type { AccessTokenVerified } from '../auth/auth-token.service';
+import { ChatService } from '../chat/chat.service';
 import { PresenceService } from './presence.service';
 import {
   boardNotFoundError,
+  chatMessageNotFoundError,
   forbiddenError,
   notAMemberError,
   notJoinedError,
@@ -75,6 +89,7 @@ export class RealtimeService {
     RealtimeSocketContext,
     CursorMovePayload
   >();
+  private readonly typingSentAt = new WeakMap<RealtimeSocketContext, number>();
   private server: Server | null = null;
 
   constructor(
@@ -85,6 +100,8 @@ export class RealtimeService {
     @Inject(forwardRef(() => BoardRepository))
     private readonly boardRepository: BoardRepository,
     private readonly userRepository: UserRepository,
+    @Inject(forwardRef(() => ChatService))
+    private readonly chatService: ChatService,
   ) {}
 
   attachServer(server: Server): void {
@@ -344,6 +361,107 @@ export class RealtimeService {
     };
     socket.to(boardRoom(boardId)).emit(SOCKET_EVENTS.SELECTION_UPDATE, event);
     return { selectedIds: payload.selectedIds };
+  }
+
+  /**
+   * Relays a typing indicator to the board room. Broadcasts are throttled per
+   * socket by `chatTypingThrottleMs`; excess updates are dropped (`throttled`).
+   */
+  chatTyping(
+    socket: RealtimeSocketContext,
+    payload: ChatTypingPayload,
+  ): ChatTypingAckData | SocketError {
+    const boardId = this.joinedBoardId(socket, payload.boardId);
+    if (boardId === null) {
+      return this.boardErrorFor(socket, payload.boardId);
+    }
+
+    const now = Date.now();
+    const lastSent = this.typingSentAt.get(socket) ?? 0;
+    if (now - lastSent < this.config.chatTypingThrottleMs) {
+      return { throttled: true };
+    }
+    this.typingSentAt.set(socket, now);
+
+    const event: ChatTypingEvent = {
+      boardId,
+      userId: socket.data.user.userId,
+      isTyping: payload.isTyping,
+    };
+    socket.to(boardRoom(boardId)).emit(SOCKET_EVENTS.CHAT_TYPING, event);
+    return { throttled: false };
+  }
+
+  /**
+   * Persists the caller's read receipt for a chat message and relays it to the
+   * board room so peers can show read state.
+   */
+  async chatRead(
+    socket: RealtimeSocketContext,
+    payload: ChatReadPayload,
+  ): Promise<ChatReadAckData | SocketError> {
+    const boardId = this.joinedBoardId(socket, payload.boardId);
+    if (boardId === null) {
+      return this.boardErrorFor(socket, payload.boardId);
+    }
+
+    const receipt = await this.chatService.recordReadReceipt(
+      boardId,
+      socket.data.user.userId,
+      payload.lastReadMessageId,
+    );
+    if (receipt === null) {
+      return chatMessageNotFoundError();
+    }
+
+    const event: ChatReadEvent = {
+      boardId,
+      userId: socket.data.user.userId,
+      lastReadMessageId: receipt.lastReadMessageId,
+      readAt: receipt.lastReadAt.toISOString(),
+    };
+    socket.to(boardRoom(boardId)).emit(SOCKET_EVENTS.CHAT_READ, event);
+    return {
+      lastReadMessageId: receipt.lastReadMessageId,
+      readAt: receipt.lastReadAt.toISOString(),
+    };
+  }
+
+  /** Broadcasts a newly persisted chat message to a board room. */
+  broadcastChatMessage(boardId: string, message: ChatMessageEvent): void {
+    const server = this.server;
+    if (server === null) {
+      return;
+    }
+    const event: ChatMessageEventPayload = { boardId, message };
+    server.to(boardRoom(boardId)).emit(SOCKET_EVENTS.CHAT_MESSAGE, event);
+  }
+
+  /** Broadcasts a comment addition to a board room. */
+  broadcastCommentCreated(boardId: string, event: CommentCreatedEvent): void {
+    const server = this.server;
+    if (server === null) {
+      return;
+    }
+    server.to(boardRoom(boardId)).emit(SOCKET_EVENTS.COMMENT_CREATED, event);
+  }
+
+  /** Broadcasts a thread resolve/unresolve change to a board room. */
+  broadcastCommentResolved(boardId: string, event: CommentResolvedEvent): void {
+    const server = this.server;
+    if (server === null) {
+      return;
+    }
+    server.to(boardRoom(boardId)).emit(SOCKET_EVENTS.COMMENT_RESOLVED, event);
+  }
+
+  /** Delivers an in-app notification to all of a user's connected sockets. */
+  emitNotification(userId: string, event: NotificationNewEvent): void {
+    const server = this.server;
+    if (server === null) {
+      return;
+    }
+    server.to(userRoom(userId)).emit(SOCKET_EVENTS.NOTIFICATION_NEW, event);
   }
 
   async kick(boardId: string, userId: string, reason: string): Promise<void> {

@@ -14,6 +14,12 @@ export interface AppConfig {
   realtime: {
     presenceTtlMs: number;
     cursorMinIntervalMs: number;
+    chatTypingThrottleMs: number;
+  };
+  queue: {
+    emailName: string;
+    emailAttempts: number;
+    emailBackoffMs: number;
   };
   jwt: {
     accessSecret: string | undefined;
@@ -80,6 +86,15 @@ export default (): AppConfig => ({
       process.env.REALTIME_CURSOR_MIN_INTERVAL_MS ?? '25',
       10,
     ),
+    chatTypingThrottleMs: parseInt(
+      process.env.REALTIME_CHAT_TYPING_THROTTLE_MS ?? '1000',
+      10,
+    ),
+  },
+  queue: {
+    emailName: process.env.EMAIL_QUEUE_NAME ?? 'email',
+    emailAttempts: parseInt(process.env.EMAIL_QUEUE_ATTEMPTS ?? '3', 10),
+    emailBackoffMs: parseInt(process.env.EMAIL_QUEUE_BACKOFF_MS ?? '5000', 10),
   },
   jwt: {
     accessSecret: process.env.JWT_ACCESS_SECRET,

@@ -57,3 +57,28 @@ export type ShareLink = Prisma.ShareLinkModel
  * 
  */
 export type PendingInvite = Prisma.PendingInviteModel
+/**
+ * Model CommentThread
+ * 
+ */
+export type CommentThread = Prisma.CommentThreadModel
+/**
+ * Model Comment
+ * 
+ */
+export type Comment = Prisma.CommentModel
+/**
+ * Model ChatMessage
+ * 
+ */
+export type ChatMessage = Prisma.ChatMessageModel
+/**
+ * Model ChatReadReceipt
+ * 
+ */
+export type ChatReadReceipt = Prisma.ChatReadReceiptModel
+/**
+ * Model Notification
+ * 
+ */
+export type Notification = Prisma.NotificationModel

@@ -135,6 +135,20 @@ follows the template below. Sessions MUST read all entries before implementing.
 - **Decision**: Authentication runs as socket.io middleware (`server.use`) — the token is read from `auth.token` or the `Authorization: Bearer` header, verified via `TokenService.verifyAccessToken`, and stored on `socket.data.user`. Middleware (not `handleConnection`) buffers client packets until the async check finishes, and a rejection emits `connect_error` carrying the standard `{ ok: false, error: { code, message } }` envelope before the client disconnects. Presence is stored two ways in Redis — `presence:board:<boardId>` (socketId → record, the roster source) and `presence:user:<userId>` (used to locate sockets for kicks) — with TTLs refreshed on every write so stale entries expire. All client events are validated against the shared Zod schemas and answered with `{ ok: true, data }` / `{ ok: false, error }`.
 - **Consequences**: Unauthenticated sockets never join rooms or send events; the roster is queryable by any API instance; the ack envelope mirrors the REST contract for uniform client handling. Cursor traffic is throttled per socket (`cursorMinIntervalMs`) with latest-position coalescing. Board lifecycle hooks (`RealtimeService.closeBoard`/`kick`) fire from `BoardsService` on delete, member removal, and leave.
 
+### ADR-0016: BullMQ email queue with worker isolation
+
+- **Status**: Accepted
+- **Context**: Mention notifications need asynchronous email delivery that must not block the request path and should survive short-lived infrastructure hiccups.
+- **Decision**: BullMQ (`@nestjs/bullmq`, queue name from `EMAIL_QUEUE_NAME`, default `email`) is wired once in `AppModule` via `BullModule.forRootAsync` reusing the existing Redis URL. The email queue is owned by `NotificationsModule`; jobs carry `EmailJobData` (`MentionEmailJobData` for mention emails) and are processed by a `@Processor` `WorkerHost` (`EmailQueueProcessor`) that calls `EmailService.sendMentionEmail`. Mentions enqueue with per-job retries (`EMAIL_QUEUE_ATTEMPTS` = 3) and exponential backoff (`EMAIL_QUEUE_BACKOFF_MS` = 5000), plus `removeOnComplete`/`removeOnFail` to keep the queue tidy. The mention email links the user back to the board with `?thread=<threadId>` to deep-link the comment thread.
+- **Consequences**: The REST request path stays fast (only a Redis `LPUSH`); a dead SMTP server cannot fail an API call. Worker failure modes are visible via BullMQ's job states. In-app notifications are delivered immediately over Socket.IO, while the email leg is eventual.
+
+### ADR-0017: Shared typed socket events for collaboration + user rooms
+
+- **Status**: Accepted
+- **Context**: Chat messages, comment threads, mention notifications, and typing/read indicators all flow over the same `/boards` namespace and must stay in sync with REST responses; notifications must reach a user regardless of which board (or none) they are viewing.
+- **Decision**: Every new collaboration payload/ack is defined once in `@whiteboard/shared` (`events.ts`, `payloads.ts`) as a Zod schema with an inferred type and validated at the gateway boundary — `ChatMessageEvent`, `CommentCreatedEvent`, `CommentResolvedEvent`, `NotificationNewEvent`, `ChatTypingEvent`, `ChatReadEvent`. Chat/comment writes are broadcast to the board room as canonical events (the same shape REST returns), keeping clients in sync. Notifications additionally join a per-user room `user:<userId>` (`userRoom(userId)`) during the JWT handshake so `NotificationsService.createInApp` can push a `NotificationNewEvent` to the exact recipient. Chat read receipts are written by the realtime layer calling back into `ChatService` (`recordReadReceipt`); a missing message yields the shared `MESSAGE_NOT_FOUND` error code on the ack.
+- **Consequences**: One source of truth for wire contracts across REST + Socket.IO; the client can render chat/comment events without refetching. Typing is throttled per socket via a `WeakMap` timestamp (`chatTypingThrottleMs`, default 1000ms) to avoid flooding rooms.
+
 ## Scaling Strategy (summary)
 
 - **Stateless API** — horizontal scaling behind a load balancer.
@@ -142,7 +156,8 @@ follows the template below. Sessions MUST read all entries before implementing.
 - **Socket.IO adapter** — broadcasts fan out across instances.
 - **PostgreSQL** — read replicas for board listing/search; cursor pagination everywhere.
 - **CDN** — Cloudinary for images/thumbnails; Next.js ISR for public share pages.
-- **Queue** — out-of-band email/notification work moves to a job queue (BullMQ) in Phase 7.
+- **Queue** — BullMQ job queue for mention emails, processed by an isolated worker (`EmailQueueProcessor`) against the same Redis.
+- **User rooms** — `user:<userId>` Socket.IO rooms deliver notifications to a user across boards.
 
 ## Future Enhancements
 

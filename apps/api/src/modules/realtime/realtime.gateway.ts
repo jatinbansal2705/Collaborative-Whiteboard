@@ -14,6 +14,8 @@ import {
   SOCKET_EVENTS,
   ackError,
   ackOk,
+  chatReadPayloadSchema,
+  chatTypingPayloadSchema,
   cursorMovePayloadSchema,
   drawPatchPayloadSchema,
   elementCreatePayloadSchema,
@@ -22,7 +24,10 @@ import {
   leaveBoardPayloadSchema,
   presenceUpdatePayloadSchema,
   selectionUpdatePayloadSchema,
+  userRoom,
   validateSocketPayload,
+  type ChatReadAckData,
+  type ChatTypingAckData,
   type JoinAckData,
   type LeaveAckData,
   type PresenceUpdateAckData,
@@ -87,6 +92,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayDisconnect {
     }
     const user = await this.tokenService.verifyAccessToken(token);
     (socket.data as RealtimeSocketData).user = user;
+    await socket.join(userRoom(user.userId));
   }
 
   private toConnectionError(error: unknown): Error {
@@ -223,6 +229,34 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayDisconnect {
         this.toContext(socket),
         parsed.value,
       ),
+    );
+  }
+
+  @SubscribeMessage(SOCKET_EVENTS.CHAT_TYPING)
+  onChatTyping(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() payload: unknown,
+  ): SocketAck<ChatTypingAckData> {
+    const parsed = validateSocketPayload(chatTypingPayloadSchema, payload);
+    if (!parsed.ok) {
+      return ackError(parsed.error.code, parsed.error.message);
+    }
+    return this.toAck(
+      this.realtimeService.chatTyping(this.toContext(socket), parsed.value),
+    );
+  }
+
+  @SubscribeMessage(SOCKET_EVENTS.CHAT_READ)
+  async onChatRead(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() payload: unknown,
+  ): Promise<SocketAck<ChatReadAckData>> {
+    const parsed = validateSocketPayload(chatReadPayloadSchema, payload);
+    if (!parsed.ok) {
+      return ackError(parsed.error.code, parsed.error.message);
+    }
+    return this.toAck(
+      await this.realtimeService.chatRead(this.toContext(socket), parsed.value),
     );
   }
 

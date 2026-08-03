@@ -22,6 +22,7 @@ import {
 import { UserRepository } from '../auth/repositories/user.repository';
 import { BoardRepository } from '../boards/board.repository';
 import { MemberRepository } from '../boards/member.repository';
+import { ChatService } from '../chat/chat.service';
 import { PresenceService } from './presence.service';
 import { REALTIME_CONFIG } from './realtime.constants';
 import { RealtimeGateway } from './realtime.gateway';
@@ -88,6 +89,12 @@ describe('RealtimeGateway (socket.io)', () => {
   const memberRepository = { findMembership: jest.fn() };
   const boardRepository = { findById: jest.fn() };
   const userRepository = { findById: jest.fn() };
+  const chatService = {
+    recordReadReceipt: jest.fn(),
+    listMessages: jest.fn(),
+    createMessage: jest.fn(),
+    getReadReceipt: jest.fn(),
+  };
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -97,12 +104,17 @@ describe('RealtimeGateway (socket.io)', () => {
         PresenceService,
         {
           provide: REALTIME_CONFIG,
-          useValue: { presenceTtlMs: 90_000, cursorMinIntervalMs: 1_000 },
+          useValue: {
+            presenceTtlMs: 90_000,
+            cursorMinIntervalMs: 1_000,
+            chatTypingThrottleMs: 1_000,
+          },
         },
         { provide: TokenService, useValue: tokenService },
         { provide: MemberRepository, useValue: memberRepository },
         { provide: BoardRepository, useValue: boardRepository },
         { provide: UserRepository, useValue: userRepository },
+        { provide: ChatService, useValue: chatService },
         { provide: RedisService, useValue: inMemoryRedis },
       ],
     }).compile();

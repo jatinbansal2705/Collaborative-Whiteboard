@@ -86,6 +86,7 @@ describe('AuthService', () => {
   const emailService = {
     sendVerificationEmail: jest.fn(),
     sendPasswordResetEmail: jest.fn(),
+    sendMentionEmail: jest.fn(),
   };
   const configService = {
     get: jest.fn(),

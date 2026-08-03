@@ -49,3 +49,14 @@ export const ShareLinkMode = {
 } as const
 
 export type ShareLinkMode = (typeof ShareLinkMode)[keyof typeof ShareLinkMode]
+
+
+export const NotificationType = {
+  INVITE: 'INVITE',
+  COMMENT: 'COMMENT',
+  MENTION: 'MENTION',
+  BOARD_SHARED: 'BOARD_SHARED',
+  CHAT_MENTION: 'CHAT_MENTION'
+} as const
+
+export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]

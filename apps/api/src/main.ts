@@ -40,6 +40,9 @@ async function bootstrap(): Promise<void> {
     .addTag('health', 'Service health')
     .addTag('auth', 'Authentication')
     .addTag('boards', 'Boards, membership and sharing')
+    .addTag('chat', 'Board chat messages and read receipts')
+    .addTag('comments', 'Comment threads, replies and mentions')
+    .addTag('notifications', 'In-app notifications')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       'access-token',

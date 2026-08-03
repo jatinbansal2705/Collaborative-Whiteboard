@@ -5,10 +5,13 @@ export interface RealtimeConfig {
   presenceTtlMs: number;
   /** Minimum interval between cursor broadcasts per socket (ms). */
   cursorMinIntervalMs: number;
+  /** Minimum interval between typing-indicator broadcasts per socket (ms). */
+  chatTypingThrottleMs: number;
 }
 
 export const DEFAULT_PRESENCE_TTL_MS = 90_000;
 export const DEFAULT_CURSOR_MIN_INTERVAL_MS = 25;
+export const DEFAULT_CHAT_TYPING_THROTTLE_MS = 1_000;
 
 /** Reason sent to a socket when its membership was revoked. */
 export const KICK_REASON_REMOVED = 'REMOVED';

@@ -10,6 +10,14 @@ export interface SendPasswordResetEmailOptions {
   resetLink: string;
 }
 
+export interface SendMentionEmailOptions {
+  to: string;
+  name?: string;
+  actorName: string | null;
+  bodyPreview: string;
+  commentLink: string;
+}
+
 export abstract class EmailService {
   abstract sendVerificationEmail(
     options: SendVerificationEmailOptions,
@@ -18,4 +26,6 @@ export abstract class EmailService {
   abstract sendPasswordResetEmail(
     options: SendPasswordResetEmailOptions,
   ): Promise<void>;
+
+  abstract sendMentionEmail(options: SendMentionEmailOptions): Promise<void>;
 }
