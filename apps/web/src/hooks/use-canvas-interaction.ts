@@ -3,7 +3,11 @@ import type Konva from 'konva';
 import type { KonvaEventObject } from 'konva/lib/Node';
 import {
   bumpElementVersion,
+  isEditableElement,
+  type ConnectorElement,
   type Point,
+  type StickyElement,
+  type TextElement,
   type WhiteboardElement,
 } from '@whiteboard/shared';
 import { useCameraStore } from '@/stores/camera-store';
@@ -25,8 +29,20 @@ import {
   rotateElement,
   snapToGrid,
 } from '@/lib/canvas/geometry';
-import { createElement } from '@/lib/canvas/elements';
+import {
+  createElement,
+  createConnectorElement,
+  createStickyElement,
+  createTextElement,
+} from '@/lib/canvas/elements';
 import { createElementId } from '@/lib/canvas/ids';
+import { expandSelectionToGroups } from '@/lib/canvas/grouping';
+import {
+  bindConnectorEndpoints,
+  buildConnector,
+  moveConnector,
+  rerouteConnectors,
+} from '@/lib/canvas/connectors';
 import {
   GUIDE_TOLERANCE,
   GRID_SIZE,
@@ -35,13 +51,15 @@ import {
   MIN_ELEMENT_SIZE,
   POINT_SAMPLE_DISTANCE,
   ROTATE_SNAP_STEP,
+  STICKY_MIN_HEIGHT,
+  STICKY_MIN_WIDTH,
+  TEXT_MIN_WIDTH,
   ZOOM_STEP,
 } from '@/lib/canvas/constants';
 import type {
   FreehandToolId,
   GuideLines,
   ResizeHandle,
-  ShapeToolId,
   ToolId,
   ViewportTransform,
 } from '@/lib/canvas/types';
@@ -58,7 +76,16 @@ function isFreehandTool(tool: ToolId): tool is FreehandToolId {
 }
 
 type DragMode =
-  'draw' | 'move' | 'resize' | 'rotate' | 'select' | 'pan' | 'erase' | 'pinch';
+  | 'draw'
+  | 'move'
+  | 'resize'
+  | 'rotate'
+  | 'select'
+  | 'pan'
+  | 'erase'
+  | 'pinch'
+  | 'place'
+  | 'connector';
 
 interface DragState {
   mode: DragMode;
@@ -79,6 +106,7 @@ interface DragState {
   center?: Point;
   erased?: boolean;
   shiftKey?: boolean;
+  draftElement?: WhiteboardElement;
 }
 
 interface PinchState {
@@ -136,10 +164,43 @@ function buildDrawElement(
     });
   }
   return createElement(
-    tool as ShapeToolId,
+    tool as WhiteboardElement['type'],
     [startWorld, points[points.length - 1] ?? startWorld],
     { id: createElementId(), style, ownerId },
   );
+}
+
+/** Default text/sticky element placed at a point for the place gesture. */
+function buildPlaceElement(
+  tool: 'text' | 'sticky',
+  point: Point,
+): WhiteboardElement {
+  const { style } = useCanvasStore.getState();
+  const ownerId = null;
+  if (tool === 'text') {
+    return createTextElement(point, { id: createElementId(), style, ownerId });
+  }
+  return createStickyElement(point, { id: createElementId(), style, ownerId });
+}
+
+/** Sizes a placed text/sticky element from a drag rectangle. */
+function sizePlacedElement(
+  element: WhiteboardElement,
+  tool: 'text' | 'sticky',
+  start: Point,
+  end: Point,
+): WhiteboardElement {
+  if (tool === 'text') {
+    const width = Math.max(TEXT_MIN_WIDTH, end.x - start.x);
+    return {
+      ...(element as TextElement),
+      width,
+      autoWidth: false,
+    };
+  }
+  const width = Math.max(STICKY_MIN_WIDTH, end.x - start.x);
+  const height = Math.max(STICKY_MIN_HEIGHT, end.y - start.y);
+  return { ...(element as StickyElement), width, height };
 }
 
 /**
@@ -217,6 +278,31 @@ export function useCanvasInteraction() {
         useCanvasStore.getState().setDraft({ kind: 'draw', element });
         break;
       }
+      case 'place': {
+        const base = drag.draftElement as WhiteboardElement;
+        if (base === undefined) {
+          return;
+        }
+        const sized = sizePlacedElement(
+          base,
+          drag.drawingType as 'text' | 'sticky',
+          drag.startWorld,
+          world,
+        );
+        drag.draftElement = sized;
+        useCanvasStore.getState().setDraft({ kind: 'draw', element: sized });
+        break;
+      }
+      case 'connector': {
+        const base = drag.draftElement as ConnectorElement;
+        if (base === undefined) {
+          return;
+        }
+        const next = buildConnector(base, base.start, world);
+        drag.draftElement = next;
+        useCanvasStore.getState().setDraft({ kind: 'draw', element: next });
+        break;
+      }
       case 'move': {
         if (!drag.moved && distance(drag.startScreen, pos) < DRAG_THRESHOLD) {
           return;
@@ -247,7 +333,9 @@ export function useCanvasInteraction() {
         }
         canvas.setGuides(guides);
         const moved = originals.map((element) =>
-          moveElement(element, guides.dx, guides.dy),
+          element.type === 'connector'
+            ? moveConnector(element, guides.dx, guides.dy)
+            : moveElement(element, guides.dx, guides.dy),
         );
         canvas.setElements(moved);
         break;
@@ -303,8 +391,11 @@ export function useCanvasInteraction() {
         const canvas = useCanvasStore.getState();
         const rect = rectFromPoints(drag.startWorld, world);
         canvas.setDraft({ kind: 'select', rect });
-        const intersecting = canvas.elements.filter((element) =>
-          rectsIntersect(rect, elementBBox(element)),
+        const intersecting = canvas.elements.filter(
+          (element) =>
+            !element.locked &&
+            !element.hidden &&
+            rectsIntersect(rect, elementBBox(element)),
         );
         canvas.setSelectedIds(intersecting.map((element) => element.id));
         break;
@@ -316,7 +407,8 @@ export function useCanvasInteraction() {
         drag.moved = true;
         const canvas = useCanvasStore.getState();
         const remaining = canvas.elements.filter(
-          (element) => !pointInElement(element, world, HIT_PADDING),
+          (element) =>
+            element.locked || !pointInElement(element, world, HIT_PADDING),
         );
         if (remaining.length !== canvas.elements.length) {
           drag.erased = true;
@@ -380,13 +472,41 @@ export function useCanvasInteraction() {
           commit(drag.before, [...drag.before, element], [element.id]);
           break;
         }
+        case 'place': {
+          const element = drag.draftElement as WhiteboardElement | undefined;
+          canvas.setDraft(null);
+          if (element === undefined) {
+            return;
+          }
+          if (element.width < MIN_ELEMENT_SIZE) {
+            return;
+          }
+          commit(drag.before, [...drag.before, element], [element.id]);
+          useCanvasStore.getState().startEditing(element.id);
+          useToolStore.getState().setTool('select');
+          break;
+        }
+        case 'connector': {
+          const element = drag.draftElement as ConnectorElement | undefined;
+          canvas.setDraft(null);
+          if (element === undefined) {
+            return;
+          }
+          if (distance(element.start, element.end) < MIN_ELEMENT_SIZE) {
+            return;
+          }
+          const bound = bindConnectorEndpoints(element, drag.before, 8);
+          commit(drag.before, [...drag.before, bound], [bound.id]);
+          break;
+        }
         case 'move':
         case 'resize':
         case 'rotate':
           canvas.setGuides(null);
           canvas.setDraft(null);
           if (drag.moved) {
-            commit(drag.before, canvas.elements, canvas.selectedIds);
+            const rerouted = rerouteConnectors(canvas.elements);
+            commit(drag.before, rerouted, canvas.selectedIds);
           }
           break;
         case 'select':
@@ -500,7 +620,8 @@ export function useCanvasInteraction() {
       useToolStore.getState().transientTool ??
       useToolStore.getState().activeTool;
 
-    if (native.button === 1 || native.button === 2 || tool === 'hand') {
+    // Middle mouse button or the hand tool pans; right-click opens the context menu.
+    if (native.button === 1 || tool === 'hand') {
       startDrag({
         mode: 'pan',
         pointerId,
@@ -522,7 +643,7 @@ export function useCanvasInteraction() {
       const original = canvas.elements.find(
         (element) => element.id === elementId,
       );
-      if (original === undefined) {
+      if (original === undefined || original.locked) {
         return;
       }
       if (targetName === 'resize-handle') {
@@ -563,17 +684,36 @@ export function useCanvasInteraction() {
     if (tool === 'select') {
       const hitId = hitElementId(event);
       if (hitId !== null) {
-        if (native.shiftKey) {
-          canvas.toggleSelection(hitId);
+        const hitElement = canvas.elements.find(
+          (element) => element.id === hitId,
+        );
+        if (hitElement === undefined || hitElement.locked) {
           return;
         }
-        const alreadySelected = canvas.selectedIds.includes(hitId);
+        const ids =
+          hitElement.groupId === null
+            ? [hitId]
+            : expandSelectionToGroups(canvas.elements, [hitId]);
+        if (native.shiftKey) {
+          const current = new Set(canvas.selectedIds);
+          const allSelected = ids.every((id) => current.has(id));
+          canvas.setSelectedIds(
+            allSelected
+              ? canvas.selectedIds.filter((id) => !ids.includes(id))
+              : [...new Set([...canvas.selectedIds, ...ids])],
+          );
+          return;
+        }
+        const alreadySelected = ids.every((id) =>
+          canvas.selectedIds.includes(id),
+        );
         if (!alreadySelected) {
-          canvas.selectOnly(hitId);
+          canvas.setSelectedIds(ids);
         }
         const current = useCanvasStore.getState();
-        const originals = current.elements.filter((element) =>
-          current.selectedIds.includes(element.id),
+        const originals = current.elements.filter(
+          (element) =>
+            current.selectedIds.includes(element.id) && !element.locked,
         );
         startDrag({
           mode: 'move',
@@ -616,6 +756,50 @@ export function useCanvasInteraction() {
       return;
     }
 
+    if (tool === 'text' || tool === 'sticky') {
+      startDrag({
+        mode: 'place',
+        pointerId,
+        startScreen: pos,
+        lastScreen: pos,
+        startWorld: world,
+        lastWorld: world,
+        moved: false,
+        before: canvas.elements,
+        drawingType: tool,
+        draftElement: buildPlaceElement(tool, world),
+      });
+      return;
+    }
+
+    if (tool === 'connector') {
+      const { style } = useCanvasStore.getState();
+      const draft = createConnectorElement(world, world, {
+        id: createElementId(),
+        style,
+        ownerId: null,
+      });
+      startDrag({
+        mode: 'connector',
+        pointerId,
+        startScreen: pos,
+        lastScreen: pos,
+        startWorld: world,
+        lastWorld: world,
+        moved: false,
+        before: canvas.elements,
+        draftElement: draft,
+      });
+      return;
+    }
+
+    if (tool === 'image' || tool === 'icon' || tool === 'emoji') {
+      useCanvasStore
+        .getState()
+        .setPendingInsertion({ kind: tool, x: world.x, y: world.y });
+      return;
+    }
+
     const drag: DragState = {
       mode: 'draw',
       pointerId,
@@ -631,6 +815,23 @@ export function useCanvasInteraction() {
     };
     startDrag(drag);
     handleDragMove(drag, pos);
+  }
+
+  function handleDoubleClick(event: KonvaEventObject<MouseEvent>): void {
+    const canvas = useCanvasStore.getState();
+    const hitId = hitElementId(event);
+    if (hitId === null) {
+      return;
+    }
+    const element = canvas.elements.find((entry) => entry.id === hitId);
+    if (
+      element !== undefined &&
+      !element.locked &&
+      isEditableElement(element)
+    ) {
+      canvas.selectOnly(element.id);
+      canvas.startEditing(element.id);
+    }
   }
 
   const handleWheel = useCallback((event: KonvaEventObject<WheelEvent>) => {
@@ -674,6 +875,7 @@ export function useCanvasInteraction() {
   return {
     stageRef,
     onPointerDown: handlePointerDown,
+    onDoubleClick: handleDoubleClick,
     onWheel: handleWheel,
     onTouchStart: handleTouchStart,
   };

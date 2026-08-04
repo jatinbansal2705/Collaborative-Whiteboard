@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Group, Layer, Stage } from 'react-konva';
 import { useTheme } from 'next-themes';
 import { CANVAS_COLORS } from '@/lib/canvas/constants';
@@ -8,10 +8,13 @@ import { useCameraStore } from '@/stores/camera-store';
 import { useCanvasStore } from '@/stores/canvas-store';
 import { useToolStore } from '@/stores/tool-store';
 import { useCanvasInteraction } from '@/hooks/use-canvas-interaction';
+import { CanvasContextMenu } from './canvas-context-menu';
 import { ElementNode } from './element-node';
 import { GridLayer } from './grid-layer';
 import { GuidesLayer } from './guides-layer';
+import { RichTextEditor } from './rich-text-editor';
 import { SelectionLayer } from './selection-layer';
+import { StickyEditor } from './sticky-editor';
 
 function canvasCursor(tool: string, dragging: boolean): string {
   if (dragging) {
@@ -29,8 +32,12 @@ function canvasCursor(tool: string, dragging: boolean): string {
 /** Full-screen Konva stage implementing the infinite canvas viewport. */
 export function BoardCanvas() {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const { stageRef, onPointerDown, onWheel, onTouchStart } =
+  const { stageRef, onPointerDown, onDoubleClick, onWheel, onTouchStart } =
     useCanvasInteraction();
+  const [menuPosition, setMenuPosition] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
   const zoom = useCameraStore((state) => state.zoom);
   const offsetX = useCameraStore((state) => state.offsetX);
   const offsetY = useCameraStore((state) => state.offsetY);
@@ -39,6 +46,7 @@ export function BoardCanvas() {
   const setViewportSize = useCameraStore((state) => state.setViewportSize);
   const elements = useCanvasStore((state) => state.elements);
   const draft = useCanvasStore((state) => state.draft);
+  const editingId = useCanvasStore((state) => state.editingId);
   const gridVisible = useCanvasStore((state) => state.gridVisible);
   const tool = useToolStore((state) => state.transientTool ?? state.activeTool);
   const { resolvedTheme } = useTheme();
@@ -72,6 +80,7 @@ export function BoardCanvas() {
 
   const handleContextMenu = useCallback((event: React.MouseEvent) => {
     event.preventDefault();
+    setMenuPosition({ x: event.clientX, y: event.clientY });
   }, []);
 
   return (
@@ -86,6 +95,7 @@ export function BoardCanvas() {
         width={viewportWidth}
         height={viewportHeight}
         onPointerDown={onPointerDown}
+        onDblClick={onDoubleClick}
         onWheel={onWheel}
         onTouchStart={onTouchStart}
         style={{ display: 'block' }}
@@ -109,6 +119,16 @@ export function BoardCanvas() {
           </Group>
         </Layer>
       </Stage>
+      {editingId !== null ? (
+        <>
+          <RichTextEditor />
+          <StickyEditor />
+        </>
+      ) : null}
+      <CanvasContextMenu
+        position={menuPosition}
+        onClose={() => setMenuPosition(null)}
+      />
     </div>
   );
 }

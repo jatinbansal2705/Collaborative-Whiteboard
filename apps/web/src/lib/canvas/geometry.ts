@@ -268,6 +268,21 @@ export function pointInElement(
       return (
         distanceToBezier(local, element.points) <= element.strokeWidth / 2 + pad
       );
+    case 'text':
+    case 'sticky':
+    case 'image':
+    case 'icon':
+      return (
+        local.x >= -pad &&
+        local.x <= w + pad &&
+        local.y >= -pad &&
+        local.y <= h + pad
+      );
+    case 'connector':
+      return element.points.length === 0
+        ? false
+        : distanceToPolyline(local, element.points) <=
+            element.strokeWidth / 2 + pad;
   }
 }
 

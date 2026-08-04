@@ -6,14 +6,20 @@ import {
   Eraser,
   Hand,
   Highlighter,
+  Image,
   Minus,
   MousePointer2,
   Pen,
   Pencil,
+  Shapes,
+  Smile,
   Spline,
   Square,
+  StickyNote,
   Triangle,
+  Type,
   MoveUpRight,
+  Waypoints,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -48,6 +54,16 @@ const TOOL_GROUPS: readonly (readonly ToolDefinition[])[] = [
     { id: 'arrow', label: 'Arrow', icon: MoveUpRight },
     { id: 'line', label: 'Line', icon: Minus },
     { id: 'bezier', label: 'Bezier', icon: Spline },
+  ],
+  [
+    { id: 'text', label: 'Text', icon: Type },
+    { id: 'sticky', label: 'Sticky note', icon: StickyNote },
+    { id: 'connector', label: 'Connector', icon: Waypoints },
+  ],
+  [
+    { id: 'image', label: 'Image', icon: Image },
+    { id: 'icon', label: 'Icon', icon: Shapes },
+    { id: 'emoji', label: 'Emoji', icon: Smile },
   ],
 ];
 

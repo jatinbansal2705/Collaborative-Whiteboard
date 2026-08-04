@@ -1,6 +1,13 @@
-import type { DashStyle, ElementShadow } from '@whiteboard/shared';
+import type {
+  ConnectorHandle,
+  DashStyle,
+  ElementShadow,
+  ListType,
+  TextAlign,
+  WhiteboardElement,
+} from '@whiteboard/shared';
 
-export type { DashStyle, ElementShadow };
+export type { ConnectorHandle, DashStyle, ElementShadow, ListType, TextAlign };
 
 /** Element-creating tools that store freehand point streams. */
 export type FreehandToolId = 'pen' | 'pencil' | 'highlighter';
@@ -25,6 +32,12 @@ export type ToolId =
   | 'arrow'
   | 'line'
   | 'bezier'
+  | 'text'
+  | 'sticky'
+  | 'connector'
+  | 'image'
+  | 'icon'
+  | 'emoji'
   | 'eraser';
 
 export const DRAWING_TOOLS: ReadonlySet<ToolId> = new Set<ToolId>([
@@ -38,7 +51,23 @@ export const DRAWING_TOOLS: ReadonlySet<ToolId> = new Set<ToolId>([
   'arrow',
   'line',
   'bezier',
+  'text',
+  'sticky',
+  'connector',
+  'image',
+  'icon',
+  'emoji',
 ]);
+
+/** Element types that support fill colour (shapes + sticky notes). */
+export const FILLABLE_ELEMENT_TYPES: ReadonlySet<WhiteboardElement['type']> =
+  new Set<WhiteboardElement['type']>([
+    'rectangle',
+    'ellipse',
+    'triangle',
+    'diamond',
+    'sticky',
+  ]);
 
 /** Per-tool styling used when creating new elements and applying to selection. */
 export interface ElementStyle {

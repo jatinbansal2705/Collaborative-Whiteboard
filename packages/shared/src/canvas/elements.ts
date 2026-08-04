@@ -25,6 +25,11 @@ export const ELEMENT_TYPES = {
   ARROW: 'arrow',
   LINE: 'line',
   BEZIER: 'bezier',
+  TEXT: 'text',
+  STICKY: 'sticky',
+  CONNECTOR: 'connector',
+  IMAGE: 'image',
+  ICON: 'icon',
 } as const;
 
 export type ElementType = (typeof ELEMENT_TYPES)[keyof typeof ELEMENT_TYPES];
@@ -75,6 +80,56 @@ export type ElementShadow = z.infer<typeof elementShadowSchema>;
 
 const colorSchema = z.string().min(1).max(32);
 
+/**
+ * Rich-text model (Phase 11). A text element holds paragraphs; each paragraph
+ * contains styled runs and paragraph-level alignment/list formatting. The model
+ * is deliberately structural (no HTML) so it renders safely in Konva and
+ * round-trips with the contentEditable editor via the pure serializers in
+ * `apps/web/src/lib/canvas/text.ts`.
+ */
+export const TEXT_ALIGN = ['left', 'center', 'right', 'justify'] as const;
+export type TextAlign = (typeof TEXT_ALIGN)[number];
+
+export const LIST_TYPES = ['bullet', 'numbered'] as const;
+export type ListType = (typeof LIST_TYPES)[number];
+
+export const textRunSchema = z.object({
+  text: z.string().max(100000),
+  bold: z.boolean().optional(),
+  italic: z.boolean().optional(),
+  underline: z.boolean().optional(),
+  /** Hyperlink target; rendered as underlined link-colored text. */
+  link: z.string().max(2048).optional(),
+});
+export type TextRun = z.infer<typeof textRunSchema>;
+
+export const textParagraphSchema = z.object({
+  runs: z.array(textRunSchema).min(1),
+  align: z.enum(TEXT_ALIGN).default('left'),
+  listType: z.enum(LIST_TYPES).nullable().default(null),
+});
+export type TextParagraph = z.infer<typeof textParagraphSchema>;
+
+export const FONT_FAMILIES = [
+  'Inter',
+  'Arial',
+  'Helvetica',
+  'Georgia',
+  'Courier New',
+  'Comic Sans MS',
+  'Verdana',
+] as const;
+
+/** Attachment points a connector binds to on an element's bounding box. */
+export const CONNECTOR_HANDLES = [
+  'top',
+  'right',
+  'bottom',
+  'left',
+  'center',
+] as const;
+export type ConnectorHandle = (typeof CONNECTOR_HANDLES)[number];
+
 export const baseElementSchema = z.object({
   id: elementIdSchema,
   type: z.string().min(1).max(64),
@@ -94,6 +149,14 @@ export const baseElementSchema = z.object({
   lastModifiedBy: z.string().min(1).max(128).nullable(),
   createdAt: z.number().int().nonnegative(),
   updatedAt: z.number().int().nonnegative(),
+  /** Optional display name shown in the layers panel (Phase 11). */
+  name: z.string().max(128).nullable().default(null),
+  /** Group membership; members move/transform together (Phase 11). */
+  groupId: z.string().max(128).nullable().default(null),
+  /** Locked elements ignore transform gestures, delete and eraser. */
+  locked: z.boolean().default(false),
+  /** Hidden elements are not rendered and cannot be hit-tested. */
+  hidden: z.boolean().default(false),
 });
 export type BaseElementFields = z.infer<typeof baseElementSchema>;
 
@@ -191,6 +254,58 @@ const bezierElementSchema = baseElementSchema.extend({
 });
 export type BezierElement = z.infer<typeof bezierElementSchema>;
 
+const textElementSchema = baseElementSchema.extend({
+  type: z.literal(ELEMENT_TYPES.TEXT),
+  paragraphs: z.array(textParagraphSchema).min(1).max(10000),
+  fontFamily: z.enum(FONT_FAMILIES).default('Inter'),
+  fontSize: z.number().finite().positive().max(200).default(16),
+  lineHeight: z.number().finite().positive().max(3).default(1.2),
+  /** Text colour (kept separate from `strokeColor` which has no visual role here). */
+  color: colorSchema,
+  /** When true the box hugs its content instead of wrapping at `width`. */
+  autoWidth: z.boolean().default(false),
+});
+export type TextElement = z.infer<typeof textElementSchema>;
+
+const stickyElementSchema = baseElementSchema.extend({
+  type: z.literal(ELEMENT_TYPES.STICKY),
+  text: z.string().max(100000),
+  fontSize: z.number().finite().positive().max(200).default(16),
+});
+export type StickyElement = z.infer<typeof stickyElementSchema>;
+
+const connectorElementSchema = baseElementSchema.extend({
+  type: z.literal(ELEMENT_TYPES.CONNECTOR),
+  /** World-space anchor points; translated together with `x`/`y` on move. */
+  start: pointSchema,
+  end: pointSchema,
+  /** Optional element bindings; anchors reroute when the target moves. */
+  startElementId: z.string().max(128).nullable().default(null),
+  startHandle: z.enum(CONNECTOR_HANDLES).nullable().default(null),
+  endElementId: z.string().max(128).nullable().default(null),
+  endHandle: z.enum(CONNECTOR_HANDLES).nullable().default(null),
+  /** Cached polyline relative to `(x, y)`; recomputed by `routeConnector`. */
+  points: z.array(pointSchema).min(0).max(64).default([]),
+  arrowEnd: z.boolean().default(true),
+});
+export type ConnectorElement = z.infer<typeof connectorElementSchema>;
+
+const imageElementSchema = baseElementSchema.extend({
+  type: z.literal(ELEMENT_TYPES.IMAGE),
+  /** Remote URL (Cloudinary) or a data URL for offline/local images. */
+  src: z.string().min(1).max(4096),
+});
+export type ImageElement = z.infer<typeof imageElementSchema>;
+
+const iconElementSchema = baseElementSchema.extend({
+  type: z.literal(ELEMENT_TYPES.ICON),
+  kind: z.enum(['emoji', 'icon']),
+  /** Emoji glyph or curated icon name (see `lib/canvas/icon-assets.ts`). */
+  value: z.string().min(1).max(64),
+  size: z.number().finite().positive().max(256).default(48),
+});
+export type IconElement = z.infer<typeof iconElementSchema>;
+
 export const whiteboardElementSchema = z.discriminatedUnion('type', [
   ...shapeElementSchema.options,
   ...linearElementSchema.options,
@@ -198,6 +313,11 @@ export const whiteboardElementSchema = z.discriminatedUnion('type', [
   pencilElementSchema,
   highlighterElementSchema,
   bezierElementSchema,
+  textElementSchema,
+  stickyElementSchema,
+  connectorElementSchema,
+  imageElementSchema,
+  iconElementSchema,
 ]);
 export type WhiteboardElement = z.infer<typeof whiteboardElementSchema>;
 
@@ -216,7 +336,66 @@ export const ELEMENT_DEFAULTS = {
   strokeStyle: 'solid',
   shadow: null,
   lastModifiedBy: null,
+  name: null,
+  groupId: null,
+  locked: false,
+  hidden: false,
 } as const;
+
+/** Elements that can be opened in a text/sticky editor overlay. */
+export const EDITABLE_TYPES = [
+  ELEMENT_TYPES.TEXT,
+  ELEMENT_TYPES.STICKY,
+] as const;
+export type EditableType = (typeof EDITABLE_TYPES)[number];
+
+export function isTextElement(
+  element: WhiteboardElement,
+): element is TextElement {
+  return element.type === ELEMENT_TYPES.TEXT;
+}
+
+export function isStickyElement(
+  element: WhiteboardElement,
+): element is StickyElement {
+  return element.type === ELEMENT_TYPES.STICKY;
+}
+
+export function isConnectorElement(
+  element: WhiteboardElement,
+): element is ConnectorElement {
+  return element.type === ELEMENT_TYPES.CONNECTOR;
+}
+
+export function isImageElement(
+  element: WhiteboardElement,
+): element is ImageElement {
+  return element.type === ELEMENT_TYPES.IMAGE;
+}
+
+export function isIconElement(
+  element: WhiteboardElement,
+): element is IconElement {
+  return element.type === ELEMENT_TYPES.ICON;
+}
+
+/** Elements that can be opened in the in-canvas editor overlay. */
+export function isEditableElement(
+  element: WhiteboardElement,
+): element is TextElement | StickyElement {
+  return (
+    element.type === ELEMENT_TYPES.TEXT || element.type === ELEMENT_TYPES.STICKY
+  );
+}
+
+/** Elements that can be resized with the selection handles. */
+export function isResizableElement(element: WhiteboardElement): boolean {
+  return element.type !== ELEMENT_TYPES.CONNECTOR;
+}
+
+export function isGroupedElement(element: WhiteboardElement): boolean {
+  return element.groupId !== null;
+}
 
 /** Parses an unknown value into a validated element, or `null` when invalid. */
 export function parseWhiteboardElement(

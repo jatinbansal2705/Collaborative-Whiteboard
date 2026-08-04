@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Keyboard, Redo2, Undo2 } from 'lucide-react';
+import { ArrowLeft, Keyboard, Layers, Redo2, Undo2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { redoCommand, undoCommand } from '@/lib/canvas/commands';
 import {
@@ -9,6 +9,8 @@ import {
   selectCanvasCanUndo,
   useCanvasHistoryStore,
 } from '@/stores/canvas-history-store';
+import { useCanvasStore } from '@/stores/canvas-store';
+import { cn } from '@/lib/utils';
 
 interface CanvasHeaderProps {
   title: string;
@@ -19,6 +21,10 @@ interface CanvasHeaderProps {
 export function CanvasHeader({ title, onOpenShortcuts }: CanvasHeaderProps) {
   const canUndo = useCanvasHistoryStore(selectCanvasCanUndo);
   const canRedo = useCanvasHistoryStore(selectCanvasCanRedo);
+  const layersPanelVisible = useCanvasStore(
+    (state) => state.layersPanelVisible,
+  );
+  const toggleLayersPanel = useCanvasStore((state) => state.toggleLayersPanel);
 
   return (
     <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-background px-3">
@@ -57,6 +63,20 @@ export function CanvasHeader({ title, onOpenShortcuts }: CanvasHeaderProps) {
           className="size-8"
         >
           <Redo2 aria-hidden="true" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleLayersPanel}
+          aria-label="Layers panel"
+          aria-pressed={layersPanelVisible}
+          title="Layers"
+          className={cn(
+            'size-8',
+            layersPanelVisible && 'bg-accent text-accent-foreground',
+          )}
+        >
+          <Layers aria-hidden="true" />
         </Button>
         <Button
           variant="ghost"

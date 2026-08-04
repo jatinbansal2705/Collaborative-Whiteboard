@@ -25,6 +25,10 @@ function element(id: string): WhiteboardElement {
     lastModifiedBy: null,
     createdAt: 0,
     updatedAt: 0,
+    name: null,
+    groupId: null,
+    locked: false,
+    hidden: false,
   };
 }
 

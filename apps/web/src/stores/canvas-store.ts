@@ -12,12 +12,26 @@ export interface DraftState {
   rect?: WorldRect;
 }
 
+/** A pending media insertion: the tool was clicked at a world point and the
+ * icon/image picker will resolve the concrete value. */
+export interface PendingInsertion {
+  kind: 'image' | 'icon' | 'emoji';
+  x: number;
+  y: number;
+}
+
 interface CanvasState {
   elements: WhiteboardElement[];
   selectedIds: string[];
   draft: DraftState | null;
   /** Smart-alignment guide lines to render while moving. */
   guides: GuideLines | null;
+  /** Element currently open in the text/sticky editor overlay. */
+  editingId: string | null;
+  /** Right-hand layers panel visibility. */
+  layersPanelVisible: boolean;
+  /** Awaits the image/icon picker to resolve a clicked insertion point. */
+  pendingInsertion: PendingInsertion | null;
   gridVisible: boolean;
   snapEnabled: boolean;
   minimapVisible: boolean;
@@ -32,6 +46,10 @@ interface CanvasState {
   selectAll: (ids: string[]) => void;
   clearSelection: () => void;
   deleteSelected: () => void;
+  startEditing: (id: string) => void;
+  stopEditing: () => void;
+  toggleLayersPanel: () => void;
+  setPendingInsertion: (insertion: PendingInsertion | null) => void;
   toggleGrid: () => void;
   setSnapEnabled: (enabled: boolean) => void;
   toggleMinimap: () => void;
@@ -58,6 +76,9 @@ export const useCanvasStore = create<CanvasState>()((set) => ({
   selectedIds: [],
   draft: null,
   guides: null,
+  editingId: null,
+  layersPanelVisible: false,
+  pendingInsertion: null,
   gridVisible: true,
   snapEnabled: true,
   minimapVisible: true,
@@ -89,6 +110,11 @@ export const useCanvasStore = create<CanvasState>()((set) => ({
         draft: null,
       };
     }),
+  startEditing: (editingId) => set({ editingId }),
+  stopEditing: () => set({ editingId: null }),
+  toggleLayersPanel: () =>
+    set((state) => ({ layersPanelVisible: !state.layersPanelVisible })),
+  setPendingInsertion: (pendingInsertion) => set({ pendingInsertion }),
   toggleGrid: () => set((state) => ({ gridVisible: !state.gridVisible })),
   setSnapEnabled: (snapEnabled) => set({ snapEnabled }),
   toggleMinimap: () =>
@@ -109,7 +135,8 @@ export const useCanvasStore = create<CanvasState>()((set) => ({
           element.type === 'rectangle' ||
           element.type === 'ellipse' ||
           element.type === 'triangle' ||
-          element.type === 'diamond';
+          element.type === 'diamond' ||
+          element.type === 'sticky';
         const next = {
           ...element,
           ...style,
@@ -125,6 +152,9 @@ export const useCanvasStore = create<CanvasState>()((set) => ({
       selectedIds: [],
       draft: null,
       guides: null,
+      editingId: null,
+      layersPanelVisible: false,
+      pendingInsertion: null,
       gridVisible: true,
       snapEnabled: true,
       minimapVisible: true,
@@ -140,6 +170,13 @@ export const selectDraft = (state: CanvasState): DraftState | null =>
   state.draft;
 export const selectGuides = (state: CanvasState): GuideLines | null =>
   state.guides;
+export const selectEditingId = (state: CanvasState): string | null =>
+  state.editingId;
+export const selectLayersPanelVisible = (state: CanvasState): boolean =>
+  state.layersPanelVisible;
+export const selectPendingInsertion = (
+  state: CanvasState,
+): PendingInsertion | null => state.pendingInsertion;
 export const selectGridVisible = (state: CanvasState): boolean =>
   state.gridVisible;
 export const selectSnapEnabled = (state: CanvasState): boolean =>

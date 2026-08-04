@@ -35,6 +35,10 @@ function baseOverrides(
     strokeStyle: 'solid',
     shadow: null,
     lastModifiedBy: null,
+    name: null,
+    groupId: null,
+    locked: false,
+    hidden: false,
     createdAt: 1,
     updatedAt: 1,
     ...overrides,
@@ -114,6 +118,58 @@ describe('whiteboard element model', () => {
           { x: 60, y: 0 },
         ],
       },
+      {
+        ...baseOverrides({ width: 80, height: 40 }),
+        type: ELEMENT_TYPES.TEXT,
+        paragraphs: [
+          {
+            runs: [
+              { text: 'Hello ' },
+              { text: 'world', bold: true, link: 'https://example.com' },
+            ],
+            align: 'center',
+            listType: 'bullet',
+          },
+        ],
+        fontFamily: 'Inter',
+        fontSize: 16,
+        lineHeight: 1.2,
+        color: '#111111',
+        autoWidth: false,
+      },
+      {
+        ...baseOverrides({ fillColor: '#fef08a' }),
+        type: ELEMENT_TYPES.STICKY,
+        text: 'Sticky note',
+        fontSize: 16,
+      },
+      {
+        ...baseOverrides({ width: 60, height: 40 }),
+        type: ELEMENT_TYPES.CONNECTOR,
+        start: { x: 0, y: 20 },
+        end: { x: 60, y: 20 },
+        startElementId: 'el-a',
+        startHandle: 'right',
+        endElementId: 'el-b',
+        endHandle: 'left',
+        points: [
+          { x: 0, y: 20 },
+          { x: 60, y: 20 },
+        ],
+        arrowEnd: true,
+      },
+      {
+        ...baseOverrides(),
+        type: ELEMENT_TYPES.IMAGE,
+        src: 'https://res.cloudinary.com/x/image.png',
+      },
+      {
+        ...baseOverrides(),
+        type: ELEMENT_TYPES.ICON,
+        kind: 'emoji',
+        value: '🚀',
+        size: 48,
+      },
     ];
 
     for (const element of cases) {
@@ -185,6 +241,10 @@ describe('whiteboard element model', () => {
       strokeStyle: 'solid',
       shadow: null,
       lastModifiedBy: null,
+      name: null,
+      groupId: null,
+      locked: false,
+      hidden: false,
     });
   });
 });

@@ -1,11 +1,26 @@
 import {
   ELEMENT_DEFAULTS,
   ELEMENT_TYPES,
+  type ConnectorElement,
+  type IconElement,
+  type ImageElement,
   type Point,
+  type StickyElement,
+  type TextElement,
   type WhiteboardElement,
 } from '@whiteboard/shared';
 import { normalizePoints, rectFromPoints } from './geometry';
-import type { DashStyle, ElementStyle } from './types';
+import {
+  ICON_DEFAULT_SIZE,
+  IMAGE_SIZE,
+  STICKY_COLOR_DEFAULT,
+  STICKY_SIZE,
+  TEXT_DEFAULT_COLOR,
+  TEXT_DEFAULT_FONT_SIZE,
+  TEXT_LINE_HEIGHT,
+  TEXT_SIZE,
+} from './constants';
+import { FILLABLE_ELEMENT_TYPES, type ElementStyle } from './types';
 
 export interface CreateElementOptions {
   id: string;
@@ -14,12 +29,7 @@ export interface CreateElementOptions {
   now?: number;
 }
 
-const FILLABLE_TYPES = new Set<WhiteboardElement['type']>([
-  ELEMENT_TYPES.RECTANGLE,
-  ELEMENT_TYPES.ELLIPSE,
-  ELEMENT_TYPES.TRIANGLE,
-  ELEMENT_TYPES.DIAMOND,
-]);
+const FILLABLE_TYPES = FILLABLE_ELEMENT_TYPES;
 
 /**
  * Builds a validated, version-0 element from raw world-space points. Shapes
@@ -46,7 +56,11 @@ export function createElement(
     lastModifiedBy: options.ownerId,
     createdAt: now,
     updatedAt: now,
-  };
+    name: null,
+    groupId: null,
+    locked: false,
+    hidden: false,
+  } as const;
 
   switch (type) {
     case ELEMENT_TYPES.RECTANGLE:
@@ -107,6 +121,147 @@ export function createElement(
       };
     }
   }
+  throw new Error(`Unsupported element type: ${type as string}`);
+}
+
+function baseFields(options: CreateElementOptions): {
+  id: string;
+  version: number;
+  angle: number;
+  opacity: number;
+  strokeColor: string;
+  fillColor: string | null;
+  strokeWidth: number;
+  strokeStyle: WhiteboardElement['strokeStyle'];
+  shadow: WhiteboardElement['shadow'];
+  lastModifiedBy: string | null;
+  createdAt: number;
+  updatedAt: number;
+  name: null;
+  groupId: null;
+  locked: boolean;
+  hidden: boolean;
+} {
+  const now = options.now ?? Date.now();
+  return {
+    id: options.id,
+    version: ELEMENT_DEFAULTS.version,
+    angle: ELEMENT_DEFAULTS.angle,
+    opacity: options.style.opacity,
+    strokeColor: options.style.strokeColor,
+    fillColor: options.style.fillColor,
+    strokeWidth: options.style.strokeWidth,
+    strokeStyle: options.style.strokeStyle,
+    shadow: options.style.shadow,
+    lastModifiedBy: options.ownerId,
+    createdAt: now,
+    updatedAt: now,
+    name: null,
+    groupId: null,
+    locked: false,
+    hidden: false,
+  };
+}
+
+/** Creates a rich-text element at a point with the default editor size. */
+export function createTextElement(
+  point: Point,
+  options: CreateElementOptions,
+): TextElement {
+  return {
+    ...baseFields(options),
+    type: ELEMENT_TYPES.TEXT,
+    x: point.x,
+    y: point.y,
+    width: TEXT_SIZE.width,
+    height: TEXT_SIZE.height,
+    paragraphs: [{ runs: [{ text: 'Text' }], align: 'left', listType: null }],
+    fontFamily: 'Inter',
+    fontSize: TEXT_DEFAULT_FONT_SIZE,
+    lineHeight: TEXT_LINE_HEIGHT,
+    color: TEXT_DEFAULT_COLOR,
+    autoWidth: true,
+  };
+}
+
+/** Creates a sticky note at a point with the default size and background. */
+export function createStickyElement(
+  point: Point,
+  options: CreateElementOptions,
+): StickyElement {
+  return {
+    ...baseFields(options),
+    type: ELEMENT_TYPES.STICKY,
+    x: point.x,
+    y: point.y,
+    width: STICKY_SIZE.width,
+    height: STICKY_SIZE.height,
+    fillColor: options.style.fillColor ?? STICKY_COLOR_DEFAULT,
+    text: '',
+    fontSize: TEXT_DEFAULT_FONT_SIZE,
+  };
+}
+
+/** Creates a connector between two world anchors (routing cached by build). */
+export function createConnectorElement(
+  start: Point,
+  end: Point,
+  options: CreateElementOptions,
+): ConnectorElement {
+  return {
+    ...baseFields(options),
+    type: ELEMENT_TYPES.CONNECTOR,
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    start,
+    end,
+    startElementId: null,
+    startHandle: null,
+    endElementId: null,
+    endHandle: null,
+    points: [],
+    arrowEnd: true,
+  };
+}
+
+/** Creates an image element referencing a remote URL or local data URL. */
+export function createImageElement(
+  point: Point,
+  src: string,
+  options: CreateElementOptions,
+): ImageElement {
+  return {
+    ...baseFields(options),
+    type: ELEMENT_TYPES.IMAGE,
+    x: point.x,
+    y: point.y,
+    width: IMAGE_SIZE.width,
+    height: IMAGE_SIZE.height,
+    src,
+  };
+}
+
+/** Creates an icon/emoji element at a point with the default size. */
+export function createIconElement(
+  point: Point,
+  kind: 'emoji' | 'icon',
+  value: string,
+  options: CreateElementOptions,
+): IconElement {
+  const size = ICON_DEFAULT_SIZE;
+  return {
+    ...baseFields(options),
+    type: ELEMENT_TYPES.ICON,
+    x: point.x,
+    y: point.y,
+    width: size,
+    height: size,
+    kind,
+    value,
+    size,
+  };
 }
 
 /** Deep copy of an element with a fresh id, offset and version (for duplicate/paste). */
@@ -140,7 +295,10 @@ export function applyStyle(
   return { ...element, ...rest };
 }
 
-const DASH_PATTERNS: Record<DashStyle, number[] | undefined> = {
+const DASH_PATTERNS: Record<
+  WhiteboardElement['strokeStyle'],
+  number[] | undefined
+> = {
   solid: undefined,
   dashed: [12, 8],
   dotted: [2, 8],
@@ -149,7 +307,7 @@ const DASH_PATTERNS: Record<DashStyle, number[] | undefined> = {
 
 /** Konva dash array for a stroke style (scaled so patterns track line width). */
 export function dashArray(
-  strokeStyle: DashStyle,
+  strokeStyle: WhiteboardElement['strokeStyle'],
   strokeWidth: number,
 ): number[] | undefined {
   const pattern = DASH_PATTERNS[strokeStyle];

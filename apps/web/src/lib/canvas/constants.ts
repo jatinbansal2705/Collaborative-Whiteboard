@@ -1,4 +1,8 @@
-import type { DashStyle, ElementShadow } from '@whiteboard/shared';
+import type {
+  DashStyle,
+  ElementShadow,
+  WhiteboardElement,
+} from '@whiteboard/shared';
 import type { ElementStyle } from './types';
 
 export const MIN_ZOOM = 0.1;
@@ -87,3 +91,67 @@ export const MINIMAP_PADDING = 8;
 
 export const FREEHAND_MIN_WIDTH = 1.5;
 export const FREEHAND_MAX_WIDTH = 8;
+
+/** Background palette for sticky notes. */
+export const STICKY_COLORS = [
+  '#fef08a',
+  '#fde047',
+  '#fdba74',
+  '#fca5a5',
+  '#f9a8d4',
+  '#d8b4fe',
+  '#a5b4fc',
+  '#93c5fd',
+  '#a7f3d0',
+  '#f8fafc',
+] as const;
+export const STICKY_COLOR_DEFAULT = STICKY_COLORS[0];
+export const STICKY_TEXT_COLOR = '#1f2937';
+/** Default note size when created with the sticky tool. */
+export const STICKY_SIZE = { width: 160, height: 160 } as const;
+export const STICKY_PADDING = 14;
+export const STICKY_MIN_WIDTH = 80;
+export const STICKY_MIN_HEIGHT = 80;
+export const STICKY_LINE_HEIGHT = 1.35;
+
+/** Fonts offered by the text formatting bar (mirrors the shared contract). */
+export const FONT_FAMILIES = [
+  'Inter',
+  'Arial',
+  'Helvetica',
+  'Georgia',
+  'Courier New',
+  'Comic Sans MS',
+  'Verdana',
+] as const;
+export const FONT_SIZES = [12, 14, 16, 18, 20, 24, 28, 32, 40, 48] as const;
+export const TEXT_DEFAULT_FONT_SIZE = 16;
+export const TEXT_DEFAULT_COLOR = '#1f2937';
+export const TEXT_LINE_HEIGHT = 1.2;
+export const TEXT_MIN_WIDTH = 24;
+export const TEXT_MIN_HEIGHT = 24;
+
+/** Default size for a new text element before the user edits it. */
+export const TEXT_SIZE = { width: 200, height: 40 } as const;
+/** Default size for an inserted image before the user resizes it. */
+export const IMAGE_SIZE = { width: 240, height: 180 } as const;
+/** Icon/emoji default rendered size. */
+export const ICON_DEFAULT_SIZE = 48;
+
+/** Link colour used when rendering hyperlinks in Konva. */
+export const LINK_COLOR = '#2563eb';
+
+/** Connection routing: minimum ortho segment before the arrow tip. */
+export const CONNECTOR_MIN_BEND = 16;
+
+export const IMAGE_MAX_SIZE_BYTES = 10 * 1024 * 1024;
+export const IMAGE_ALLOWED_TYPES = [
+  'image/png',
+  'image/jpeg',
+  'image/webp',
+] as const;
+
+/** Renders an element name fallback for the layers panel. */
+export function elementTypeLabel(type: WhiteboardElement['type']): string {
+  return type.replace('-', ' ');
+}

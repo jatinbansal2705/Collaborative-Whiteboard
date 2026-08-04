@@ -13,6 +13,7 @@ const CATEGORY_LABELS: Record<ShortcutCategory, string> = {
   tools: 'Tools',
   edit: 'Editing',
   view: 'View',
+  arrange: 'Arrange',
 };
 
 interface KeyboardShortcutsDialogProps {
@@ -25,7 +26,7 @@ export function KeyboardShortcutsDialog({
   open,
   onOpenChange,
 }: KeyboardShortcutsDialogProps) {
-  const categories: ShortcutCategory[] = ['tools', 'edit', 'view'];
+  const categories: ShortcutCategory[] = ['tools', 'edit', 'arrange', 'view'];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

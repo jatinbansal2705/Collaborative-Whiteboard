@@ -1,4 +1,4 @@
-export type ShortcutCategory = 'tools' | 'edit' | 'view';
+export type ShortcutCategory = 'tools' | 'edit' | 'view' | 'arrange';
 
 export interface ShortcutDef {
   /** Stable command id dispatched by the hotkey handler. */
@@ -11,6 +11,8 @@ export interface ShortcutDef {
   mod?: boolean;
   /** When set, the Shift key must (or must not) be held. */
   shift?: boolean;
+  /** When set, the Alt key must be held. */
+  alt?: boolean;
   /** `event.code` the shortcut reacts to. */
   code: string;
 }
@@ -87,6 +89,68 @@ export const SHORTCUTS: readonly ShortcutDef[] = [
     mod: true,
     code: 'KeyA',
     display: 'Ctrl/Cmd+A',
+  },
+  {
+    id: 'edit:group',
+    label: 'Group',
+    category: 'edit',
+    mod: true,
+    alt: true,
+    code: 'KeyG',
+    display: 'Ctrl/Cmd+Alt+G',
+  },
+  {
+    id: 'edit:ungroup',
+    label: 'Ungroup',
+    category: 'edit',
+    mod: true,
+    alt: true,
+    shift: true,
+    code: 'KeyG',
+    display: 'Ctrl/Cmd+Alt+Shift+G',
+  },
+  {
+    id: 'arrange:front',
+    label: 'Bring to front',
+    category: 'arrange',
+    mod: true,
+    shift: true,
+    code: 'BracketRight',
+    display: 'Ctrl/Cmd+Shift+]',
+  },
+  {
+    id: 'arrange:back',
+    label: 'Send to back',
+    category: 'arrange',
+    mod: true,
+    shift: true,
+    code: 'BracketLeft',
+    display: 'Ctrl/Cmd+Shift+[',
+  },
+  {
+    id: 'arrange:forward',
+    label: 'Bring forward',
+    category: 'arrange',
+    mod: true,
+    code: 'BracketRight',
+    display: 'Ctrl/Cmd+]',
+  },
+  {
+    id: 'arrange:backward',
+    label: 'Send backward',
+    category: 'arrange',
+    mod: true,
+    code: 'BracketLeft',
+    display: 'Ctrl/Cmd+[',
+  },
+  {
+    id: 'arrange:lock',
+    label: 'Toggle lock',
+    category: 'arrange',
+    mod: true,
+    alt: true,
+    code: 'KeyL',
+    display: 'Ctrl/Cmd+Alt+L',
   },
   {
     id: 'view:zoom-in',
@@ -207,8 +271,8 @@ export const SHORTCUTS: readonly ShortcutDef[] = [
     id: 'tool:triangle',
     label: 'Triangle',
     category: 'tools',
-    code: 'KeyT',
-    display: 'T',
+    code: 'KeyY',
+    display: 'Y',
   },
   {
     id: 'tool:diamond',
@@ -216,6 +280,27 @@ export const SHORTCUTS: readonly ShortcutDef[] = [
     category: 'tools',
     code: 'KeyD',
     display: 'D',
+  },
+  {
+    id: 'tool:text',
+    label: 'Text',
+    category: 'tools',
+    code: 'KeyT',
+    display: 'T',
+  },
+  {
+    id: 'tool:sticky',
+    label: 'Sticky note',
+    category: 'tools',
+    code: 'KeyQ',
+    display: 'Q',
+  },
+  {
+    id: 'tool:connector',
+    label: 'Connector',
+    category: 'tools',
+    code: 'KeyC',
+    display: 'C',
   },
   {
     id: 'tool:arrow',
@@ -237,6 +322,27 @@ export const SHORTCUTS: readonly ShortcutDef[] = [
     category: 'tools',
     code: 'KeyB',
     display: 'B',
+  },
+  {
+    id: 'tool:image',
+    label: 'Image',
+    category: 'tools',
+    code: 'KeyU',
+    display: 'U',
+  },
+  {
+    id: 'tool:icon',
+    label: 'Icon',
+    category: 'tools',
+    code: 'KeyW',
+    display: 'W',
+  },
+  {
+    id: 'tool:emoji',
+    label: 'Emoji',
+    category: 'tools',
+    code: 'KeyJ',
+    display: 'J',
   },
   {
     id: 'tool:eraser',
@@ -271,6 +377,12 @@ export function matchShortcut(
     return false;
   }
   if (shortcut.shift === false && event.shiftKey) {
+    return false;
+  }
+  if (shortcut.alt === true && !event.altKey) {
+    return false;
+  }
+  if (shortcut.alt !== true && event.altKey) {
     return false;
   }
   return event.code === shortcut.code;

@@ -5,9 +5,13 @@ import { use, useEffect, useState } from 'react';
 import { BoardCanvas } from '@/components/canvas/board-canvas';
 import { CanvasHeader } from '@/components/canvas/canvas-header';
 import { CanvasToolbar } from '@/components/canvas/canvas-toolbar';
+import { IconPicker } from '@/components/canvas/icon-picker';
+import { ImageInsertDialog } from '@/components/canvas/image-insert-dialog';
 import { KeyboardShortcutsDialog } from '@/components/canvas/keyboard-shortcuts-dialog';
+import { LayersPanel } from '@/components/canvas/layers-panel';
 import { Minimap } from '@/components/canvas/minimap';
 import { StyleBar } from '@/components/canvas/style-bar';
+import { TextStyleBar } from '@/components/canvas/text-style-bar';
 import { ZoomControls } from '@/components/canvas/zoom-controls';
 import { ErrorState } from '@/components/state/error-state';
 import { LoadingState } from '@/components/state/loading-state';
@@ -28,6 +32,9 @@ export default function BoardPage({ params }: BoardPageProps) {
   const [error, setError] = useState<string | null>(null);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const minimapVisible = useCanvasStore((state) => state.minimapVisible);
+  const layersPanelVisible = useCanvasStore(
+    (state) => state.layersPanelVisible,
+  );
 
   useCanvasHotkeys();
 
@@ -119,13 +126,21 @@ export default function BoardPage({ params }: BoardPageProps) {
         <div className="absolute top-1/2 left-3 -translate-y-1/2">
           <CanvasToolbar />
         </div>
-        <div className="absolute top-3 left-1/2 -translate-x-1/2">
+        <div className="absolute top-3 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2">
           <StyleBar />
+          <TextStyleBar />
         </div>
         <div className="absolute right-3 bottom-3 flex flex-col items-end gap-2">
           {minimapVisible ? <Minimap /> : null}
           <ZoomControls />
         </div>
+        {layersPanelVisible ? (
+          <div className="absolute top-3 right-3 bottom-3 z-30 w-64">
+            <LayersPanel />
+          </div>
+        ) : null}
+        <IconPicker />
+        <ImageInsertDialog />
       </div>
       <KeyboardShortcutsDialog
         open={shortcutsOpen}

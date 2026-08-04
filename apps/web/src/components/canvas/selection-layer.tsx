@@ -60,43 +60,49 @@ const SelectionOutline = memo(function SelectionOutline({
         dash={[5 / zoom, 4 / zoom]}
         perfectDrawEnabled={false}
       />
-      <Line
-        points={[element.width / 2, 0, element.width / 2, -rotateOffset]}
-        stroke={SELECTION_COLOR}
-        strokeWidth={strokeWidth}
-        perfectDrawEnabled={false}
-      />
-      <Rect
-        x={element.width / 2 - rotateHandleSize / 2}
-        y={-rotateOffset - rotateHandleSize / 2}
-        width={rotateHandleSize}
-        height={rotateHandleSize}
-        fill={HANDLE_COLOR}
-        stroke={HANDLE_BORDER_COLOR}
-        strokeWidth={strokeWidth}
-        name="rotate-handle"
-        dataElementId={element.id}
-        perfectDrawEnabled={false}
-      />
-      {HANDLES.map((handle) => {
-        const { fx, fy } = HANDLE_POSITION[handle];
-        return (
+      {!element.locked ? (
+        <>
+          <Line
+            points={[element.width / 2, 0, element.width / 2, -rotateOffset]}
+            stroke={SELECTION_COLOR}
+            strokeWidth={strokeWidth}
+            perfectDrawEnabled={false}
+          />
           <Rect
-            key={handle}
-            x={element.width * fx - handleSize / 2}
-            y={element.height * fy - handleSize / 2}
-            width={handleSize}
-            height={handleSize}
+            x={element.width / 2 - rotateHandleSize / 2}
+            y={-rotateOffset - rotateHandleSize / 2}
+            width={rotateHandleSize}
+            height={rotateHandleSize}
             fill={HANDLE_COLOR}
             stroke={HANDLE_BORDER_COLOR}
             strokeWidth={strokeWidth}
-            name="resize-handle"
-            dataHandle={handle}
+            name="rotate-handle"
             dataElementId={element.id}
             perfectDrawEnabled={false}
           />
-        );
-      })}
+        </>
+      ) : null}
+      {!element.locked
+        ? HANDLES.map((handle) => {
+            const { fx, fy } = HANDLE_POSITION[handle];
+            return (
+              <Rect
+                key={handle}
+                x={element.width * fx - handleSize / 2}
+                y={element.height * fy - handleSize / 2}
+                width={handleSize}
+                height={handleSize}
+                fill={HANDLE_COLOR}
+                stroke={HANDLE_BORDER_COLOR}
+                strokeWidth={strokeWidth}
+                name="resize-handle"
+                dataHandle={handle}
+                dataElementId={element.id}
+                perfectDrawEnabled={false}
+              />
+            );
+          })
+        : null}
     </Group>
   );
 });
@@ -106,11 +112,16 @@ export function SelectionLayer() {
   const selectedIds = useCanvasStore((state) => state.selectedIds);
   const draft = useCanvasStore((state) => state.draft);
   const elements = useCanvasStore((state) => state.elements);
+  const editingId = useCanvasStore((state) => state.editingId);
   const zoom = useCameraStore((state) => state.zoom);
 
   const selected = useMemo(
-    () => elements.filter((element) => selectedIds.includes(element.id)),
-    [elements, selectedIds],
+    () =>
+      elements.filter(
+        (element) =>
+          selectedIds.includes(element.id) && element.id !== editingId,
+      ),
+    [elements, selectedIds, editingId],
   );
 
   const rubberBand =
