@@ -55,6 +55,8 @@ export const ModelName = {
   PasswordResetToken: 'PasswordResetToken',
   Session: 'Session',
   Board: 'Board',
+  BoardVersion: 'BoardVersion',
+  BoardActivity: 'BoardActivity',
   BoardMember: 'BoardMember',
   BoardFavourite: 'BoardFavourite',
   ShareLink: 'ShareLink',
@@ -141,6 +143,7 @@ export const BoardScalarFieldEnum = {
   isArchived: 'isArchived',
   status: 'status',
   memberCount: 'memberCount',
+  revision: 'revision',
   createdById: 'createdById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -148,6 +151,35 @@ export const BoardScalarFieldEnum = {
 } as const
 
 export type BoardScalarFieldEnum = (typeof BoardScalarFieldEnum)[keyof typeof BoardScalarFieldEnum]
+
+
+export const BoardVersionScalarFieldEnum = {
+  id: 'id',
+  boardId: 'boardId',
+  versionNo: 'versionNo',
+  kind: 'kind',
+  note: 'note',
+  data: 'data',
+  schemaVersion: 'schemaVersion',
+  elementCount: 'elementCount',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type BoardVersionScalarFieldEnum = (typeof BoardVersionScalarFieldEnum)[keyof typeof BoardVersionScalarFieldEnum]
+
+
+export const BoardActivityScalarFieldEnum = {
+  id: 'id',
+  boardId: 'boardId',
+  type: 'type',
+  actorId: 'actorId',
+  versionNo: 'versionNo',
+  details: 'details',
+  createdAt: 'createdAt'
+} as const
+
+export type BoardActivityScalarFieldEnum = (typeof BoardActivityScalarFieldEnum)[keyof typeof BoardActivityScalarFieldEnum]
 
 
 export const BoardMemberScalarFieldEnum = {

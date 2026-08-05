@@ -52,6 +52,9 @@ export class BoardDetailDto extends BoardSummaryDto {
     type: Object,
   })
   data!: Prisma.JsonValue;
+
+  @ApiProperty({ example: 13 })
+  revision!: number;
 }
 
 export class BoardListMetaDto {
@@ -134,6 +137,7 @@ export function toBoardDetail(
     createdAt: board.createdAt,
     updatedAt: board.updatedAt,
     data: board.data,
+    revision: board.revision,
   };
 }
 

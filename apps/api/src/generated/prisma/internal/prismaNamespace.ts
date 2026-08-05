@@ -401,6 +401,8 @@ export const ModelName = {
   PasswordResetToken: 'PasswordResetToken',
   Session: 'Session',
   Board: 'Board',
+  BoardVersion: 'BoardVersion',
+  BoardActivity: 'BoardActivity',
   BoardMember: 'BoardMember',
   BoardFavourite: 'BoardFavourite',
   ShareLink: 'ShareLink',
@@ -425,7 +427,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "passwordResetToken" | "session" | "board" | "boardMember" | "boardFavourite" | "shareLink" | "pendingInvite" | "commentThread" | "comment" | "chatMessage" | "chatReadReceipt" | "notification"
+    modelProps: "user" | "passwordResetToken" | "session" | "board" | "boardVersion" | "boardActivity" | "boardMember" | "boardFavourite" | "shareLink" | "pendingInvite" | "commentThread" | "comment" | "chatMessage" | "chatReadReceipt" | "notification"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -722,6 +724,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.BoardCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.BoardCountAggregateOutputType> | number
+        }
+      }
+    }
+    BoardVersion: {
+      payload: Prisma.$BoardVersionPayload<ExtArgs>
+      fields: Prisma.BoardVersionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BoardVersionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoardVersionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BoardVersionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoardVersionPayload>
+        }
+        findFirst: {
+          args: Prisma.BoardVersionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoardVersionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BoardVersionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoardVersionPayload>
+        }
+        findMany: {
+          args: Prisma.BoardVersionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoardVersionPayload>[]
+        }
+        create: {
+          args: Prisma.BoardVersionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoardVersionPayload>
+        }
+        createMany: {
+          args: Prisma.BoardVersionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BoardVersionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoardVersionPayload>[]
+        }
+        delete: {
+          args: Prisma.BoardVersionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoardVersionPayload>
+        }
+        update: {
+          args: Prisma.BoardVersionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoardVersionPayload>
+        }
+        deleteMany: {
+          args: Prisma.BoardVersionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BoardVersionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BoardVersionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoardVersionPayload>[]
+        }
+        upsert: {
+          args: Prisma.BoardVersionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoardVersionPayload>
+        }
+        aggregate: {
+          args: Prisma.BoardVersionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBoardVersion>
+        }
+        groupBy: {
+          args: Prisma.BoardVersionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BoardVersionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BoardVersionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BoardVersionCountAggregateOutputType> | number
+        }
+      }
+    }
+    BoardActivity: {
+      payload: Prisma.$BoardActivityPayload<ExtArgs>
+      fields: Prisma.BoardActivityFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BoardActivityFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoardActivityPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BoardActivityFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoardActivityPayload>
+        }
+        findFirst: {
+          args: Prisma.BoardActivityFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoardActivityPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BoardActivityFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoardActivityPayload>
+        }
+        findMany: {
+          args: Prisma.BoardActivityFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoardActivityPayload>[]
+        }
+        create: {
+          args: Prisma.BoardActivityCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoardActivityPayload>
+        }
+        createMany: {
+          args: Prisma.BoardActivityCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BoardActivityCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoardActivityPayload>[]
+        }
+        delete: {
+          args: Prisma.BoardActivityDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoardActivityPayload>
+        }
+        update: {
+          args: Prisma.BoardActivityUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoardActivityPayload>
+        }
+        deleteMany: {
+          args: Prisma.BoardActivityDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BoardActivityUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BoardActivityUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoardActivityPayload>[]
+        }
+        upsert: {
+          args: Prisma.BoardActivityUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BoardActivityPayload>
+        }
+        aggregate: {
+          args: Prisma.BoardActivityAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBoardActivity>
+        }
+        groupBy: {
+          args: Prisma.BoardActivityGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BoardActivityGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BoardActivityCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BoardActivityCountAggregateOutputType> | number
         }
       }
     }
@@ -1489,6 +1639,7 @@ export const BoardScalarFieldEnum = {
   isArchived: 'isArchived',
   status: 'status',
   memberCount: 'memberCount',
+  revision: 'revision',
   createdById: 'createdById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -1496,6 +1647,35 @@ export const BoardScalarFieldEnum = {
 } as const
 
 export type BoardScalarFieldEnum = (typeof BoardScalarFieldEnum)[keyof typeof BoardScalarFieldEnum]
+
+
+export const BoardVersionScalarFieldEnum = {
+  id: 'id',
+  boardId: 'boardId',
+  versionNo: 'versionNo',
+  kind: 'kind',
+  note: 'note',
+  data: 'data',
+  schemaVersion: 'schemaVersion',
+  elementCount: 'elementCount',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type BoardVersionScalarFieldEnum = (typeof BoardVersionScalarFieldEnum)[keyof typeof BoardVersionScalarFieldEnum]
+
+
+export const BoardActivityScalarFieldEnum = {
+  id: 'id',
+  boardId: 'boardId',
+  type: 'type',
+  actorId: 'actorId',
+  versionNo: 'versionNo',
+  details: 'details',
+  createdAt: 'createdAt'
+} as const
+
+export type BoardActivityScalarFieldEnum = (typeof BoardActivityScalarFieldEnum)[keyof typeof BoardActivityScalarFieldEnum]
 
 
 export const BoardMemberScalarFieldEnum = {
@@ -1774,6 +1954,34 @@ export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'BoardVersionKind'
+ */
+export type EnumBoardVersionKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BoardVersionKind'>
+    
+
+
+/**
+ * Reference to a field of type 'BoardVersionKind[]'
+ */
+export type ListEnumBoardVersionKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BoardVersionKind[]'>
+    
+
+
+/**
+ * Reference to a field of type 'BoardActivityType'
+ */
+export type EnumBoardActivityTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BoardActivityType'>
+    
+
+
+/**
+ * Reference to a field of type 'BoardActivityType[]'
+ */
+export type ListEnumBoardActivityTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BoardActivityType[]'>
+    
+
+
+/**
  * Reference to a field of type 'BoardMemberRole'
  */
 export type EnumBoardMemberRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BoardMemberRole'>
@@ -1983,6 +2191,8 @@ export type GlobalOmitConfig = {
   passwordResetToken?: Prisma.PasswordResetTokenOmit
   session?: Prisma.SessionOmit
   board?: Prisma.BoardOmit
+  boardVersion?: Prisma.BoardVersionOmit
+  boardActivity?: Prisma.BoardActivityOmit
   boardMember?: Prisma.BoardMemberOmit
   boardFavourite?: Prisma.BoardFavouriteOmit
   shareLink?: Prisma.ShareLinkOmit

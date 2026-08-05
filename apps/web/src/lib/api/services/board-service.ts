@@ -4,6 +4,8 @@ import type {
 } from '@/lib/validators/board';
 import type {
   AddMemberResult,
+  BoardActivityListResult,
+  BoardData,
   BoardDeleted,
   BoardDetail,
   BoardListResult,
@@ -11,8 +13,11 @@ import type {
   BoardMemberRole,
   BoardRosterItem,
   BoardSummary,
+  BoardVersionDetail,
+  BoardVersionListResult,
   FavouriteStatus,
   ListBoardsQuery,
+  SaveBoardDataResult,
 } from '@/types/board';
 import { API_ENDPOINTS } from '../endpoints';
 import { httpClient } from '../http-client';
@@ -137,5 +142,79 @@ export const boardService = {
     await httpClient.delete<void>(
       API_ENDPOINTS.boards.removeMember(boardId, userId),
     );
+  },
+
+  // ---------------------------------------------------------------------------
+  // Document persistence (autosave, version history, activity)
+  // ---------------------------------------------------------------------------
+
+  async getData(id: string): Promise<BoardData> {
+    const { data } = await httpClient.get<BoardData>(
+      API_ENDPOINTS.boards.data(id),
+    );
+    return data;
+  },
+
+  /** Persists a document snapshot under optimistic concurrency. */
+  async saveData(
+    id: string,
+    input: { data: Record<string, unknown>; baseRevision?: number },
+  ): Promise<SaveBoardDataResult> {
+    const { data } = await httpClient.patch<SaveBoardDataResult>(
+      API_ENDPOINTS.boards.data(id),
+      input,
+    );
+    return data;
+  },
+
+  async listVersions(
+    id: string,
+    query: { cursor?: string; limit?: number } = {},
+  ): Promise<BoardVersionListResult> {
+    const { data } = await httpClient.get<BoardVersionListResult>(
+      API_ENDPOINTS.boards.versions(id),
+      { query },
+    );
+    return data;
+  },
+
+  async getVersion(id: string, versionNo: number): Promise<BoardVersionDetail> {
+    const { data } = await httpClient.get<BoardVersionDetail>(
+      API_ENDPOINTS.boards.version(id, String(versionNo)),
+    );
+    return data;
+  },
+
+  /** Creates a manual checkpoint from the current server state. */
+  async createVersion(
+    id: string,
+    input: { note?: string } = {},
+  ): Promise<SaveBoardDataResult> {
+    const { data } = await httpClient.post<SaveBoardDataResult>(
+      API_ENDPOINTS.boards.versions(id),
+      input,
+    );
+    return data;
+  },
+
+  async restoreVersion(
+    id: string,
+    versionNo: number,
+  ): Promise<BoardVersionDetail> {
+    const { data } = await httpClient.post<BoardVersionDetail>(
+      API_ENDPOINTS.boards.versionRestore(id, String(versionNo)),
+    );
+    return data;
+  },
+
+  async listActivity(
+    id: string,
+    query: { before?: string; limit?: number } = {},
+  ): Promise<BoardActivityListResult> {
+    const { data } = await httpClient.get<BoardActivityListResult>(
+      API_ENDPOINTS.boards.activity(id),
+      { query },
+    );
+    return data;
   },
 };

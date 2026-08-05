@@ -185,10 +185,36 @@ export const boardDataPayloadSchema = z.object({
   boardId: boardIdSchema,
   role: boardMemberRoleSchema,
   version: z.string(),
+  /** Monotonic server revision counter bumped on every persisted save (autosave/restore). */
+  revision: z.number().int().nonnegative(),
   data: z.record(z.string(), z.unknown()).nullable(),
   presence: z.array(presenceMemberSchema),
 });
 export type BoardDataPayload = z.infer<typeof boardDataPayloadSchema>;
+
+/**
+ * Server -> client: a persisted save landed. Peers use it to advance their
+ * autosave base revision; the authoritative document itself is exchanged via
+ * `board:data` on (re)join.
+ */
+export const boardRevisionEventSchema = z.object({
+  boardId: boardIdSchema,
+  revision: z.number().int().nonnegative(),
+});
+export type BoardRevisionEvent = z.infer<typeof boardRevisionEventSchema>;
+
+/**
+ * Server -> client: a board was restored to a historical version. Carries the
+ * authoritative document so every client can re-sync immediately (ADR-0005
+ * "server rebroadcasts authoritative state").
+ */
+export const boardRestoredEventSchema = z.object({
+  boardId: boardIdSchema,
+  versionNo: z.number().int().nonnegative(),
+  revision: z.number().int().nonnegative(),
+  data: z.record(z.string(), z.unknown()).nullable(),
+});
+export type BoardRestoredEvent = z.infer<typeof boardRestoredEventSchema>;
 
 export const kickPayloadSchema = z.object({
   boardId: boardIdSchema,

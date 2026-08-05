@@ -213,6 +213,7 @@ describe('payload schema round-trips', () => {
       boardId: '6f1e4b3a-0f3d-4a7c-9a11-1a1a1a1a1a1a',
       role: 'VIEWER',
       version: '2026-07-01T00:00:00.000Z',
+      revision: 7,
       data: { elements: [] },
       presence: [],
     });

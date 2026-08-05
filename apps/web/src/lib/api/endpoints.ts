@@ -39,7 +39,10 @@ export const API_ENDPOINTS = {
     createTemplate: '/boards/templates',
     versions: (id: string) => `/boards/${id}/versions`,
     version: (id: string, versionNo: string) =>
+      `/boards/${id}/versions/${versionNo}`,
+    versionRestore: (id: string, versionNo: string) =>
       `/boards/${id}/versions/${versionNo}/restore`,
+    activity: (id: string) => `/boards/${id}/activity`,
     data: (id: string) => `/boards/${id}/data`,
   },
   comments: {

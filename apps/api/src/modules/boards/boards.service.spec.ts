@@ -18,6 +18,7 @@ const makeBoard = (overrides: Partial<Board> = {}): Board => ({
   id: 'board-1',
   title: 'Q3 Roadmap',
   data: {},
+  revision: 0,
   thumbnailUrl: null,
   isTemplate: false,
   isArchived: false,
@@ -83,6 +84,17 @@ describe('BoardsService', () => {
   const realtimeService = {
     kick: jest.fn(),
     closeBoard: jest.fn(),
+    broadcastRevision: jest.fn(),
+    broadcastBoardRestored: jest.fn(),
+  };
+  const historyRepository = {
+    saveData: jest.fn(),
+    restoreVersion: jest.fn(),
+    listVersions: jest.fn(),
+    findVersion: jest.fn(),
+    findLatestVersion: jest.fn(),
+    listActivity: jest.fn(),
+    recordActivity: jest.fn(),
   };
 
   beforeEach(() => {
@@ -92,6 +104,7 @@ describe('BoardsService', () => {
       memberRepository as never,
       favouriteRepository as never,
       inviteRepository as never,
+      historyRepository as never,
       userRepository as never,
       realtimeService as never,
     );
@@ -611,6 +624,393 @@ describe('BoardsService', () => {
       expect(result[1]).toEqual(
         expect.objectContaining({ email: 'carol@example.com' }),
       );
+    });
+  });
+
+  describe('data persistence (versions + activity)', () => {
+    const validDoc = { schemaVersion: 1, elements: [] };
+
+    const makeRect = (id: string) => ({
+      id,
+      type: 'rectangle',
+      version: 1,
+      x: 0,
+      y: 0,
+      width: 10,
+      height: 10,
+      angle: 0,
+      opacity: 1,
+      strokeColor: '#000000',
+      fillColor: null,
+      strokeWidth: 2,
+      strokeStyle: 'solid',
+      shadow: null,
+      lastModifiedBy: 'user-1',
+      createdAt: 0,
+      updatedAt: 0,
+      name: null,
+      groupId: null,
+      locked: false,
+      hidden: false,
+    });
+
+    describe('getData', () => {
+      it('returns the current revision and data', async () => {
+        boardRepository.findById.mockResolvedValue(
+          makeBoard({ revision: 7, data: validDoc as Prisma.JsonValue }),
+        );
+
+        await expect(service.getData(makeUser(), 'board-1')).resolves.toEqual({
+          revision: 7,
+          data: validDoc,
+        });
+      });
+
+      it('throws BOARD_NOT_FOUND when the board is missing', async () => {
+        boardRepository.findById.mockResolvedValue(null);
+
+        await expect(
+          service.getData(makeUser(), 'board-1'),
+        ).rejects.toMatchObject({
+          status: 404,
+          response: { code: BOARD_ERROR_CODES.BOARD_NOT_FOUND },
+        });
+      });
+    });
+
+    describe('saveData', () => {
+      it('rejects a malformed document', async () => {
+        boardRepository.findById.mockResolvedValue(makeBoard());
+
+        await expect(
+          service.saveData(makeUser(), 'board-1', { data: { nope: true } }),
+        ).rejects.toMatchObject({
+          status: 400,
+          response: { code: BOARD_ERROR_CODES.INVALID_BOARD_DATA },
+        });
+        expect(historyRepository.saveData).not.toHaveBeenCalled();
+      });
+
+      it('rejects documents over the element cap', async () => {
+        boardRepository.findById.mockResolvedValue(makeBoard());
+        const elements = Array.from({ length: 10001 }, (_, i) =>
+          makeRect(`el-${i}`),
+        );
+
+        await expect(
+          service.saveData(makeUser(), 'board-1', {
+            data: { schemaVersion: 1, elements },
+          }),
+        ).rejects.toMatchObject({
+          status: 400,
+          response: { code: BOARD_ERROR_CODES.INVALID_BOARD_DATA },
+        });
+      });
+
+      it('throws BOARD_NOT_FOUND when the board is missing', async () => {
+        boardRepository.findById.mockResolvedValue(null);
+
+        await expect(
+          service.saveData(makeUser(), 'board-1', { data: validDoc }),
+        ).rejects.toMatchObject({
+          status: 404,
+          response: { code: BOARD_ERROR_CODES.BOARD_NOT_FOUND },
+        });
+      });
+
+      it('raises STALE_BOARD_REVISION on a conflict and does not broadcast', async () => {
+        boardRepository.findById.mockResolvedValue(makeBoard({ revision: 4 }));
+        historyRepository.saveData.mockResolvedValue({
+          status: 'conflict',
+          currentRevision: 5,
+          data: validDoc,
+        });
+
+        await expect(
+          service.saveData(makeUser(), 'board-1', {
+            data: validDoc,
+            baseRevision: 4,
+          }),
+        ).rejects.toMatchObject({
+          status: 409,
+          response: { code: BOARD_ERROR_CODES.STALE_BOARD_REVISION },
+        });
+        expect(realtimeService.broadcastRevision).not.toHaveBeenCalled();
+      });
+
+      it('passes the validated document and broadcasts the new revision', async () => {
+        boardRepository.findById.mockResolvedValue(makeBoard({ revision: 0 }));
+        historyRepository.saveData.mockResolvedValue({
+          status: 'created',
+          revision: 1,
+          data: validDoc,
+          version: {},
+        });
+
+        await expect(
+          service.saveData(makeUser(), 'board-1', { data: validDoc }),
+        ).resolves.toEqual({ revision: 1 });
+
+        expect(historyRepository.saveData).toHaveBeenCalledWith(
+          expect.objectContaining({
+            boardId: 'board-1',
+            kind: 'AUTO',
+            activityType: 'EDIT',
+            baseRevision: null,
+            elementCount: 0,
+          }),
+        );
+        expect(realtimeService.broadcastRevision).toHaveBeenCalledWith(
+          'board-1',
+          1,
+        );
+      });
+    });
+
+    describe('createVersion', () => {
+      it('forces a MANUAL version from the current board state', async () => {
+        boardRepository.findById.mockResolvedValue(
+          makeBoard({ revision: 2, data: validDoc as Prisma.JsonValue }),
+        );
+        historyRepository.saveData.mockResolvedValue({
+          status: 'created',
+          revision: 3,
+          data: validDoc,
+          version: {},
+        });
+
+        await expect(
+          service.createVersion(makeUser(), 'board-1', { note: 'Release cut' }),
+        ).resolves.toEqual({ revision: 3 });
+
+        expect(historyRepository.saveData).toHaveBeenCalledWith(
+          expect.objectContaining({
+            kind: 'MANUAL',
+            forceCreate: true,
+            activityType: 'MANUAL_VERSION',
+            note: 'Release cut',
+            baseRevision: 2,
+          }),
+        );
+      });
+    });
+
+    describe('listVersions', () => {
+      const versionRow = {
+        id: 'v-1',
+        versionNo: 3,
+        kind: 'AUTO',
+        note: null,
+        schemaVersion: 1,
+        elementCount: 0,
+        data: validDoc,
+        createdAt: new Date('2026-07-01T00:00:00.000Z'),
+        createdBy: { id: 'user-1', name: 'Alice', avatarUrl: null },
+      };
+
+      it('maps rows to version DTOs using default pagination', async () => {
+        boardRepository.findById.mockResolvedValue(makeBoard());
+        historyRepository.listVersions.mockResolvedValue({
+          items: [versionRow],
+          pageInfo: { hasNextPage: false },
+        });
+
+        const result = await service.listVersions(makeUser(), 'board-1', {});
+
+        expect(result.data[0]).toEqual(
+          expect.objectContaining({ versionNo: 3, kind: 'AUTO' }),
+        );
+        expect(historyRepository.listVersions).toHaveBeenCalledWith(
+          'board-1',
+          null,
+          20,
+        );
+      });
+
+      it('rejects an invalid version cursor', async () => {
+        boardRepository.findById.mockResolvedValue(makeBoard());
+
+        await expect(
+          service.listVersions(makeUser(), 'board-1', { cursor: 'garbage' }),
+        ).rejects.toMatchObject({
+          status: 400,
+          response: { code: BOARD_ERROR_CODES.INVALID_VERSION_CURSOR },
+        });
+      });
+    });
+
+    describe('getVersion', () => {
+      it('returns a version with its data payload', async () => {
+        boardRepository.findById.mockResolvedValue(makeBoard());
+        historyRepository.findVersion.mockResolvedValue({
+          id: 'v-1',
+          versionNo: 2,
+          kind: 'MANUAL',
+          note: 'checkpoint',
+          schemaVersion: 1,
+          elementCount: 0,
+          data: validDoc,
+          createdAt: new Date('2026-07-01T00:00:00.000Z'),
+          createdBy: { id: 'user-1', name: null, avatarUrl: null },
+        });
+
+        const result = await service.getVersion(makeUser(), 'board-1', 2);
+
+        expect(result).toEqual(
+          expect.objectContaining({ versionNo: 2, data: validDoc }),
+        );
+      });
+
+      it('throws VERSION_NOT_FOUND when missing', async () => {
+        boardRepository.findById.mockResolvedValue(makeBoard());
+        historyRepository.findVersion.mockResolvedValue(null);
+
+        await expect(
+          service.getVersion(makeUser(), 'board-1', 99),
+        ).rejects.toMatchObject({
+          status: 404,
+          response: { code: BOARD_ERROR_CODES.VERSION_NOT_FOUND },
+        });
+      });
+    });
+
+    describe('restoreVersion', () => {
+      it('applies the target version and broadcasts the restore', async () => {
+        boardRepository.findById.mockResolvedValue(makeBoard({ revision: 5 }));
+        historyRepository.restoreVersion.mockResolvedValue({
+          board: makeBoard({ revision: 6, data: validDoc as Prisma.JsonValue }),
+          targetVersion: {
+            id: 'v-2',
+            versionNo: 2,
+            kind: 'MANUAL',
+            note: null,
+            schemaVersion: 1,
+            elementCount: 0,
+            data: validDoc,
+            createdAt: new Date('2026-07-01T00:00:00.000Z'),
+          },
+        });
+
+        const result = await service.restoreVersion(makeUser(), 'board-1', 2);
+
+        expect(historyRepository.restoreVersion).toHaveBeenCalledWith(
+          'board-1',
+          2,
+          'user-1',
+        );
+        expect(realtimeService.broadcastRevision).toHaveBeenCalledWith(
+          'board-1',
+          6,
+        );
+        expect(realtimeService.broadcastBoardRestored).toHaveBeenCalledWith(
+          'board-1',
+          expect.objectContaining({
+            boardId: 'board-1',
+            versionNo: 2,
+            revision: 6,
+          }),
+        );
+        expect(result).toEqual(expect.objectContaining({ versionNo: 2 }));
+      });
+
+      it('throws VERSION_NOT_FOUND when the version is missing', async () => {
+        boardRepository.findById.mockResolvedValue(makeBoard());
+        historyRepository.restoreVersion.mockResolvedValue(null);
+
+        await expect(
+          service.restoreVersion(makeUser(), 'board-1', 99),
+        ).rejects.toMatchObject({
+          status: 404,
+          response: { code: BOARD_ERROR_CODES.VERSION_NOT_FOUND },
+        });
+      });
+    });
+
+    describe('listActivity', () => {
+      const activityRow = {
+        id: 'a-1',
+        type: 'EDIT',
+        versionNo: 3,
+        details: { versionNo: 3 },
+        createdAt: new Date('2026-07-01T00:00:00.000Z'),
+        actor: { id: 'user-1', name: 'Alice', avatarUrl: null },
+      };
+
+      it('maps rows to activity DTOs using default pagination', async () => {
+        boardRepository.findById.mockResolvedValue(makeBoard());
+        historyRepository.listActivity.mockResolvedValue({
+          items: [activityRow],
+          pageInfo: { hasNextPage: false },
+        });
+
+        const result = await service.listActivity(makeUser(), 'board-1', {});
+
+        expect(result.data[0]).toEqual(
+          expect.objectContaining({ type: 'EDIT', versionNo: 3 }),
+        );
+        expect(historyRepository.listActivity).toHaveBeenCalledWith(
+          'board-1',
+          null,
+          30,
+        );
+      });
+
+      it('rejects an invalid date cursor', async () => {
+        boardRepository.findById.mockResolvedValue(makeBoard());
+
+        await expect(
+          service.listActivity(makeUser(), 'board-1', { before: 'nope' }),
+        ).rejects.toMatchObject({
+          status: 400,
+          response: { code: BOARD_ERROR_CODES.INVALID_CURSOR },
+        });
+      });
+    });
+
+    describe('activity recording on lifecycle events', () => {
+      it('records CREATE when a board is created', async () => {
+        boardRepository.createWithOwner.mockResolvedValue(makeBoard());
+
+        await service.create(makeUser(), { title: 'New' });
+
+        expect(historyRepository.recordActivity).toHaveBeenCalledWith(
+          expect.objectContaining({ type: 'CREATE', actorId: 'user-1' }),
+        );
+      });
+
+      it('records ARCHIVE and RESTORE', async () => {
+        boardRepository.findById.mockResolvedValue(makeBoard());
+        boardRepository.update.mockResolvedValue(
+          makeBoard({ isArchived: true }),
+        );
+        await service.archive(makeUser(), 'board-1');
+        expect(historyRepository.recordActivity).toHaveBeenCalledWith(
+          expect.objectContaining({ type: 'ARCHIVE' }),
+        );
+
+        boardRepository.findById.mockResolvedValue(
+          makeBoard({ isArchived: true }),
+        );
+        boardRepository.update.mockResolvedValue(
+          makeBoard({ isArchived: false }),
+        );
+        await service.restore(makeUser(), 'board-1');
+        expect(historyRepository.recordActivity).toHaveBeenCalledWith(
+          expect.objectContaining({ type: 'RESTORE' }),
+        );
+      });
+
+      it('records DELETE when a board is removed', async () => {
+        boardRepository.findById.mockResolvedValue(makeBoard());
+        boardRepository.softDelete.mockResolvedValue(true);
+        realtimeService.closeBoard.mockResolvedValue(undefined);
+
+        await service.remove(makeUser(), 'board-1');
+
+        expect(historyRepository.recordActivity).toHaveBeenCalledWith(
+          expect.objectContaining({ type: 'DELETE' }),
+        );
+      });
     });
   });
 });

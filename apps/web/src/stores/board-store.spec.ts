@@ -123,7 +123,11 @@ describe('board store', () => {
   });
 
   it('setCurrentBoard stores the detail payload', () => {
-    const detail: BoardDetail = { ...summary('b1', 'Detail'), data: { el: 1 } };
+    const detail: BoardDetail = {
+      ...summary('b1', 'Detail'),
+      revision: 0,
+      data: { el: 1 },
+    };
 
     useBoardStore.getState().setCurrentBoard(detail);
 
@@ -160,7 +164,7 @@ describe('board store', () => {
       .setBoards(listResult([summary('b1', 'A')], 'c', true));
     useBoardStore
       .getState()
-      .setCurrentBoard({ ...summary('b1', 'A'), data: null });
+      .setCurrentBoard({ ...summary('b1', 'A'), revision: 0, data: null });
 
     useBoardStore.getState().reset();
 

@@ -60,10 +60,10 @@ follows the template below. Sessions MUST read all entries before implementing.
 
 ### ADR-0005: Debounced autosave + offline queue
 
-- **Status**: Proposed
+- **Status**: Accepted
 - **Context**: Board edits are frequent; network failures and offline usage are expected.
-- **Decision**: 1.5s debounced autosave over REST with an IndexedDB-backed offline mutation queue flushed on reconnect; server rejects stale versions to surface conflicts.
-- **Consequences**: Near-zero save latency perception; requires version/conflict detection in Phase 13.
+- **Decision**: 1.5s debounced autosave over REST with an IndexedDB-backed offline mutation queue flushed on reconnect; server rejects stale versions to surface conflicts. Versions are immutable full-board snapshots written on autosave (capped per board) and restored non-destructively (current canvas is preserved as a new version on restore). Autosave state (idle/saving/saved/error/offline/pending-restore) is tracked in a client store and surfaced in the header. Realtime `board:revision`/`board:restored` events sync the autosave base so remote edits never trigger a false stale-write; board snapshots, timeline and activity are served by REST (`boards/:id/versions`, `boards/:id/activity`).
+- **Consequences**: Near-zero save latency perception; requires version/conflict detection in Phase 13. IndexedDB offline queue falls back to an in-memory queue when the API is unavailable (e.g. SSR or restricted browsers).
 
 ### ADR-0006: Access + rotating refresh tokens
 

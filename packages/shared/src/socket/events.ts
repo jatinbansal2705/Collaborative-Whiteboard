@@ -5,6 +5,8 @@
  * event with `{ ok: true, data }` or `{ ok: false, error: { code, message } }`.
  * Broadcast strategy per event:
  *  - `board:join` / `board:leave`     -> ack + `board:data` (joiner) + `presence:roster` (room)
+ *  - `board:revision` (server->client) -> `board:revision` broadcast (room) after a persisted save
+ *  - `board:restored` (server->client) -> `board:restored` broadcast (room) with the authoritative document
  *  - `presence:update`                -> `presence:update` broadcast (room, excluding sender)
  *  - `cursor:move`                    -> `cursor:move` broadcast (room, excluding sender, throttled)
  *  - `draw:patch`                     -> `draw:patch` broadcast (room, excluding sender)
@@ -42,6 +44,8 @@ export const SOCKET_EVENTS = {
   ELEMENT_DELETE: 'element:delete',
   SELECTION_UPDATE: 'selection:update',
   BOARD_DATA: 'board:data',
+  BOARD_REVISION: 'board:revision',
+  BOARD_RESTORED: 'board:restored',
   KICK: 'kick',
   BOARD_DELETED: 'board:deleted',
   CHAT_TYPING: 'chat:typing',

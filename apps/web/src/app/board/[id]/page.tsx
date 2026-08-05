@@ -12,6 +12,7 @@ import { LayersPanel } from '@/components/canvas/layers-panel';
 import { Minimap } from '@/components/canvas/minimap';
 import { StyleBar } from '@/components/canvas/style-bar';
 import { TextStyleBar } from '@/components/canvas/text-style-bar';
+import { VersionHistoryDialog } from '@/components/canvas/version-history-dialog';
 import { ZoomControls } from '@/components/canvas/zoom-controls';
 import { ChatPanel } from '@/components/realtime/chat-panel';
 import { CommentComposer } from '@/components/realtime/comment-composer';
@@ -22,8 +23,10 @@ import { LoadingState } from '@/components/state/loading-state';
 import { getErrorMessage } from '@/lib/api/errors';
 import { registerCommand, unregisterCommand } from '@/lib/canvas/commands';
 import { boardService } from '@/lib/api/services/board-service';
+import { useAutosave } from '@/hooks/use-autosave';
 import { useBoardRealtime } from '@/hooks/use-board-realtime';
 import { useCanvasHotkeys } from '@/hooks/use-canvas-hotkeys';
+import { useAutosaveStore } from '@/stores/autosave-store';
 import { useCanvasStore } from '@/stores/canvas-store';
 import { useCommentsStore } from '@/stores/comments-store';
 import type { BoardMemberRole } from '@/types/board';
@@ -49,6 +52,7 @@ export default function BoardPage({ params }: BoardPageProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [versionHistoryOpen, setVersionHistoryOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
@@ -64,6 +68,8 @@ export default function BoardPage({ params }: BoardPageProps) {
 
   useCanvasHotkeys();
   useBoardRealtime(boardId, myRole ?? 'VIEWER');
+  const canEdit = myRole !== null && !READ_ONLY_ROLES.has(myRole);
+  useAutosave(boardId, canEdit);
 
   useEffect(() => {
     registerCommand('help', () => setShortcutsOpen(true));
@@ -92,6 +98,7 @@ export default function BoardPage({ params }: BoardPageProps) {
         if (document !== null) {
           useCanvasStore.getState().setElements(document.elements);
         }
+        useAutosaveStore.getState().setLoaded(board.revision, document);
         setLoading(false);
       } catch (cause) {
         if (cancelled) {
@@ -163,6 +170,7 @@ export default function BoardPage({ params }: BoardPageProps) {
               if (document !== null) {
                 useCanvasStore.getState().setElements(document.elements);
               }
+              useAutosaveStore.getState().setLoaded(board.revision, document);
               setTitle(board.title);
               setMyRole(board.myRole);
               setLoading(false);
@@ -185,11 +193,13 @@ export default function BoardPage({ params }: BoardPageProps) {
         commentsOpen={commentsOpen}
         commentMode={commentMode}
         canComment={canComment(myRole)}
+        canEdit={canEdit}
         readOnly={READ_ONLY_ROLES.has(myRole ?? 'VIEWER')}
         onToggleChat={() => setChatOpen((open) => !open)}
         onToggleComments={() => setCommentsOpen((open) => !open)}
         onToggleCommentMode={toggleCommentMode}
         onOpenShare={() => setShareOpen(true)}
+        onOpenVersionHistory={() => setVersionHistoryOpen(true)}
       />
       <div className="relative min-h-0 flex-1">
         <BoardCanvas
@@ -244,6 +254,12 @@ export default function BoardPage({ params }: BoardPageProps) {
         boardId={boardId}
         open={shareOpen}
         onOpenChange={setShareOpen}
+      />
+      <VersionHistoryDialog
+        boardId={boardId}
+        open={versionHistoryOpen}
+        canEdit={canEdit}
+        onOpenChange={setVersionHistoryOpen}
       />
       <KeyboardShortcutsDialog
         open={shortcutsOpen}

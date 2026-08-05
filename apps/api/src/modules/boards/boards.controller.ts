@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -30,10 +31,21 @@ import type {
 } from './dto/board-response.dto';
 import type { CreateBoardDto } from './dto/create-board.dto';
 import type { CreateTemplateDto } from './dto/create-template.dto';
+import type { CreateVersionDto } from './dto/update-board-data.dto';
+import type { ListActivityQueryDto } from './dto/list-activity.query.dto';
 import type { ListBoardsQueryDto } from './dto/list-boards-query.dto';
+import type { ListVersionsQueryDto } from './dto/list-versions.query.dto';
 import type { ToggleFavouriteDto } from './dto/toggle-favourite.dto';
+import type { UpdateBoardDataDto } from './dto/update-board-data.dto';
 import type { UpdateBoardDto } from './dto/update-board.dto';
 import type { UpdateMemberRoleDto } from './dto/update-member-role.dto';
+import type {
+  BoardActivityListResponseDto,
+  BoardDataResponseDto,
+  BoardVersionDetailDto,
+  BoardVersionListResponseDto,
+  SaveBoardDataResponseDto,
+} from './dto/board-history.response.dto';
 
 @ApiTags('boards')
 @Controller('boards')
@@ -211,5 +223,86 @@ export class BoardsController {
     @Param('userId') userId: string,
   ): Promise<void> {
     return this.boardsService.removeMember(user, id, userId);
+  }
+
+  @Get(':id/data')
+  @BoardAccess({ minRole: 'VIEWER' })
+  @ApiOperation({ summary: 'Get the current canvas document snapshot' })
+  getData(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ): Promise<BoardDataResponseDto> {
+    return this.boardsService.getData(user, id);
+  }
+
+  @Patch(':id/data')
+  @BoardAccess({ minRole: 'EDITOR' })
+  @ApiOperation({
+    summary:
+      'Persist the canvas document (autosave). Versioned + conflict detected.',
+  })
+  saveData(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() dto: UpdateBoardDataDto,
+  ): Promise<SaveBoardDataResponseDto> {
+    return this.boardsService.saveData(user, id, dto);
+  }
+
+  @Get(':id/versions')
+  @BoardAccess({ minRole: 'VIEWER' })
+  @ApiOperation({ summary: 'List board version snapshots (newest first)' })
+  listVersions(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Query() query: ListVersionsQueryDto,
+  ): Promise<BoardVersionListResponseDto> {
+    return this.boardsService.listVersions(user, id, query);
+  }
+
+  @Get(':id/versions/:versionNo')
+  @BoardAccess({ minRole: 'VIEWER' })
+  @ApiOperation({ summary: 'Get a single version snapshot with its document' })
+  getVersion(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Param('versionNo', ParseIntPipe) versionNo: number,
+  ): Promise<BoardVersionDetailDto> {
+    return this.boardsService.getVersion(user, id, versionNo);
+  }
+
+  @Post(':id/versions')
+  @BoardAccess({ minRole: 'EDITOR' })
+  @ApiOperation({ summary: 'Manually save a named version snapshot' })
+  createVersion(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() dto: CreateVersionDto,
+  ): Promise<SaveBoardDataResponseDto> {
+    return this.boardsService.createVersion(user, id, dto);
+  }
+
+  @Post(':id/versions/:versionNo/restore')
+  @BoardAccess({ minRole: 'EDITOR' })
+  @ApiOperation({
+    summary: 'Restore the board to a historical version (never destructive)',
+  })
+  restoreVersion(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Param('versionNo', ParseIntPipe) versionNo: number,
+  ): Promise<BoardVersionDetailDto> {
+    return this.boardsService.restoreVersion(user, id, versionNo);
+  }
+
+  @Get(':id/activity')
+  @BoardAccess({ minRole: 'VIEWER' })
+  @ApiOperation({ summary: 'List the board activity timeline (newest first)' })
+  listActivity(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Query() query: ListActivityQueryDto,
+  ): Promise<BoardActivityListResponseDto> {
+    return this.boardsService.listActivity(user, id, query);
   }
 }

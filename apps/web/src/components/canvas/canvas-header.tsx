@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import {
   ArrowLeft,
+  History,
   Keyboard,
   Layers,
   MessageSquare,
@@ -14,6 +15,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { PresenceAvatars } from '@/components/realtime/presence-avatars';
 import { NotificationBell } from '@/components/realtime/notification-bell';
+import { ImportExportMenu } from '@/components/canvas/import-export-menu';
+import { SaveStatus } from '@/components/canvas/save-status';
 import { redoCommand, undoCommand } from '@/lib/canvas/commands';
 import {
   selectCanvasCanRedo,
@@ -27,10 +30,12 @@ import { cn } from '@/lib/utils';
 interface CanvasHeaderProps {
   title: string;
   onOpenShortcuts: () => void;
+  onOpenVersionHistory: () => void;
   chatOpen: boolean;
   commentsOpen: boolean;
   commentMode: boolean;
   canComment: boolean;
+  canEdit: boolean;
   readOnly: boolean;
   onToggleChat: () => void;
   onToggleComments: () => void;
@@ -42,10 +47,12 @@ interface CanvasHeaderProps {
 export function CanvasHeader({
   title,
   onOpenShortcuts,
+  onOpenVersionHistory,
   chatOpen,
   commentsOpen,
   commentMode,
   canComment,
+  canEdit,
   readOnly,
   onToggleChat,
   onToggleComments,
@@ -75,6 +82,7 @@ export function CanvasHeader({
       <h1 className="min-w-0 flex-1 truncate text-sm font-medium" title={title}>
         {title}
       </h1>
+      <SaveStatus />
       <PresenceAvatars />
       {readOnly ? (
         <span className="border-input text-muted-foreground hidden rounded-md border px-2 py-1 text-xs sm:inline-block">
@@ -141,6 +149,17 @@ export function CanvasHeader({
         >
           <Share2 aria-hidden="true" />
         </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onOpenVersionHistory}
+          aria-label="Version history"
+          title="Version history"
+          className="size-8"
+        >
+          <History aria-hidden="true" />
+        </Button>
+        <ImportExportMenu title={title} canEdit={canEdit} />
         <div className="mx-1 h-5 w-px bg-border" />
         <Button
           variant="ghost"

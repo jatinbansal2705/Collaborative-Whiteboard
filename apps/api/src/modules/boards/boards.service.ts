@@ -1,4 +1,5 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import { parseWhiteboardDocument } from '@whiteboard/shared';
 import type {
   Board,
   BoardMemberRole,
@@ -15,6 +16,7 @@ import {
 import { RealtimeService } from '../realtime/realtime.service';
 import {
   BOARD_COPY_SUFFIX,
+  BOARD_DATA_MAX_ELEMENTS,
   BOARD_TITLE_MAX_LENGTH,
   INVITE_EXPIRES_IN_MS,
 } from './board.constants';
@@ -25,17 +27,22 @@ import {
   boardNotFound,
   boardNotFavourited,
   boardAccessDenied,
+  invalidBoardData,
   invalidBoardTemplate,
   invalidCursor,
   invalidMemberIdentifier,
   invalidRoleTransfer,
+  invalidVersionCursor,
   memberAlreadyExists,
   memberNotFound,
   ownerCannotLeave,
   pendingInviteExists,
+  staleBoardRevision,
   userNotFound,
+  versionNotFound,
 } from './board.errors';
 import { BoardRepository } from './board.repository';
+import { BoardHistoryRepository } from './board-history.repository';
 import {
   decodeCursor,
   type BoardSortBy,
@@ -51,6 +58,16 @@ import {
   type BoardSummaryDto,
   type FavouriteStatusDto,
 } from './dto/board-response.dto';
+import {
+  toBoardActivity,
+  toBoardVersion,
+  toHistoryPageInfo,
+  type BoardActivityListResponseDto,
+  type BoardDataResponseDto,
+  type BoardVersionDetailDto,
+  type BoardVersionListResponseDto,
+  type SaveBoardDataResponseDto,
+} from './dto/board-history.response.dto';
 import type { AddMemberDto } from './dto/add-member.dto';
 import type {
   AddMemberResult,
@@ -60,8 +77,14 @@ import type {
 } from './dto/member-response.dto';
 import type { CreateBoardDto } from './dto/create-board.dto';
 import type { CreateTemplateDto } from './dto/create-template.dto';
+import type { CreateVersionDto } from './dto/update-board-data.dto';
+import type { ListActivityQueryDto } from './dto/list-activity.query.dto';
 import type { ListBoardsQueryDto } from './dto/list-boards-query.dto';
+import type { ListVersionsQueryDto } from './dto/list-versions.query.dto';
+import type { UpdateBoardDataDto } from './dto/update-board-data.dto';
 import type { UpdateBoardDto } from './dto/update-board.dto';
+import { decodeVersionCursor } from './board-history.repository';
+import { decodeDateCursor } from '../../common/utils/date-cursor';
 import { FavouriteRepository } from './favourite.repository';
 import { InviteRepository } from './invite.repository';
 import {
@@ -76,6 +99,7 @@ export class BoardsService {
     private readonly memberRepository: MemberRepository,
     private readonly favouriteRepository: FavouriteRepository,
     private readonly inviteRepository: InviteRepository,
+    private readonly historyRepository: BoardHistoryRepository,
     private readonly userRepository: UserRepository,
     @Inject(forwardRef(() => RealtimeService))
     private readonly realtimeService: RealtimeService,
@@ -126,6 +150,177 @@ export class BoardsService {
     return toBoardDetail(board, membership.role, favourite !== null);
   }
 
+  async getData(
+    user: AuthenticatedUser,
+    boardId: string,
+  ): Promise<BoardDataResponseDto> {
+    const board = await this.requireBoard(boardId);
+    return { revision: board.revision, data: board.data };
+  }
+
+  async saveData(
+    user: AuthenticatedUser,
+    boardId: string,
+    dto: UpdateBoardDataDto,
+  ): Promise<SaveBoardDataResponseDto> {
+    await this.requireBoard(boardId);
+
+    const document = parseWhiteboardDocument(dto.data);
+    if (
+      document === null ||
+      document.elements.length > BOARD_DATA_MAX_ELEMENTS
+    ) {
+      throw invalidBoardData();
+    }
+
+    const result = await this.historyRepository.saveData({
+      boardId,
+      baseRevision: dto.baseRevision ?? null,
+      data: dto.data as Prisma.InputJsonValue,
+      schemaVersion: document.schemaVersion,
+      elementCount: document.elements.length,
+      actorId: user.id,
+      kind: 'AUTO',
+      activityType: 'EDIT',
+    });
+
+    switch (result.status) {
+      case 'missing':
+        throw boardNotFound();
+      case 'conflict':
+        throw staleBoardRevision(result.currentRevision, result.data);
+      default:
+        this.realtimeService.broadcastRevision(boardId, result.revision);
+        return { revision: result.revision };
+    }
+  }
+
+  async createVersion(
+    user: AuthenticatedUser,
+    boardId: string,
+    dto: CreateVersionDto,
+  ): Promise<SaveBoardDataResponseDto> {
+    const board = await this.requireBoard(boardId);
+
+    const result = await this.historyRepository.saveData({
+      boardId,
+      baseRevision: board.revision,
+      data: board.data as Prisma.InputJsonValue,
+      schemaVersion: 1,
+      elementCount: countDocumentElements(board.data),
+      actorId: user.id,
+      kind: 'MANUAL',
+      note: dto.note,
+      activityType: 'MANUAL_VERSION',
+      forceCreate: true,
+    });
+
+    switch (result.status) {
+      case 'missing':
+        throw boardNotFound();
+      case 'conflict':
+        throw staleBoardRevision(result.currentRevision, result.data);
+      default:
+        this.realtimeService.broadcastRevision(boardId, result.revision);
+        return { revision: result.revision };
+    }
+  }
+
+  async listVersions(
+    user: AuthenticatedUser,
+    boardId: string,
+    query: ListVersionsQueryDto,
+  ): Promise<BoardVersionListResponseDto> {
+    await this.requireBoard(boardId);
+
+    const cursor = decodeVersionCursor(query.cursor);
+    if (query.cursor !== undefined && cursor === null) {
+      throw invalidVersionCursor();
+    }
+
+    const page = await this.historyRepository.listVersions(
+      boardId,
+      cursor,
+      query.limit ?? 20,
+    );
+    return {
+      data: page.items.map((row) => toBoardVersion(row)),
+      meta: toHistoryPageInfo(page.pageInfo),
+    };
+  }
+
+  async getVersion(
+    user: AuthenticatedUser,
+    boardId: string,
+    versionNo: number,
+  ): Promise<BoardVersionDetailDto> {
+    await this.requireBoard(boardId);
+    const version = await this.historyRepository.findVersion(
+      boardId,
+      versionNo,
+    );
+    if (version === null) {
+      throw versionNotFound();
+    }
+    return toBoardVersion(version, { includeData: true });
+  }
+
+  async restoreVersion(
+    user: AuthenticatedUser,
+    boardId: string,
+    versionNo: number,
+  ): Promise<BoardVersionDetailDto> {
+    await this.requireBoard(boardId);
+    const result = await this.historyRepository.restoreVersion(
+      boardId,
+      versionNo,
+      user.id,
+    );
+    if (result === null) {
+      throw versionNotFound();
+    }
+
+    this.realtimeService.broadcastRevision(boardId, result.board.revision);
+    this.realtimeService.broadcastBoardRestored(boardId, {
+      boardId,
+      versionNo,
+      revision: result.board.revision,
+      data: toPlainData(result.board.data),
+    });
+
+    return toBoardVersion(
+      {
+        ...result.targetVersion,
+        createdBy: { id: user.id, name: null, avatarUrl: null },
+      },
+      { includeData: true },
+    );
+  }
+
+  async listActivity(
+    user: AuthenticatedUser,
+    boardId: string,
+    query: ListActivityQueryDto,
+  ): Promise<BoardActivityListResponseDto> {
+    await this.requireBoard(boardId);
+
+    const cursor =
+      query.before === undefined ? null : decodeDateCursor(query.before);
+    if (query.before !== undefined && cursor === null) {
+      throw invalidCursor();
+    }
+
+    const page = await this.historyRepository.listActivity(
+      boardId,
+      cursor,
+      query.limit ?? 30,
+    );
+    return {
+      data: page.items.map(toBoardActivity),
+      meta: toHistoryPageInfo(page.pageInfo),
+    };
+  }
+
   async create(
     user: AuthenticatedUser,
     dto: CreateBoardDto,
@@ -154,6 +349,13 @@ export class BoardsService {
       data,
       isTemplate: false,
       createdById: user.id,
+    });
+
+    await this.historyRepository.recordActivity({
+      boardId: board.id,
+      type: 'CREATE',
+      actorId: user.id,
+      details: { title: board.title },
     });
 
     return toBoardSummary({ board, isFavourite: false, myRole: 'OWNER' });
@@ -186,6 +388,11 @@ export class BoardsService {
     await this.requireBoard(boardId);
     await this.boardRepository.softDelete(boardId);
     await this.realtimeService.closeBoard(boardId, KICK_REASON_BOARD_DELETED);
+    await this.historyRepository.recordActivity({
+      boardId,
+      type: 'DELETE',
+      actorId: user.id,
+    });
     return { deleted: true, id: boardId };
   }
 
@@ -224,6 +431,11 @@ export class BoardsService {
     const updated = await this.boardRepository.update(boardId, {
       isArchived: true,
     });
+    await this.historyRepository.recordActivity({
+      boardId,
+      type: 'ARCHIVE',
+      actorId: user.id,
+    });
     return this.summaryWithContext(boardId, updated, user.id);
   }
 
@@ -237,6 +449,11 @@ export class BoardsService {
     }
     const updated = await this.boardRepository.update(boardId, {
       isArchived: false,
+    });
+    await this.historyRepository.recordActivity({
+      boardId,
+      type: 'RESTORE',
+      actorId: user.id,
     });
     return this.summaryWithContext(boardId, updated, user.id);
   }
@@ -573,4 +790,24 @@ export class BoardsService {
       createdAt: invite.createdAt,
     };
   }
+}
+
+function countDocumentElements(data: Prisma.JsonValue): number {
+  if (
+    typeof data === 'object' &&
+    data !== null &&
+    !Array.isArray(data) &&
+    'elements' in data &&
+    Array.isArray(data.elements)
+  ) {
+    return data.elements.length;
+  }
+  return 0;
+}
+
+function toPlainData(value: unknown): Record<string, unknown> {
+  if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  return {};
 }

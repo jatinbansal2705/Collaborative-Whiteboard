@@ -7,6 +7,8 @@ import {
   type BoardDataPayload,
   type BoardDeletedPayload,
   type BoardMemberRole,
+  type BoardRestoredEvent,
+  type BoardRevisionEvent,
   type ChatReadAckData,
   type ChatReadEvent,
   type ChatReadPayload,
@@ -159,6 +161,7 @@ export class RealtimeService {
       boardId: payload.boardId,
       role: membership.role,
       version: String(board.updatedAt.getTime()),
+      revision: board.revision,
       data: toBoardData(board.data),
       presence: roster,
     };
@@ -435,6 +438,25 @@ export class RealtimeService {
     }
     const event: ChatMessageEventPayload = { boardId, message };
     server.to(boardRoom(boardId)).emit(SOCKET_EVENTS.CHAT_MESSAGE, event);
+  }
+
+  /** Broadcasts a persisted save so peers can advance their autosave base revision. */
+  broadcastRevision(boardId: string, revision: number): void {
+    const server = this.server;
+    if (server === null) {
+      return;
+    }
+    const event: BoardRevisionEvent = { boardId, revision };
+    server.to(boardRoom(boardId)).emit(SOCKET_EVENTS.BOARD_REVISION, event);
+  }
+
+  /** Broadcasts the authoritative document after a restore so all clients re-sync. */
+  broadcastBoardRestored(boardId: string, event: BoardRestoredEvent): void {
+    const server = this.server;
+    if (server === null) {
+      return;
+    }
+    server.to(boardRoom(boardId)).emit(SOCKET_EVENTS.BOARD_RESTORED, event);
   }
 
   /** Broadcasts a comment addition to a board room. */

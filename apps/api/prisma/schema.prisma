@@ -43,6 +43,21 @@ enum NotificationType {
   CHAT_MENTION
 }
 
+enum BoardVersionKind {
+  AUTO
+  MANUAL
+}
+
+enum BoardActivityType {
+  CREATE
+  EDIT
+  VERSION_RESTORE
+  MANUAL_VERSION
+  ARCHIVE
+  DELETE
+  RESTORE
+}
+
 model User {
   id                 String               @id @default(uuid()) @db.Uuid
   email              String               @unique @db.Citext
@@ -70,6 +85,8 @@ model User {
   chatMessages       ChatMessage[]
   chatReadReceipts   ChatReadReceipt[]
   notifications      Notification[]
+  boardVersions      BoardVersion[] @relation("BoardVersionAuthor")
+  boardActivity      BoardActivity[] @relation("BoardActivityActor")
 
   @@index([role])
   @@map("users")
@@ -118,6 +135,8 @@ model Board {
   isArchived   Boolean         @default(false) @map("is_archived")
   status       BoardStatus     @default(ACTIVE)
   memberCount  Int             @default(1) @map("member_count")
+  /** Monotonic revision counter bumped on every persisted data save (autosave/restore/import). */
+  revision     Int             @default(0)
   createdById  String          @map("created_by_id") @db.Uuid
   createdBy    User            @relation(fields: [createdById], references: [id], onDelete: Restrict)
   members      BoardMember[]
@@ -127,6 +146,8 @@ model Board {
   commentThreads CommentThread[]
   chatMessages ChatMessage[]
   chatReadReceipts ChatReadReceipt[]
+  versions     BoardVersion[]
+  activity     BoardActivity[]
   createdAt    DateTime        @default(now()) @map("created_at")
   updatedAt    DateTime        @updatedAt @map("updated_at")
   deletedAt    DateTime?       @map("deleted_at")
@@ -139,6 +160,42 @@ model Board {
   @@index([updatedAt])
   @@index([deletedAt])
   @@map("boards")
+}
+
+model BoardVersion {
+  id            String          @id @default(uuid()) @db.Uuid
+  boardId       String          @map("board_id") @db.Uuid
+  board         Board           @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  versionNo     Int
+  kind          BoardVersionKind @default(AUTO)
+  note          String?         @db.VarChar(255)
+  data          Json            @default("{}")
+  schemaVersion Int             @default(1) @map("schema_version")
+  elementCount  Int             @default(0) @map("element_count")
+  createdById   String          @map("created_by_id") @db.Uuid
+  createdBy     User            @relation("BoardVersionAuthor", fields: [createdById], references: [id], onDelete: Restrict)
+  createdAt     DateTime        @default(now()) @map("created_at")
+
+  @@unique([boardId, versionNo])
+  @@index([boardId, createdAt])
+  @@index([createdById])
+  @@map("board_versions")
+}
+
+model BoardActivity {
+  id        String            @id @default(uuid()) @db.Uuid
+  boardId   String            @map("board_id") @db.Uuid
+  board     Board             @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  type      BoardActivityType
+  actorId   String            @map("actor_id") @db.Uuid
+  actor     User              @relation("BoardActivityActor", fields: [actorId], references: [id], onDelete: Restrict)
+  versionNo Int?
+  details   Json              @default("{}")
+  createdAt DateTime          @default(now()) @map("created_at")
+
+  @@index([boardId, createdAt])
+  @@index([actorId])
+  @@map("board_activity")
 }
 
 model BoardMember {

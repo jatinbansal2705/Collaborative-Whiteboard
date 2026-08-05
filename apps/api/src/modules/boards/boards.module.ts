@@ -2,6 +2,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
 import { RealtimeModule } from '../realtime/realtime.module';
 import { BoardRepository } from './board.repository';
+import { BoardHistoryRepository } from './board-history.repository';
 import { BoardsController } from './boards.controller';
 import { BoardsService } from './boards.service';
 import { FavouriteRepository } from './favourite.repository';
@@ -15,6 +16,7 @@ import { MemberRepository } from './member.repository';
   providers: [
     BoardsService,
     BoardRepository,
+    BoardHistoryRepository,
     MemberRepository,
     FavouriteRepository,
     InviteRepository,

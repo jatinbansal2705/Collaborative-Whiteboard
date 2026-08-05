@@ -60,6 +60,16 @@ export type Session = Prisma.SessionModel
  */
 export type Board = Prisma.BoardModel
 /**
+ * Model BoardVersion
+ * 
+ */
+export type BoardVersion = Prisma.BoardVersionModel
+/**
+ * Model BoardActivity
+ * 
+ */
+export type BoardActivity = Prisma.BoardActivityModel
+/**
  * Model BoardMember
  * 
  */

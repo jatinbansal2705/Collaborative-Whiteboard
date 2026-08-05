@@ -60,3 +60,24 @@ export const NotificationType = {
 } as const
 
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]
+
+
+export const BoardVersionKind = {
+  AUTO: 'AUTO',
+  MANUAL: 'MANUAL'
+} as const
+
+export type BoardVersionKind = (typeof BoardVersionKind)[keyof typeof BoardVersionKind]
+
+
+export const BoardActivityType = {
+  CREATE: 'CREATE',
+  EDIT: 'EDIT',
+  VERSION_RESTORE: 'VERSION_RESTORE',
+  MANUAL_VERSION: 'MANUAL_VERSION',
+  ARCHIVE: 'ARCHIVE',
+  DELETE: 'DELETE',
+  RESTORE: 'RESTORE'
+} as const
+
+export type BoardActivityType = (typeof BoardActivityType)[keyof typeof BoardActivityType]

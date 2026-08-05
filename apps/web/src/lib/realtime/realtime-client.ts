@@ -3,6 +3,8 @@ import {
   SOCKET_EVENTS,
   type BoardDataPayload,
   type BoardDeletedPayload,
+  type BoardRestoredEvent,
+  type BoardRevisionEvent,
   type ChatMessageEventPayload,
   type ChatReadEvent,
   type ChatTypingEvent,
@@ -41,6 +43,8 @@ export interface RealtimeServerEventMap {
   [SOCKET_EVENTS.NOTIFICATION_NEW]: (payload: NotificationNewEvent) => void;
   [SOCKET_EVENTS.KICK]: (payload: KickPayload) => void;
   [SOCKET_EVENTS.BOARD_DELETED]: (payload: BoardDeletedPayload) => void;
+  [SOCKET_EVENTS.BOARD_REVISION]: (payload: BoardRevisionEvent) => void;
+  [SOCKET_EVENTS.BOARD_RESTORED]: (payload: BoardRestoredEvent) => void;
 }
 
 /** Auth failures that require a fresh access token before retrying. */

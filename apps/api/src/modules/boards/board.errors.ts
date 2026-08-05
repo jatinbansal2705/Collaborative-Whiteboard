@@ -23,6 +23,11 @@ export const BOARD_ERROR_CODES = {
   OWNER_CANNOT_LEAVE: 'OWNER_CANNOT_LEAVE',
   INVALID_ROLE_TRANSFER: 'INVALID_ROLE_TRANSFER',
   INVALID_CURSOR: 'INVALID_CURSOR',
+  INVALID_BOARD_DATA: 'INVALID_BOARD_DATA',
+  STALE_BOARD_REVISION: 'STALE_BOARD_REVISION',
+  VERSION_NOT_FOUND: 'VERSION_NOT_FOUND',
+  INVALID_VERSION_NUMBER: 'INVALID_VERSION_NUMBER',
+  INVALID_VERSION_CURSOR: 'INVALID_VERSION_CURSOR',
 } as const;
 
 export type BoardException = HttpException;
@@ -115,4 +120,44 @@ export const invalidCursor = (): BadRequestException =>
   new BadRequestException({
     code: BOARD_ERROR_CODES.INVALID_CURSOR,
     message: 'Invalid pagination cursor',
+  });
+
+export const invalidBoardData = (): BadRequestException =>
+  new BadRequestException({
+    code: BOARD_ERROR_CODES.INVALID_BOARD_DATA,
+    message: 'The board document is not a valid whiteboard document',
+  });
+
+/**
+ * Raised when an autosave was based on an older revision. The response carries
+ * the authoritative `currentRevision` and `data` so the client can re-merge
+ * under element-level LWW and retry.
+ */
+export const staleBoardRevision = (
+  currentRevision: number,
+  data: unknown,
+): ConflictException =>
+  new ConflictException({
+    code: BOARD_ERROR_CODES.STALE_BOARD_REVISION,
+    message: 'The board changed since your last save. Please re-sync and retry',
+    currentRevision,
+    data,
+  });
+
+export const versionNotFound = (): NotFoundException =>
+  new NotFoundException({
+    code: BOARD_ERROR_CODES.VERSION_NOT_FOUND,
+    message: 'Board version not found',
+  });
+
+export const invalidVersionNumber = (): BadRequestException =>
+  new BadRequestException({
+    code: BOARD_ERROR_CODES.INVALID_VERSION_NUMBER,
+    message: 'Invalid version number',
+  });
+
+export const invalidVersionCursor = (): BadRequestException =>
+  new BadRequestException({
+    code: BOARD_ERROR_CODES.INVALID_VERSION_CURSOR,
+    message: 'Invalid version pagination cursor',
   });

@@ -6,10 +6,12 @@ import {
   PRESENCE_ACTIVITY,
   PRESENCE_HEARTBEAT_INTERVAL_MS,
   SOCKET_EVENTS,
+  documentFromElements,
   parseWhiteboardDocument,
   type BoardMemberRole,
 } from '@whiteboard/shared';
 import { useAuthStore } from '@/stores/auth-store';
+import { useAutosaveStore } from '@/stores/autosave-store';
 import { useCanvasStore } from '@/stores/canvas-store';
 import { useChatStore } from '@/stores/chat-store';
 import { useCommentsStore } from '@/stores/comments-store';
@@ -20,6 +22,8 @@ import { toast } from '@/stores/toast-store';
 import type { AppNotification } from '@/types/notification';
 import { authService } from '@/lib/api/services/auth-service';
 import { commentService } from '@/lib/api/services/comment-service';
+import { documentsEqual } from '@/lib/autosave/merge';
+import { offlineQueue } from '@/lib/autosave/offline-queue';
 import {
   applyDrawPatch,
   applyElementCreate,
@@ -145,16 +149,69 @@ export function useBoardRealtime(
           return;
         }
         joinedBoardRef.current = boardId;
-        applyRemote(() => {
+        void (async () => {
           const document = parseWhiteboardDocument(payload.data);
           const canvas = useCanvasStore.getState();
-          canvas.reset();
-          canvas.setReadOnly(READ_ONLY_ROLES.has(payload.role));
-          canvas.setElements(document?.elements ?? []);
-          useRealtimeStore.getState().setBoardId(boardId);
-          useRealtimeStore.getState().setPresence(payload.presence);
-        });
+          const hasPendingDraft = (await offlineQueue.get(boardId)) !== null;
+          applyRemote(() => {
+            canvas.setReadOnly(READ_ONLY_ROLES.has(payload.role));
+            // Keep local edits made while offline; they will be merged and
+            // replayed from the queue once the autosave pipeline is live.
+            if (!hasPendingDraft) {
+              canvas.reset();
+              canvas.setElements(document?.elements ?? []);
+            }
+            useRealtimeStore.getState().setBoardId(boardId);
+            useRealtimeStore.getState().setPresence(payload.presence);
+          });
+          const autosave = useAutosaveStore.getState();
+          autosave.setLastSavedDocument(document);
+          autosave.setRevision(payload.revision);
+          if (hasPendingDraft) {
+            autosave.markDirty();
+          }
+        })();
         void refreshThreads();
+      }),
+      realtimeClient.on(SOCKET_EVENTS.BOARD_REVISION, (event) => {
+        if (event.boardId !== boardId) {
+          return;
+        }
+        // Only advance the autosave base when this client has nothing
+        // unsaved; otherwise a conflicting save will reconcile on its own.
+        const autosave = useAutosaveStore.getState();
+        if (
+          autosave.lastSavedDocument === null ||
+          autosave.revision === null ||
+          autosave.status === 'dirty' ||
+          autosave.status === 'saving' ||
+          autosave.status === 'offline' ||
+          autosave.status === 'error'
+        ) {
+          return;
+        }
+        const canvas = documentFromElements(useCanvasStore.getState().elements);
+        if (!documentsEqual(canvas, autosave.lastSavedDocument)) {
+          return;
+        }
+        autosave.setRevision(event.revision);
+      }),
+      realtimeClient.on(SOCKET_EVENTS.BOARD_RESTORED, (event) => {
+        if (event.boardId !== boardId) {
+          return;
+        }
+        void (async () => {
+          const document = parseWhiteboardDocument(event.data);
+          applyRemote(() => {
+            const canvas = useCanvasStore.getState();
+            canvas.reset();
+            canvas.setElements(document?.elements ?? []);
+          });
+          const autosave = useAutosaveStore.getState();
+          autosave.setLastSavedDocument(document);
+          autosave.setRevision(event.revision);
+          await offlineQueue.clear(boardId);
+        })();
       }),
       realtimeClient.on(SOCKET_EVENTS.PRESENCE_ROSTER, ({ presence }) => {
         useRealtimeStore.getState().setPresence(presence);

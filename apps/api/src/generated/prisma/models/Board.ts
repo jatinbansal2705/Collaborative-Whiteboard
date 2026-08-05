@@ -28,10 +28,12 @@ export type AggregateBoard = {
 
 export type BoardAvgAggregateOutputType = {
   memberCount: number | null
+  revision: number | null
 }
 
 export type BoardSumAggregateOutputType = {
   memberCount: number | null
+  revision: number | null
 }
 
 export type BoardMinAggregateOutputType = {
@@ -42,6 +44,7 @@ export type BoardMinAggregateOutputType = {
   isArchived: boolean | null
   status: $Enums.BoardStatus | null
   memberCount: number | null
+  revision: number | null
   createdById: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -56,6 +59,7 @@ export type BoardMaxAggregateOutputType = {
   isArchived: boolean | null
   status: $Enums.BoardStatus | null
   memberCount: number | null
+  revision: number | null
   createdById: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -71,6 +75,7 @@ export type BoardCountAggregateOutputType = {
   isArchived: number
   status: number
   memberCount: number
+  revision: number
   createdById: number
   createdAt: number
   updatedAt: number
@@ -81,10 +86,12 @@ export type BoardCountAggregateOutputType = {
 
 export type BoardAvgAggregateInputType = {
   memberCount?: true
+  revision?: true
 }
 
 export type BoardSumAggregateInputType = {
   memberCount?: true
+  revision?: true
 }
 
 export type BoardMinAggregateInputType = {
@@ -95,6 +102,7 @@ export type BoardMinAggregateInputType = {
   isArchived?: true
   status?: true
   memberCount?: true
+  revision?: true
   createdById?: true
   createdAt?: true
   updatedAt?: true
@@ -109,6 +117,7 @@ export type BoardMaxAggregateInputType = {
   isArchived?: true
   status?: true
   memberCount?: true
+  revision?: true
   createdById?: true
   createdAt?: true
   updatedAt?: true
@@ -124,6 +133,7 @@ export type BoardCountAggregateInputType = {
   isArchived?: true
   status?: true
   memberCount?: true
+  revision?: true
   createdById?: true
   createdAt?: true
   updatedAt?: true
@@ -226,6 +236,7 @@ export type BoardGroupByOutputType = {
   isArchived: boolean
   status: $Enums.BoardStatus
   memberCount: number
+  revision: number
   createdById: string
   createdAt: Date
   updatedAt: Date
@@ -264,6 +275,7 @@ export type BoardWhereInput = {
   isArchived?: Prisma.BoolFilter<"Board"> | boolean
   status?: Prisma.EnumBoardStatusFilter<"Board"> | $Enums.BoardStatus
   memberCount?: Prisma.IntFilter<"Board"> | number
+  revision?: Prisma.IntFilter<"Board"> | number
   createdById?: Prisma.UuidFilter<"Board"> | string
   createdAt?: Prisma.DateTimeFilter<"Board"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Board"> | Date | string
@@ -276,6 +288,8 @@ export type BoardWhereInput = {
   commentThreads?: Prisma.CommentThreadListRelationFilter
   chatMessages?: Prisma.ChatMessageListRelationFilter
   chatReadReceipts?: Prisma.ChatReadReceiptListRelationFilter
+  versions?: Prisma.BoardVersionListRelationFilter
+  activity?: Prisma.BoardActivityListRelationFilter
 }
 
 export type BoardOrderByWithRelationInput = {
@@ -287,6 +301,7 @@ export type BoardOrderByWithRelationInput = {
   isArchived?: Prisma.SortOrder
   status?: Prisma.SortOrder
   memberCount?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -299,6 +314,8 @@ export type BoardOrderByWithRelationInput = {
   commentThreads?: Prisma.CommentThreadOrderByRelationAggregateInput
   chatMessages?: Prisma.ChatMessageOrderByRelationAggregateInput
   chatReadReceipts?: Prisma.ChatReadReceiptOrderByRelationAggregateInput
+  versions?: Prisma.BoardVersionOrderByRelationAggregateInput
+  activity?: Prisma.BoardActivityOrderByRelationAggregateInput
 }
 
 export type BoardWhereUniqueInput = Prisma.AtLeast<{
@@ -313,6 +330,7 @@ export type BoardWhereUniqueInput = Prisma.AtLeast<{
   isArchived?: Prisma.BoolFilter<"Board"> | boolean
   status?: Prisma.EnumBoardStatusFilter<"Board"> | $Enums.BoardStatus
   memberCount?: Prisma.IntFilter<"Board"> | number
+  revision?: Prisma.IntFilter<"Board"> | number
   createdById?: Prisma.UuidFilter<"Board"> | string
   createdAt?: Prisma.DateTimeFilter<"Board"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Board"> | Date | string
@@ -325,6 +343,8 @@ export type BoardWhereUniqueInput = Prisma.AtLeast<{
   commentThreads?: Prisma.CommentThreadListRelationFilter
   chatMessages?: Prisma.ChatMessageListRelationFilter
   chatReadReceipts?: Prisma.ChatReadReceiptListRelationFilter
+  versions?: Prisma.BoardVersionListRelationFilter
+  activity?: Prisma.BoardActivityListRelationFilter
 }, "id">
 
 export type BoardOrderByWithAggregationInput = {
@@ -336,6 +356,7 @@ export type BoardOrderByWithAggregationInput = {
   isArchived?: Prisma.SortOrder
   status?: Prisma.SortOrder
   memberCount?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -359,6 +380,7 @@ export type BoardScalarWhereWithAggregatesInput = {
   isArchived?: Prisma.BoolWithAggregatesFilter<"Board"> | boolean
   status?: Prisma.EnumBoardStatusWithAggregatesFilter<"Board"> | $Enums.BoardStatus
   memberCount?: Prisma.IntWithAggregatesFilter<"Board"> | number
+  revision?: Prisma.IntWithAggregatesFilter<"Board"> | number
   createdById?: Prisma.UuidWithAggregatesFilter<"Board"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Board"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Board"> | Date | string
@@ -374,6 +396,7 @@ export type BoardCreateInput = {
   isArchived?: boolean
   status?: $Enums.BoardStatus
   memberCount?: number
+  revision?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -385,6 +408,8 @@ export type BoardCreateInput = {
   commentThreads?: Prisma.CommentThreadCreateNestedManyWithoutBoardInput
   chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutBoardInput
   chatReadReceipts?: Prisma.ChatReadReceiptCreateNestedManyWithoutBoardInput
+  versions?: Prisma.BoardVersionCreateNestedManyWithoutBoardInput
+  activity?: Prisma.BoardActivityCreateNestedManyWithoutBoardInput
 }
 
 export type BoardUncheckedCreateInput = {
@@ -396,6 +421,7 @@ export type BoardUncheckedCreateInput = {
   isArchived?: boolean
   status?: $Enums.BoardStatus
   memberCount?: number
+  revision?: number
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -407,6 +433,8 @@ export type BoardUncheckedCreateInput = {
   commentThreads?: Prisma.CommentThreadUncheckedCreateNestedManyWithoutBoardInput
   chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutBoardInput
   chatReadReceipts?: Prisma.ChatReadReceiptUncheckedCreateNestedManyWithoutBoardInput
+  versions?: Prisma.BoardVersionUncheckedCreateNestedManyWithoutBoardInput
+  activity?: Prisma.BoardActivityUncheckedCreateNestedManyWithoutBoardInput
 }
 
 export type BoardUpdateInput = {
@@ -418,6 +446,7 @@ export type BoardUpdateInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -429,6 +458,8 @@ export type BoardUpdateInput = {
   commentThreads?: Prisma.CommentThreadUpdateManyWithoutBoardNestedInput
   chatMessages?: Prisma.ChatMessageUpdateManyWithoutBoardNestedInput
   chatReadReceipts?: Prisma.ChatReadReceiptUpdateManyWithoutBoardNestedInput
+  versions?: Prisma.BoardVersionUpdateManyWithoutBoardNestedInput
+  activity?: Prisma.BoardActivityUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardUncheckedUpdateInput = {
@@ -440,6 +471,7 @@ export type BoardUncheckedUpdateInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -451,6 +483,8 @@ export type BoardUncheckedUpdateInput = {
   commentThreads?: Prisma.CommentThreadUncheckedUpdateManyWithoutBoardNestedInput
   chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutBoardNestedInput
   chatReadReceipts?: Prisma.ChatReadReceiptUncheckedUpdateManyWithoutBoardNestedInput
+  versions?: Prisma.BoardVersionUncheckedUpdateManyWithoutBoardNestedInput
+  activity?: Prisma.BoardActivityUncheckedUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardCreateManyInput = {
@@ -462,6 +496,7 @@ export type BoardCreateManyInput = {
   isArchived?: boolean
   status?: $Enums.BoardStatus
   memberCount?: number
+  revision?: number
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -477,6 +512,7 @@ export type BoardUpdateManyMutationInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -491,6 +527,7 @@ export type BoardUncheckedUpdateManyInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -516,6 +553,7 @@ export type BoardCountOrderByAggregateInput = {
   isArchived?: Prisma.SortOrder
   status?: Prisma.SortOrder
   memberCount?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -524,6 +562,7 @@ export type BoardCountOrderByAggregateInput = {
 
 export type BoardAvgOrderByAggregateInput = {
   memberCount?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
 }
 
 export type BoardMaxOrderByAggregateInput = {
@@ -534,6 +573,7 @@ export type BoardMaxOrderByAggregateInput = {
   isArchived?: Prisma.SortOrder
   status?: Prisma.SortOrder
   memberCount?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -548,6 +588,7 @@ export type BoardMinOrderByAggregateInput = {
   isArchived?: Prisma.SortOrder
   status?: Prisma.SortOrder
   memberCount?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -556,6 +597,7 @@ export type BoardMinOrderByAggregateInput = {
 
 export type BoardSumOrderByAggregateInput = {
   memberCount?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
 }
 
 export type BoardScalarRelationFilter = {
@@ -615,6 +657,34 @@ export type IntFieldUpdateOperationsInput = {
   decrement?: number
   multiply?: number
   divide?: number
+}
+
+export type BoardCreateNestedOneWithoutVersionsInput = {
+  create?: Prisma.XOR<Prisma.BoardCreateWithoutVersionsInput, Prisma.BoardUncheckedCreateWithoutVersionsInput>
+  connectOrCreate?: Prisma.BoardCreateOrConnectWithoutVersionsInput
+  connect?: Prisma.BoardWhereUniqueInput
+}
+
+export type BoardUpdateOneRequiredWithoutVersionsNestedInput = {
+  create?: Prisma.XOR<Prisma.BoardCreateWithoutVersionsInput, Prisma.BoardUncheckedCreateWithoutVersionsInput>
+  connectOrCreate?: Prisma.BoardCreateOrConnectWithoutVersionsInput
+  upsert?: Prisma.BoardUpsertWithoutVersionsInput
+  connect?: Prisma.BoardWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BoardUpdateToOneWithWhereWithoutVersionsInput, Prisma.BoardUpdateWithoutVersionsInput>, Prisma.BoardUncheckedUpdateWithoutVersionsInput>
+}
+
+export type BoardCreateNestedOneWithoutActivityInput = {
+  create?: Prisma.XOR<Prisma.BoardCreateWithoutActivityInput, Prisma.BoardUncheckedCreateWithoutActivityInput>
+  connectOrCreate?: Prisma.BoardCreateOrConnectWithoutActivityInput
+  connect?: Prisma.BoardWhereUniqueInput
+}
+
+export type BoardUpdateOneRequiredWithoutActivityNestedInput = {
+  create?: Prisma.XOR<Prisma.BoardCreateWithoutActivityInput, Prisma.BoardUncheckedCreateWithoutActivityInput>
+  connectOrCreate?: Prisma.BoardCreateOrConnectWithoutActivityInput
+  upsert?: Prisma.BoardUpsertWithoutActivityInput
+  connect?: Prisma.BoardWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BoardUpdateToOneWithWhereWithoutActivityInput, Prisma.BoardUpdateWithoutActivityInput>, Prisma.BoardUncheckedUpdateWithoutActivityInput>
 }
 
 export type BoardCreateNestedOneWithoutMembersInput = {
@@ -724,6 +794,7 @@ export type BoardCreateWithoutCreatedByInput = {
   isArchived?: boolean
   status?: $Enums.BoardStatus
   memberCount?: number
+  revision?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -734,6 +805,8 @@ export type BoardCreateWithoutCreatedByInput = {
   commentThreads?: Prisma.CommentThreadCreateNestedManyWithoutBoardInput
   chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutBoardInput
   chatReadReceipts?: Prisma.ChatReadReceiptCreateNestedManyWithoutBoardInput
+  versions?: Prisma.BoardVersionCreateNestedManyWithoutBoardInput
+  activity?: Prisma.BoardActivityCreateNestedManyWithoutBoardInput
 }
 
 export type BoardUncheckedCreateWithoutCreatedByInput = {
@@ -745,6 +818,7 @@ export type BoardUncheckedCreateWithoutCreatedByInput = {
   isArchived?: boolean
   status?: $Enums.BoardStatus
   memberCount?: number
+  revision?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -755,6 +829,8 @@ export type BoardUncheckedCreateWithoutCreatedByInput = {
   commentThreads?: Prisma.CommentThreadUncheckedCreateNestedManyWithoutBoardInput
   chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutBoardInput
   chatReadReceipts?: Prisma.ChatReadReceiptUncheckedCreateNestedManyWithoutBoardInput
+  versions?: Prisma.BoardVersionUncheckedCreateNestedManyWithoutBoardInput
+  activity?: Prisma.BoardActivityUncheckedCreateNestedManyWithoutBoardInput
 }
 
 export type BoardCreateOrConnectWithoutCreatedByInput = {
@@ -795,10 +871,235 @@ export type BoardScalarWhereInput = {
   isArchived?: Prisma.BoolFilter<"Board"> | boolean
   status?: Prisma.EnumBoardStatusFilter<"Board"> | $Enums.BoardStatus
   memberCount?: Prisma.IntFilter<"Board"> | number
+  revision?: Prisma.IntFilter<"Board"> | number
   createdById?: Prisma.UuidFilter<"Board"> | string
   createdAt?: Prisma.DateTimeFilter<"Board"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Board"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"Board"> | Date | string | null
+}
+
+export type BoardCreateWithoutVersionsInput = {
+  id?: string
+  title: string
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  thumbnailUrl?: string | null
+  isTemplate?: boolean
+  isArchived?: boolean
+  status?: $Enums.BoardStatus
+  memberCount?: number
+  revision?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  createdBy: Prisma.UserCreateNestedOneWithoutBoardsCreatedInput
+  members?: Prisma.BoardMemberCreateNestedManyWithoutBoardInput
+  favourites?: Prisma.BoardFavouriteCreateNestedManyWithoutBoardInput
+  shareLinks?: Prisma.ShareLinkCreateNestedManyWithoutBoardInput
+  pendingInvites?: Prisma.PendingInviteCreateNestedManyWithoutBoardInput
+  commentThreads?: Prisma.CommentThreadCreateNestedManyWithoutBoardInput
+  chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutBoardInput
+  chatReadReceipts?: Prisma.ChatReadReceiptCreateNestedManyWithoutBoardInput
+  activity?: Prisma.BoardActivityCreateNestedManyWithoutBoardInput
+}
+
+export type BoardUncheckedCreateWithoutVersionsInput = {
+  id?: string
+  title: string
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  thumbnailUrl?: string | null
+  isTemplate?: boolean
+  isArchived?: boolean
+  status?: $Enums.BoardStatus
+  memberCount?: number
+  revision?: number
+  createdById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.BoardMemberUncheckedCreateNestedManyWithoutBoardInput
+  favourites?: Prisma.BoardFavouriteUncheckedCreateNestedManyWithoutBoardInput
+  shareLinks?: Prisma.ShareLinkUncheckedCreateNestedManyWithoutBoardInput
+  pendingInvites?: Prisma.PendingInviteUncheckedCreateNestedManyWithoutBoardInput
+  commentThreads?: Prisma.CommentThreadUncheckedCreateNestedManyWithoutBoardInput
+  chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutBoardInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUncheckedCreateNestedManyWithoutBoardInput
+  activity?: Prisma.BoardActivityUncheckedCreateNestedManyWithoutBoardInput
+}
+
+export type BoardCreateOrConnectWithoutVersionsInput = {
+  where: Prisma.BoardWhereUniqueInput
+  create: Prisma.XOR<Prisma.BoardCreateWithoutVersionsInput, Prisma.BoardUncheckedCreateWithoutVersionsInput>
+}
+
+export type BoardUpsertWithoutVersionsInput = {
+  update: Prisma.XOR<Prisma.BoardUpdateWithoutVersionsInput, Prisma.BoardUncheckedUpdateWithoutVersionsInput>
+  create: Prisma.XOR<Prisma.BoardCreateWithoutVersionsInput, Prisma.BoardUncheckedCreateWithoutVersionsInput>
+  where?: Prisma.BoardWhereInput
+}
+
+export type BoardUpdateToOneWithWhereWithoutVersionsInput = {
+  where?: Prisma.BoardWhereInput
+  data: Prisma.XOR<Prisma.BoardUpdateWithoutVersionsInput, Prisma.BoardUncheckedUpdateWithoutVersionsInput>
+}
+
+export type BoardUpdateWithoutVersionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTemplate?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
+  memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.UserUpdateOneRequiredWithoutBoardsCreatedNestedInput
+  members?: Prisma.BoardMemberUpdateManyWithoutBoardNestedInput
+  favourites?: Prisma.BoardFavouriteUpdateManyWithoutBoardNestedInput
+  shareLinks?: Prisma.ShareLinkUpdateManyWithoutBoardNestedInput
+  pendingInvites?: Prisma.PendingInviteUpdateManyWithoutBoardNestedInput
+  commentThreads?: Prisma.CommentThreadUpdateManyWithoutBoardNestedInput
+  chatMessages?: Prisma.ChatMessageUpdateManyWithoutBoardNestedInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUpdateManyWithoutBoardNestedInput
+  activity?: Prisma.BoardActivityUpdateManyWithoutBoardNestedInput
+}
+
+export type BoardUncheckedUpdateWithoutVersionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTemplate?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
+  memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.BoardMemberUncheckedUpdateManyWithoutBoardNestedInput
+  favourites?: Prisma.BoardFavouriteUncheckedUpdateManyWithoutBoardNestedInput
+  shareLinks?: Prisma.ShareLinkUncheckedUpdateManyWithoutBoardNestedInput
+  pendingInvites?: Prisma.PendingInviteUncheckedUpdateManyWithoutBoardNestedInput
+  commentThreads?: Prisma.CommentThreadUncheckedUpdateManyWithoutBoardNestedInput
+  chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutBoardNestedInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUncheckedUpdateManyWithoutBoardNestedInput
+  activity?: Prisma.BoardActivityUncheckedUpdateManyWithoutBoardNestedInput
+}
+
+export type BoardCreateWithoutActivityInput = {
+  id?: string
+  title: string
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  thumbnailUrl?: string | null
+  isTemplate?: boolean
+  isArchived?: boolean
+  status?: $Enums.BoardStatus
+  memberCount?: number
+  revision?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  createdBy: Prisma.UserCreateNestedOneWithoutBoardsCreatedInput
+  members?: Prisma.BoardMemberCreateNestedManyWithoutBoardInput
+  favourites?: Prisma.BoardFavouriteCreateNestedManyWithoutBoardInput
+  shareLinks?: Prisma.ShareLinkCreateNestedManyWithoutBoardInput
+  pendingInvites?: Prisma.PendingInviteCreateNestedManyWithoutBoardInput
+  commentThreads?: Prisma.CommentThreadCreateNestedManyWithoutBoardInput
+  chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutBoardInput
+  chatReadReceipts?: Prisma.ChatReadReceiptCreateNestedManyWithoutBoardInput
+  versions?: Prisma.BoardVersionCreateNestedManyWithoutBoardInput
+}
+
+export type BoardUncheckedCreateWithoutActivityInput = {
+  id?: string
+  title: string
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  thumbnailUrl?: string | null
+  isTemplate?: boolean
+  isArchived?: boolean
+  status?: $Enums.BoardStatus
+  memberCount?: number
+  revision?: number
+  createdById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  members?: Prisma.BoardMemberUncheckedCreateNestedManyWithoutBoardInput
+  favourites?: Prisma.BoardFavouriteUncheckedCreateNestedManyWithoutBoardInput
+  shareLinks?: Prisma.ShareLinkUncheckedCreateNestedManyWithoutBoardInput
+  pendingInvites?: Prisma.PendingInviteUncheckedCreateNestedManyWithoutBoardInput
+  commentThreads?: Prisma.CommentThreadUncheckedCreateNestedManyWithoutBoardInput
+  chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutBoardInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUncheckedCreateNestedManyWithoutBoardInput
+  versions?: Prisma.BoardVersionUncheckedCreateNestedManyWithoutBoardInput
+}
+
+export type BoardCreateOrConnectWithoutActivityInput = {
+  where: Prisma.BoardWhereUniqueInput
+  create: Prisma.XOR<Prisma.BoardCreateWithoutActivityInput, Prisma.BoardUncheckedCreateWithoutActivityInput>
+}
+
+export type BoardUpsertWithoutActivityInput = {
+  update: Prisma.XOR<Prisma.BoardUpdateWithoutActivityInput, Prisma.BoardUncheckedUpdateWithoutActivityInput>
+  create: Prisma.XOR<Prisma.BoardCreateWithoutActivityInput, Prisma.BoardUncheckedCreateWithoutActivityInput>
+  where?: Prisma.BoardWhereInput
+}
+
+export type BoardUpdateToOneWithWhereWithoutActivityInput = {
+  where?: Prisma.BoardWhereInput
+  data: Prisma.XOR<Prisma.BoardUpdateWithoutActivityInput, Prisma.BoardUncheckedUpdateWithoutActivityInput>
+}
+
+export type BoardUpdateWithoutActivityInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTemplate?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
+  memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.UserUpdateOneRequiredWithoutBoardsCreatedNestedInput
+  members?: Prisma.BoardMemberUpdateManyWithoutBoardNestedInput
+  favourites?: Prisma.BoardFavouriteUpdateManyWithoutBoardNestedInput
+  shareLinks?: Prisma.ShareLinkUpdateManyWithoutBoardNestedInput
+  pendingInvites?: Prisma.PendingInviteUpdateManyWithoutBoardNestedInput
+  commentThreads?: Prisma.CommentThreadUpdateManyWithoutBoardNestedInput
+  chatMessages?: Prisma.ChatMessageUpdateManyWithoutBoardNestedInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUpdateManyWithoutBoardNestedInput
+  versions?: Prisma.BoardVersionUpdateManyWithoutBoardNestedInput
+}
+
+export type BoardUncheckedUpdateWithoutActivityInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isTemplate?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
+  memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.BoardMemberUncheckedUpdateManyWithoutBoardNestedInput
+  favourites?: Prisma.BoardFavouriteUncheckedUpdateManyWithoutBoardNestedInput
+  shareLinks?: Prisma.ShareLinkUncheckedUpdateManyWithoutBoardNestedInput
+  pendingInvites?: Prisma.PendingInviteUncheckedUpdateManyWithoutBoardNestedInput
+  commentThreads?: Prisma.CommentThreadUncheckedUpdateManyWithoutBoardNestedInput
+  chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutBoardNestedInput
+  chatReadReceipts?: Prisma.ChatReadReceiptUncheckedUpdateManyWithoutBoardNestedInput
+  versions?: Prisma.BoardVersionUncheckedUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardCreateWithoutMembersInput = {
@@ -810,6 +1111,7 @@ export type BoardCreateWithoutMembersInput = {
   isArchived?: boolean
   status?: $Enums.BoardStatus
   memberCount?: number
+  revision?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -820,6 +1122,8 @@ export type BoardCreateWithoutMembersInput = {
   commentThreads?: Prisma.CommentThreadCreateNestedManyWithoutBoardInput
   chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutBoardInput
   chatReadReceipts?: Prisma.ChatReadReceiptCreateNestedManyWithoutBoardInput
+  versions?: Prisma.BoardVersionCreateNestedManyWithoutBoardInput
+  activity?: Prisma.BoardActivityCreateNestedManyWithoutBoardInput
 }
 
 export type BoardUncheckedCreateWithoutMembersInput = {
@@ -831,6 +1135,7 @@ export type BoardUncheckedCreateWithoutMembersInput = {
   isArchived?: boolean
   status?: $Enums.BoardStatus
   memberCount?: number
+  revision?: number
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -841,6 +1146,8 @@ export type BoardUncheckedCreateWithoutMembersInput = {
   commentThreads?: Prisma.CommentThreadUncheckedCreateNestedManyWithoutBoardInput
   chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutBoardInput
   chatReadReceipts?: Prisma.ChatReadReceiptUncheckedCreateNestedManyWithoutBoardInput
+  versions?: Prisma.BoardVersionUncheckedCreateNestedManyWithoutBoardInput
+  activity?: Prisma.BoardActivityUncheckedCreateNestedManyWithoutBoardInput
 }
 
 export type BoardCreateOrConnectWithoutMembersInput = {
@@ -868,6 +1175,7 @@ export type BoardUpdateWithoutMembersInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -878,6 +1186,8 @@ export type BoardUpdateWithoutMembersInput = {
   commentThreads?: Prisma.CommentThreadUpdateManyWithoutBoardNestedInput
   chatMessages?: Prisma.ChatMessageUpdateManyWithoutBoardNestedInput
   chatReadReceipts?: Prisma.ChatReadReceiptUpdateManyWithoutBoardNestedInput
+  versions?: Prisma.BoardVersionUpdateManyWithoutBoardNestedInput
+  activity?: Prisma.BoardActivityUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardUncheckedUpdateWithoutMembersInput = {
@@ -889,6 +1199,7 @@ export type BoardUncheckedUpdateWithoutMembersInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -899,6 +1210,8 @@ export type BoardUncheckedUpdateWithoutMembersInput = {
   commentThreads?: Prisma.CommentThreadUncheckedUpdateManyWithoutBoardNestedInput
   chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutBoardNestedInput
   chatReadReceipts?: Prisma.ChatReadReceiptUncheckedUpdateManyWithoutBoardNestedInput
+  versions?: Prisma.BoardVersionUncheckedUpdateManyWithoutBoardNestedInput
+  activity?: Prisma.BoardActivityUncheckedUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardCreateWithoutFavouritesInput = {
@@ -910,6 +1223,7 @@ export type BoardCreateWithoutFavouritesInput = {
   isArchived?: boolean
   status?: $Enums.BoardStatus
   memberCount?: number
+  revision?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -920,6 +1234,8 @@ export type BoardCreateWithoutFavouritesInput = {
   commentThreads?: Prisma.CommentThreadCreateNestedManyWithoutBoardInput
   chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutBoardInput
   chatReadReceipts?: Prisma.ChatReadReceiptCreateNestedManyWithoutBoardInput
+  versions?: Prisma.BoardVersionCreateNestedManyWithoutBoardInput
+  activity?: Prisma.BoardActivityCreateNestedManyWithoutBoardInput
 }
 
 export type BoardUncheckedCreateWithoutFavouritesInput = {
@@ -931,6 +1247,7 @@ export type BoardUncheckedCreateWithoutFavouritesInput = {
   isArchived?: boolean
   status?: $Enums.BoardStatus
   memberCount?: number
+  revision?: number
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -941,6 +1258,8 @@ export type BoardUncheckedCreateWithoutFavouritesInput = {
   commentThreads?: Prisma.CommentThreadUncheckedCreateNestedManyWithoutBoardInput
   chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutBoardInput
   chatReadReceipts?: Prisma.ChatReadReceiptUncheckedCreateNestedManyWithoutBoardInput
+  versions?: Prisma.BoardVersionUncheckedCreateNestedManyWithoutBoardInput
+  activity?: Prisma.BoardActivityUncheckedCreateNestedManyWithoutBoardInput
 }
 
 export type BoardCreateOrConnectWithoutFavouritesInput = {
@@ -968,6 +1287,7 @@ export type BoardUpdateWithoutFavouritesInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -978,6 +1298,8 @@ export type BoardUpdateWithoutFavouritesInput = {
   commentThreads?: Prisma.CommentThreadUpdateManyWithoutBoardNestedInput
   chatMessages?: Prisma.ChatMessageUpdateManyWithoutBoardNestedInput
   chatReadReceipts?: Prisma.ChatReadReceiptUpdateManyWithoutBoardNestedInput
+  versions?: Prisma.BoardVersionUpdateManyWithoutBoardNestedInput
+  activity?: Prisma.BoardActivityUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardUncheckedUpdateWithoutFavouritesInput = {
@@ -989,6 +1311,7 @@ export type BoardUncheckedUpdateWithoutFavouritesInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -999,6 +1322,8 @@ export type BoardUncheckedUpdateWithoutFavouritesInput = {
   commentThreads?: Prisma.CommentThreadUncheckedUpdateManyWithoutBoardNestedInput
   chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutBoardNestedInput
   chatReadReceipts?: Prisma.ChatReadReceiptUncheckedUpdateManyWithoutBoardNestedInput
+  versions?: Prisma.BoardVersionUncheckedUpdateManyWithoutBoardNestedInput
+  activity?: Prisma.BoardActivityUncheckedUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardCreateWithoutShareLinksInput = {
@@ -1010,6 +1335,7 @@ export type BoardCreateWithoutShareLinksInput = {
   isArchived?: boolean
   status?: $Enums.BoardStatus
   memberCount?: number
+  revision?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -1020,6 +1346,8 @@ export type BoardCreateWithoutShareLinksInput = {
   commentThreads?: Prisma.CommentThreadCreateNestedManyWithoutBoardInput
   chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutBoardInput
   chatReadReceipts?: Prisma.ChatReadReceiptCreateNestedManyWithoutBoardInput
+  versions?: Prisma.BoardVersionCreateNestedManyWithoutBoardInput
+  activity?: Prisma.BoardActivityCreateNestedManyWithoutBoardInput
 }
 
 export type BoardUncheckedCreateWithoutShareLinksInput = {
@@ -1031,6 +1359,7 @@ export type BoardUncheckedCreateWithoutShareLinksInput = {
   isArchived?: boolean
   status?: $Enums.BoardStatus
   memberCount?: number
+  revision?: number
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1041,6 +1370,8 @@ export type BoardUncheckedCreateWithoutShareLinksInput = {
   commentThreads?: Prisma.CommentThreadUncheckedCreateNestedManyWithoutBoardInput
   chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutBoardInput
   chatReadReceipts?: Prisma.ChatReadReceiptUncheckedCreateNestedManyWithoutBoardInput
+  versions?: Prisma.BoardVersionUncheckedCreateNestedManyWithoutBoardInput
+  activity?: Prisma.BoardActivityUncheckedCreateNestedManyWithoutBoardInput
 }
 
 export type BoardCreateOrConnectWithoutShareLinksInput = {
@@ -1068,6 +1399,7 @@ export type BoardUpdateWithoutShareLinksInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1078,6 +1410,8 @@ export type BoardUpdateWithoutShareLinksInput = {
   commentThreads?: Prisma.CommentThreadUpdateManyWithoutBoardNestedInput
   chatMessages?: Prisma.ChatMessageUpdateManyWithoutBoardNestedInput
   chatReadReceipts?: Prisma.ChatReadReceiptUpdateManyWithoutBoardNestedInput
+  versions?: Prisma.BoardVersionUpdateManyWithoutBoardNestedInput
+  activity?: Prisma.BoardActivityUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardUncheckedUpdateWithoutShareLinksInput = {
@@ -1089,6 +1423,7 @@ export type BoardUncheckedUpdateWithoutShareLinksInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1099,6 +1434,8 @@ export type BoardUncheckedUpdateWithoutShareLinksInput = {
   commentThreads?: Prisma.CommentThreadUncheckedUpdateManyWithoutBoardNestedInput
   chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutBoardNestedInput
   chatReadReceipts?: Prisma.ChatReadReceiptUncheckedUpdateManyWithoutBoardNestedInput
+  versions?: Prisma.BoardVersionUncheckedUpdateManyWithoutBoardNestedInput
+  activity?: Prisma.BoardActivityUncheckedUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardCreateWithoutPendingInvitesInput = {
@@ -1110,6 +1447,7 @@ export type BoardCreateWithoutPendingInvitesInput = {
   isArchived?: boolean
   status?: $Enums.BoardStatus
   memberCount?: number
+  revision?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -1120,6 +1458,8 @@ export type BoardCreateWithoutPendingInvitesInput = {
   commentThreads?: Prisma.CommentThreadCreateNestedManyWithoutBoardInput
   chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutBoardInput
   chatReadReceipts?: Prisma.ChatReadReceiptCreateNestedManyWithoutBoardInput
+  versions?: Prisma.BoardVersionCreateNestedManyWithoutBoardInput
+  activity?: Prisma.BoardActivityCreateNestedManyWithoutBoardInput
 }
 
 export type BoardUncheckedCreateWithoutPendingInvitesInput = {
@@ -1131,6 +1471,7 @@ export type BoardUncheckedCreateWithoutPendingInvitesInput = {
   isArchived?: boolean
   status?: $Enums.BoardStatus
   memberCount?: number
+  revision?: number
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1141,6 +1482,8 @@ export type BoardUncheckedCreateWithoutPendingInvitesInput = {
   commentThreads?: Prisma.CommentThreadUncheckedCreateNestedManyWithoutBoardInput
   chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutBoardInput
   chatReadReceipts?: Prisma.ChatReadReceiptUncheckedCreateNestedManyWithoutBoardInput
+  versions?: Prisma.BoardVersionUncheckedCreateNestedManyWithoutBoardInput
+  activity?: Prisma.BoardActivityUncheckedCreateNestedManyWithoutBoardInput
 }
 
 export type BoardCreateOrConnectWithoutPendingInvitesInput = {
@@ -1168,6 +1511,7 @@ export type BoardUpdateWithoutPendingInvitesInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1178,6 +1522,8 @@ export type BoardUpdateWithoutPendingInvitesInput = {
   commentThreads?: Prisma.CommentThreadUpdateManyWithoutBoardNestedInput
   chatMessages?: Prisma.ChatMessageUpdateManyWithoutBoardNestedInput
   chatReadReceipts?: Prisma.ChatReadReceiptUpdateManyWithoutBoardNestedInput
+  versions?: Prisma.BoardVersionUpdateManyWithoutBoardNestedInput
+  activity?: Prisma.BoardActivityUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardUncheckedUpdateWithoutPendingInvitesInput = {
@@ -1189,6 +1535,7 @@ export type BoardUncheckedUpdateWithoutPendingInvitesInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1199,6 +1546,8 @@ export type BoardUncheckedUpdateWithoutPendingInvitesInput = {
   commentThreads?: Prisma.CommentThreadUncheckedUpdateManyWithoutBoardNestedInput
   chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutBoardNestedInput
   chatReadReceipts?: Prisma.ChatReadReceiptUncheckedUpdateManyWithoutBoardNestedInput
+  versions?: Prisma.BoardVersionUncheckedUpdateManyWithoutBoardNestedInput
+  activity?: Prisma.BoardActivityUncheckedUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardCreateWithoutCommentThreadsInput = {
@@ -1210,6 +1559,7 @@ export type BoardCreateWithoutCommentThreadsInput = {
   isArchived?: boolean
   status?: $Enums.BoardStatus
   memberCount?: number
+  revision?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -1220,6 +1570,8 @@ export type BoardCreateWithoutCommentThreadsInput = {
   pendingInvites?: Prisma.PendingInviteCreateNestedManyWithoutBoardInput
   chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutBoardInput
   chatReadReceipts?: Prisma.ChatReadReceiptCreateNestedManyWithoutBoardInput
+  versions?: Prisma.BoardVersionCreateNestedManyWithoutBoardInput
+  activity?: Prisma.BoardActivityCreateNestedManyWithoutBoardInput
 }
 
 export type BoardUncheckedCreateWithoutCommentThreadsInput = {
@@ -1231,6 +1583,7 @@ export type BoardUncheckedCreateWithoutCommentThreadsInput = {
   isArchived?: boolean
   status?: $Enums.BoardStatus
   memberCount?: number
+  revision?: number
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1241,6 +1594,8 @@ export type BoardUncheckedCreateWithoutCommentThreadsInput = {
   pendingInvites?: Prisma.PendingInviteUncheckedCreateNestedManyWithoutBoardInput
   chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutBoardInput
   chatReadReceipts?: Prisma.ChatReadReceiptUncheckedCreateNestedManyWithoutBoardInput
+  versions?: Prisma.BoardVersionUncheckedCreateNestedManyWithoutBoardInput
+  activity?: Prisma.BoardActivityUncheckedCreateNestedManyWithoutBoardInput
 }
 
 export type BoardCreateOrConnectWithoutCommentThreadsInput = {
@@ -1268,6 +1623,7 @@ export type BoardUpdateWithoutCommentThreadsInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1278,6 +1634,8 @@ export type BoardUpdateWithoutCommentThreadsInput = {
   pendingInvites?: Prisma.PendingInviteUpdateManyWithoutBoardNestedInput
   chatMessages?: Prisma.ChatMessageUpdateManyWithoutBoardNestedInput
   chatReadReceipts?: Prisma.ChatReadReceiptUpdateManyWithoutBoardNestedInput
+  versions?: Prisma.BoardVersionUpdateManyWithoutBoardNestedInput
+  activity?: Prisma.BoardActivityUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardUncheckedUpdateWithoutCommentThreadsInput = {
@@ -1289,6 +1647,7 @@ export type BoardUncheckedUpdateWithoutCommentThreadsInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1299,6 +1658,8 @@ export type BoardUncheckedUpdateWithoutCommentThreadsInput = {
   pendingInvites?: Prisma.PendingInviteUncheckedUpdateManyWithoutBoardNestedInput
   chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutBoardNestedInput
   chatReadReceipts?: Prisma.ChatReadReceiptUncheckedUpdateManyWithoutBoardNestedInput
+  versions?: Prisma.BoardVersionUncheckedUpdateManyWithoutBoardNestedInput
+  activity?: Prisma.BoardActivityUncheckedUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardCreateWithoutChatMessagesInput = {
@@ -1310,6 +1671,7 @@ export type BoardCreateWithoutChatMessagesInput = {
   isArchived?: boolean
   status?: $Enums.BoardStatus
   memberCount?: number
+  revision?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -1320,6 +1682,8 @@ export type BoardCreateWithoutChatMessagesInput = {
   pendingInvites?: Prisma.PendingInviteCreateNestedManyWithoutBoardInput
   commentThreads?: Prisma.CommentThreadCreateNestedManyWithoutBoardInput
   chatReadReceipts?: Prisma.ChatReadReceiptCreateNestedManyWithoutBoardInput
+  versions?: Prisma.BoardVersionCreateNestedManyWithoutBoardInput
+  activity?: Prisma.BoardActivityCreateNestedManyWithoutBoardInput
 }
 
 export type BoardUncheckedCreateWithoutChatMessagesInput = {
@@ -1331,6 +1695,7 @@ export type BoardUncheckedCreateWithoutChatMessagesInput = {
   isArchived?: boolean
   status?: $Enums.BoardStatus
   memberCount?: number
+  revision?: number
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1341,6 +1706,8 @@ export type BoardUncheckedCreateWithoutChatMessagesInput = {
   pendingInvites?: Prisma.PendingInviteUncheckedCreateNestedManyWithoutBoardInput
   commentThreads?: Prisma.CommentThreadUncheckedCreateNestedManyWithoutBoardInput
   chatReadReceipts?: Prisma.ChatReadReceiptUncheckedCreateNestedManyWithoutBoardInput
+  versions?: Prisma.BoardVersionUncheckedCreateNestedManyWithoutBoardInput
+  activity?: Prisma.BoardActivityUncheckedCreateNestedManyWithoutBoardInput
 }
 
 export type BoardCreateOrConnectWithoutChatMessagesInput = {
@@ -1368,6 +1735,7 @@ export type BoardUpdateWithoutChatMessagesInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1378,6 +1746,8 @@ export type BoardUpdateWithoutChatMessagesInput = {
   pendingInvites?: Prisma.PendingInviteUpdateManyWithoutBoardNestedInput
   commentThreads?: Prisma.CommentThreadUpdateManyWithoutBoardNestedInput
   chatReadReceipts?: Prisma.ChatReadReceiptUpdateManyWithoutBoardNestedInput
+  versions?: Prisma.BoardVersionUpdateManyWithoutBoardNestedInput
+  activity?: Prisma.BoardActivityUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardUncheckedUpdateWithoutChatMessagesInput = {
@@ -1389,6 +1759,7 @@ export type BoardUncheckedUpdateWithoutChatMessagesInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1399,6 +1770,8 @@ export type BoardUncheckedUpdateWithoutChatMessagesInput = {
   pendingInvites?: Prisma.PendingInviteUncheckedUpdateManyWithoutBoardNestedInput
   commentThreads?: Prisma.CommentThreadUncheckedUpdateManyWithoutBoardNestedInput
   chatReadReceipts?: Prisma.ChatReadReceiptUncheckedUpdateManyWithoutBoardNestedInput
+  versions?: Prisma.BoardVersionUncheckedUpdateManyWithoutBoardNestedInput
+  activity?: Prisma.BoardActivityUncheckedUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardCreateWithoutChatReadReceiptsInput = {
@@ -1410,6 +1783,7 @@ export type BoardCreateWithoutChatReadReceiptsInput = {
   isArchived?: boolean
   status?: $Enums.BoardStatus
   memberCount?: number
+  revision?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -1420,6 +1794,8 @@ export type BoardCreateWithoutChatReadReceiptsInput = {
   pendingInvites?: Prisma.PendingInviteCreateNestedManyWithoutBoardInput
   commentThreads?: Prisma.CommentThreadCreateNestedManyWithoutBoardInput
   chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutBoardInput
+  versions?: Prisma.BoardVersionCreateNestedManyWithoutBoardInput
+  activity?: Prisma.BoardActivityCreateNestedManyWithoutBoardInput
 }
 
 export type BoardUncheckedCreateWithoutChatReadReceiptsInput = {
@@ -1431,6 +1807,7 @@ export type BoardUncheckedCreateWithoutChatReadReceiptsInput = {
   isArchived?: boolean
   status?: $Enums.BoardStatus
   memberCount?: number
+  revision?: number
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1441,6 +1818,8 @@ export type BoardUncheckedCreateWithoutChatReadReceiptsInput = {
   pendingInvites?: Prisma.PendingInviteUncheckedCreateNestedManyWithoutBoardInput
   commentThreads?: Prisma.CommentThreadUncheckedCreateNestedManyWithoutBoardInput
   chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutBoardInput
+  versions?: Prisma.BoardVersionUncheckedCreateNestedManyWithoutBoardInput
+  activity?: Prisma.BoardActivityUncheckedCreateNestedManyWithoutBoardInput
 }
 
 export type BoardCreateOrConnectWithoutChatReadReceiptsInput = {
@@ -1468,6 +1847,7 @@ export type BoardUpdateWithoutChatReadReceiptsInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1478,6 +1858,8 @@ export type BoardUpdateWithoutChatReadReceiptsInput = {
   pendingInvites?: Prisma.PendingInviteUpdateManyWithoutBoardNestedInput
   commentThreads?: Prisma.CommentThreadUpdateManyWithoutBoardNestedInput
   chatMessages?: Prisma.ChatMessageUpdateManyWithoutBoardNestedInput
+  versions?: Prisma.BoardVersionUpdateManyWithoutBoardNestedInput
+  activity?: Prisma.BoardActivityUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardUncheckedUpdateWithoutChatReadReceiptsInput = {
@@ -1489,6 +1871,7 @@ export type BoardUncheckedUpdateWithoutChatReadReceiptsInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1499,6 +1882,8 @@ export type BoardUncheckedUpdateWithoutChatReadReceiptsInput = {
   pendingInvites?: Prisma.PendingInviteUncheckedUpdateManyWithoutBoardNestedInput
   commentThreads?: Prisma.CommentThreadUncheckedUpdateManyWithoutBoardNestedInput
   chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutBoardNestedInput
+  versions?: Prisma.BoardVersionUncheckedUpdateManyWithoutBoardNestedInput
+  activity?: Prisma.BoardActivityUncheckedUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardCreateManyCreatedByInput = {
@@ -1510,6 +1895,7 @@ export type BoardCreateManyCreatedByInput = {
   isArchived?: boolean
   status?: $Enums.BoardStatus
   memberCount?: number
+  revision?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -1524,6 +1910,7 @@ export type BoardUpdateWithoutCreatedByInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1534,6 +1921,8 @@ export type BoardUpdateWithoutCreatedByInput = {
   commentThreads?: Prisma.CommentThreadUpdateManyWithoutBoardNestedInput
   chatMessages?: Prisma.ChatMessageUpdateManyWithoutBoardNestedInput
   chatReadReceipts?: Prisma.ChatReadReceiptUpdateManyWithoutBoardNestedInput
+  versions?: Prisma.BoardVersionUpdateManyWithoutBoardNestedInput
+  activity?: Prisma.BoardActivityUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardUncheckedUpdateWithoutCreatedByInput = {
@@ -1545,6 +1934,7 @@ export type BoardUncheckedUpdateWithoutCreatedByInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1555,6 +1945,8 @@ export type BoardUncheckedUpdateWithoutCreatedByInput = {
   commentThreads?: Prisma.CommentThreadUncheckedUpdateManyWithoutBoardNestedInput
   chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutBoardNestedInput
   chatReadReceipts?: Prisma.ChatReadReceiptUncheckedUpdateManyWithoutBoardNestedInput
+  versions?: Prisma.BoardVersionUncheckedUpdateManyWithoutBoardNestedInput
+  activity?: Prisma.BoardActivityUncheckedUpdateManyWithoutBoardNestedInput
 }
 
 export type BoardUncheckedUpdateManyWithoutCreatedByInput = {
@@ -1566,6 +1958,7 @@ export type BoardUncheckedUpdateManyWithoutCreatedByInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumBoardStatusFieldUpdateOperationsInput | $Enums.BoardStatus
   memberCount?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1584,6 +1977,8 @@ export type BoardCountOutputType = {
   commentThreads: number
   chatMessages: number
   chatReadReceipts: number
+  versions: number
+  activity: number
 }
 
 export type BoardCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1594,6 +1989,8 @@ export type BoardCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.
   commentThreads?: boolean | BoardCountOutputTypeCountCommentThreadsArgs
   chatMessages?: boolean | BoardCountOutputTypeCountChatMessagesArgs
   chatReadReceipts?: boolean | BoardCountOutputTypeCountChatReadReceiptsArgs
+  versions?: boolean | BoardCountOutputTypeCountVersionsArgs
+  activity?: boolean | BoardCountOutputTypeCountActivityArgs
 }
 
 /**
@@ -1655,6 +2052,20 @@ export type BoardCountOutputTypeCountChatReadReceiptsArgs<ExtArgs extends runtim
   where?: Prisma.ChatReadReceiptWhereInput
 }
 
+/**
+ * BoardCountOutputType without action
+ */
+export type BoardCountOutputTypeCountVersionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BoardVersionWhereInput
+}
+
+/**
+ * BoardCountOutputType without action
+ */
+export type BoardCountOutputTypeCountActivityArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BoardActivityWhereInput
+}
+
 
 export type BoardSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1665,6 +2076,7 @@ export type BoardSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   isArchived?: boolean
   status?: boolean
   memberCount?: boolean
+  revision?: boolean
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1677,6 +2089,8 @@ export type BoardSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   commentThreads?: boolean | Prisma.Board$commentThreadsArgs<ExtArgs>
   chatMessages?: boolean | Prisma.Board$chatMessagesArgs<ExtArgs>
   chatReadReceipts?: boolean | Prisma.Board$chatReadReceiptsArgs<ExtArgs>
+  versions?: boolean | Prisma.Board$versionsArgs<ExtArgs>
+  activity?: boolean | Prisma.Board$activityArgs<ExtArgs>
   _count?: boolean | Prisma.BoardCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["board"]>
 
@@ -1689,6 +2103,7 @@ export type BoardSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   isArchived?: boolean
   status?: boolean
   memberCount?: boolean
+  revision?: boolean
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1705,6 +2120,7 @@ export type BoardSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   isArchived?: boolean
   status?: boolean
   memberCount?: boolean
+  revision?: boolean
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1721,13 +2137,14 @@ export type BoardSelectScalar = {
   isArchived?: boolean
   status?: boolean
   memberCount?: boolean
+  revision?: boolean
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
 }
 
-export type BoardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "data" | "thumbnailUrl" | "isTemplate" | "isArchived" | "status" | "memberCount" | "createdById" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["board"]>
+export type BoardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "data" | "thumbnailUrl" | "isTemplate" | "isArchived" | "status" | "memberCount" | "revision" | "createdById" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["board"]>
 export type BoardInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   members?: boolean | Prisma.Board$membersArgs<ExtArgs>
@@ -1737,6 +2154,8 @@ export type BoardInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   commentThreads?: boolean | Prisma.Board$commentThreadsArgs<ExtArgs>
   chatMessages?: boolean | Prisma.Board$chatMessagesArgs<ExtArgs>
   chatReadReceipts?: boolean | Prisma.Board$chatReadReceiptsArgs<ExtArgs>
+  versions?: boolean | Prisma.Board$versionsArgs<ExtArgs>
+  activity?: boolean | Prisma.Board$activityArgs<ExtArgs>
   _count?: boolean | Prisma.BoardCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BoardIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1757,6 +2176,8 @@ export type $BoardPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     commentThreads: Prisma.$CommentThreadPayload<ExtArgs>[]
     chatMessages: Prisma.$ChatMessagePayload<ExtArgs>[]
     chatReadReceipts: Prisma.$ChatReadReceiptPayload<ExtArgs>[]
+    versions: Prisma.$BoardVersionPayload<ExtArgs>[]
+    activity: Prisma.$BoardActivityPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1767,6 +2188,10 @@ export type $BoardPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     isArchived: boolean
     status: $Enums.BoardStatus
     memberCount: number
+    /**
+     * * Monotonic revision counter bumped on every persisted data save (autosave/restore/import).
+     */
+    revision: number
     createdById: string
     createdAt: Date
     updatedAt: Date
@@ -2173,6 +2598,8 @@ export interface Prisma__BoardClient<T, Null = never, ExtArgs extends runtime.Ty
   commentThreads<T extends Prisma.Board$commentThreadsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Board$commentThreadsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommentThreadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   chatMessages<T extends Prisma.Board$chatMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Board$chatMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   chatReadReceipts<T extends Prisma.Board$chatReadReceiptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Board$chatReadReceiptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatReadReceiptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  versions<T extends Prisma.Board$versionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Board$versionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BoardVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  activity<T extends Prisma.Board$activityArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Board$activityArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BoardActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2210,6 +2637,7 @@ export interface BoardFieldRefs {
   readonly isArchived: Prisma.FieldRef<"Board", 'Boolean'>
   readonly status: Prisma.FieldRef<"Board", 'BoardStatus'>
   readonly memberCount: Prisma.FieldRef<"Board", 'Int'>
+  readonly revision: Prisma.FieldRef<"Board", 'Int'>
   readonly createdById: Prisma.FieldRef<"Board", 'String'>
   readonly createdAt: Prisma.FieldRef<"Board", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Board", 'DateTime'>
@@ -2780,6 +3208,54 @@ export type Board$chatReadReceiptsArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.ChatReadReceiptScalarFieldEnum | Prisma.ChatReadReceiptScalarFieldEnum[]
+}
+
+/**
+ * Board.versions
+ */
+export type Board$versionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BoardVersion
+   */
+  select?: Prisma.BoardVersionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BoardVersion
+   */
+  omit?: Prisma.BoardVersionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BoardVersionInclude<ExtArgs> | null
+  where?: Prisma.BoardVersionWhereInput
+  orderBy?: Prisma.BoardVersionOrderByWithRelationInput | Prisma.BoardVersionOrderByWithRelationInput[]
+  cursor?: Prisma.BoardVersionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BoardVersionScalarFieldEnum | Prisma.BoardVersionScalarFieldEnum[]
+}
+
+/**
+ * Board.activity
+ */
+export type Board$activityArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BoardActivity
+   */
+  select?: Prisma.BoardActivitySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BoardActivity
+   */
+  omit?: Prisma.BoardActivityOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BoardActivityInclude<ExtArgs> | null
+  where?: Prisma.BoardActivityWhereInput
+  orderBy?: Prisma.BoardActivityOrderByWithRelationInput | Prisma.BoardActivityOrderByWithRelationInput[]
+  cursor?: Prisma.BoardActivityWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BoardActivityScalarFieldEnum | Prisma.BoardActivityScalarFieldEnum[]
 }
 
 /**
