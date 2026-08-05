@@ -635,6 +635,15 @@ export function useCanvasInteraction() {
       return;
     }
 
+    // VIEWER/COMMENTER roles can pan and zoom but not edit; the comment tool
+    // consumes clicks for placing threads instead.
+    if (
+      useCanvasStore.getState().readOnly ||
+      useCanvasStore.getState().commentMode
+    ) {
+      return;
+    }
+
     const targetName =
       typeof event.target.name === 'function' ? event.target.name() : '';
 

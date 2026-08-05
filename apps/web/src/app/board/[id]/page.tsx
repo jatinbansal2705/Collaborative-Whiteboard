@@ -13,30 +13,57 @@ import { Minimap } from '@/components/canvas/minimap';
 import { StyleBar } from '@/components/canvas/style-bar';
 import { TextStyleBar } from '@/components/canvas/text-style-bar';
 import { ZoomControls } from '@/components/canvas/zoom-controls';
+import { ChatPanel } from '@/components/realtime/chat-panel';
+import { CommentComposer } from '@/components/realtime/comment-composer';
+import { CommentsPanel } from '@/components/realtime/comments-panel';
+import { ShareDialog } from '@/components/realtime/share-dialog';
 import { ErrorState } from '@/components/state/error-state';
 import { LoadingState } from '@/components/state/loading-state';
 import { getErrorMessage } from '@/lib/api/errors';
 import { registerCommand, unregisterCommand } from '@/lib/canvas/commands';
 import { boardService } from '@/lib/api/services/board-service';
+import { useBoardRealtime } from '@/hooks/use-board-realtime';
 import { useCanvasHotkeys } from '@/hooks/use-canvas-hotkeys';
 import { useCanvasStore } from '@/stores/canvas-store';
+import { useCommentsStore } from '@/stores/comments-store';
+import type { BoardMemberRole } from '@/types/board';
+import type { CommentThread } from '@/types/comment';
 
 interface BoardPageProps {
   params: Promise<{ id: string }>;
 }
 
+const READ_ONLY_ROLES: ReadonlySet<BoardMemberRole> = new Set([
+  'COMMENTER',
+  'VIEWER',
+]);
+
+function canComment(role: BoardMemberRole | null): boolean {
+  return role !== null && role !== 'VIEWER';
+}
+
 export default function BoardPage({ params }: BoardPageProps) {
   const boardId = use(params).id;
   const [title, setTitle] = useState('Board');
+  const [myRole, setMyRole] = useState<BoardMemberRole | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [commentMode, setCommentMode] = useState(false);
+  const [pendingComment, setPendingComment] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
   const minimapVisible = useCanvasStore((state) => state.minimapVisible);
   const layersPanelVisible = useCanvasStore(
     (state) => state.layersPanelVisible,
   );
 
   useCanvasHotkeys();
+  useBoardRealtime(boardId, myRole ?? 'VIEWER');
 
   useEffect(() => {
     registerCommand('help', () => setShortcutsOpen(true));
@@ -55,7 +82,11 @@ export default function BoardPage({ params }: BoardPageProps) {
           return;
         }
         setTitle(board.title);
+        setMyRole(board.myRole);
         useCanvasStore.getState().reset();
+        useCanvasStore
+          .getState()
+          .setReadOnly(READ_ONLY_ROLES.has(board.myRole));
         const document =
           board.data === null ? null : parseWhiteboardDocument(board.data);
         if (document !== null) {
@@ -79,6 +110,32 @@ export default function BoardPage({ params }: BoardPageProps) {
     };
   }, [boardId]);
 
+  useEffect(() => {
+    useCanvasStore.getState().setCommentMode(commentMode);
+  }, [commentMode]);
+
+  function toggleCommentMode(): void {
+    setCommentMode((current) => {
+      if (!canComment(myRole)) {
+        return current;
+      }
+      return !current;
+    });
+  }
+
+  function handleCommentCreated(thread: CommentThread): void {
+    useCommentsStore.getState().upsertThread(thread);
+    setPendingComment(null);
+    setCommentMode(false);
+    setCommentsOpen(true);
+    useCommentsStore.getState().setActiveThread(thread.id);
+  }
+
+  function handleSelectThread(threadId: string): void {
+    useCommentsStore.getState().setActiveThread(threadId);
+    setCommentsOpen(true);
+  }
+
   if (loading) {
     return <LoadingState label="Opening board…" className="m-auto" />;
   }
@@ -96,6 +153,9 @@ export default function BoardPage({ params }: BoardPageProps) {
             .get(current)
             .then((board) => {
               useCanvasStore.getState().reset();
+              useCanvasStore
+                .getState()
+                .setReadOnly(READ_ONLY_ROLES.has(board.myRole));
               const document =
                 board.data === null
                   ? null
@@ -104,6 +164,7 @@ export default function BoardPage({ params }: BoardPageProps) {
                 useCanvasStore.getState().setElements(document.elements);
               }
               setTitle(board.title);
+              setMyRole(board.myRole);
               setLoading(false);
             })
             .catch((cause) => {
@@ -120,9 +181,22 @@ export default function BoardPage({ params }: BoardPageProps) {
       <CanvasHeader
         title={title}
         onOpenShortcuts={() => setShortcutsOpen(true)}
+        chatOpen={chatOpen}
+        commentsOpen={commentsOpen}
+        commentMode={commentMode}
+        canComment={canComment(myRole)}
+        readOnly={READ_ONLY_ROLES.has(myRole ?? 'VIEWER')}
+        onToggleChat={() => setChatOpen((open) => !open)}
+        onToggleComments={() => setCommentsOpen((open) => !open)}
+        onToggleCommentMode={toggleCommentMode}
+        onOpenShare={() => setShareOpen(true)}
       />
       <div className="relative min-h-0 flex-1">
-        <BoardCanvas />
+        <BoardCanvas
+          commentMode={commentMode}
+          onPlaceComment={(x, y) => setPendingComment({ x, y })}
+          onSelectThread={handleSelectThread}
+        />
         <div className="absolute top-1/2 left-3 -translate-y-1/2">
           <CanvasToolbar />
         </div>
@@ -139,9 +213,38 @@ export default function BoardPage({ params }: BoardPageProps) {
             <LayersPanel />
           </div>
         ) : null}
+        {chatOpen ? (
+          <div className="absolute top-3 right-3 bottom-3 z-20 w-80">
+            <ChatPanel
+              boardId={boardId}
+              open={chatOpen}
+              onOpenChange={setChatOpen}
+            />
+          </div>
+        ) : null}
+        {commentsOpen ? (
+          <div className="absolute top-3 right-3 bottom-3 z-20 w-80">
+            <CommentsPanel
+              boardId={boardId}
+              open={commentsOpen}
+              onOpenChange={setCommentsOpen}
+            />
+          </div>
+        ) : null}
         <IconPicker />
         <ImageInsertDialog />
       </div>
+      <CommentComposer
+        boardId={boardId}
+        point={pendingComment}
+        onClose={() => setPendingComment(null)}
+        onCreated={handleCommentCreated}
+      />
+      <ShareDialog
+        boardId={boardId}
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+      />
       <KeyboardShortcutsDialog
         open={shortcutsOpen}
         onOpenChange={setShortcutsOpen}

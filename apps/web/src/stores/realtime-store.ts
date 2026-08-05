@@ -15,6 +15,8 @@ interface RealtimeState {
   boardId: string | null;
   presence: PresenceMember[];
   cursors: Record<string, RemoteCursor>;
+  /** Element ids each peer currently has selected (for remote highlights). */
+  remoteSelections: Record<string, string[]>;
   setConnectionStatus: (status: RealtimeConnectionStatus) => void;
   setBoardId: (boardId: string | null) => void;
   setPresence: (presence: PresenceMember[]) => void;
@@ -23,6 +25,7 @@ interface RealtimeState {
     position: Omit<RemoteCursor, 'updatedAt'>,
   ) => void;
   removeCursor: (userId: string) => void;
+  setRemoteSelection: (userId: string, selectedIds: string[]) => void;
   clear: () => void;
 }
 
@@ -36,6 +39,7 @@ export const useRealtimeStore = create<RealtimeState>()((set) => ({
   boardId: null,
   presence: [],
   cursors: {},
+  remoteSelections: {},
   setConnectionStatus: (connectionStatus) => set({ connectionStatus }),
   setBoardId: (boardId) => set({ boardId }),
   setPresence: (presence) => set({ presence }),
@@ -52,12 +56,27 @@ export const useRealtimeStore = create<RealtimeState>()((set) => ({
       delete cursors[userId];
       return { cursors };
     }),
+  setRemoteSelection: (userId, selectedIds) =>
+    set((state) => {
+      const previous = state.remoteSelections[userId];
+      if (
+        previous !== undefined &&
+        previous.length === selectedIds.length &&
+        previous.every((id, index) => id === selectedIds[index])
+      ) {
+        return state;
+      }
+      return {
+        remoteSelections: { ...state.remoteSelections, [userId]: selectedIds },
+      };
+    }),
   clear: () =>
     set({
       connectionStatus: 'disconnected',
       boardId: null,
       presence: [],
       cursors: {},
+      remoteSelections: {},
     }),
 }));
 

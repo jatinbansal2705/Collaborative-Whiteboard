@@ -26,17 +26,19 @@ import { cn } from '@/lib/utils';
 import { getShortcut } from '@/lib/canvas/shortcuts';
 import type { ToolId } from '@/lib/canvas/types';
 import { useToolStore } from '@/stores/tool-store';
+import { useCanvasStore } from '@/stores/canvas-store';
 
 interface ToolDefinition {
   id: ToolId;
   label: string;
   icon: LucideIcon;
+  readOnlySafe?: boolean;
 }
 
 const TOOL_GROUPS: readonly (readonly ToolDefinition[])[] = [
   [
-    { id: 'select', label: 'Select', icon: MousePointer2 },
-    { id: 'hand', label: 'Hand', icon: Hand },
+    { id: 'select', label: 'Select', icon: MousePointer2, readOnlySafe: true },
+    { id: 'hand', label: 'Hand', icon: Hand, readOnlySafe: true },
     { id: 'eraser', label: 'Eraser', icon: Eraser },
   ],
   [
@@ -75,6 +77,7 @@ function toolShortcut(tool: ToolId): string | undefined {
 export function CanvasToolbar() {
   const activeTool = useToolStore((state) => state.activeTool);
   const setTool = useToolStore((state) => state.setTool);
+  const readOnly = useCanvasStore((state) => state.readOnly);
 
   return (
     <div
@@ -89,6 +92,7 @@ export function CanvasToolbar() {
           ) : null}
           {group.map((tool) => {
             const Icon = tool.icon;
+            const disabled = readOnly && tool.readOnlySafe !== true;
             const active = activeTool === tool.id;
             return (
               <button
@@ -96,6 +100,7 @@ export function CanvasToolbar() {
                 type="button"
                 onClick={() => setTool(tool.id)}
                 aria-pressed={active}
+                aria-disabled={disabled}
                 aria-label={`${tool.label} tool`}
                 title={`${tool.label}${toolShortcut(tool.id) ? ` (${toolShortcut(tool.id)})` : ''}`}
                 className={cn(
@@ -104,6 +109,7 @@ export function CanvasToolbar() {
                   active
                     ? 'bg-accent text-accent-foreground'
                     : 'text-muted-foreground hover:bg-accent/60 hover:text-foreground',
+                  disabled && 'pointer-events-none opacity-40',
                 )}
               >
                 <Icon className="size-4" aria-hidden="true" />

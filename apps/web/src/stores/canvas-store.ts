@@ -35,6 +35,10 @@ interface CanvasState {
   gridVisible: boolean;
   snapEnabled: boolean;
   minimapVisible: boolean;
+  /** True for VIEWER/COMMENTER roles: pointer interactions are blocked. */
+  readOnly: boolean;
+  /** True while the comment tool is active: edits are suppressed. */
+  commentMode: boolean;
   style: ElementStyle;
   setElements: (elements: WhiteboardElement[]) => void;
   addElements: (elements: WhiteboardElement[]) => void;
@@ -53,6 +57,8 @@ interface CanvasState {
   toggleGrid: () => void;
   setSnapEnabled: (enabled: boolean) => void;
   toggleMinimap: () => void;
+  setReadOnly: (readOnly: boolean) => void;
+  setCommentMode: (commentMode: boolean) => void;
   setStyle: (patch: Partial<ElementStyle>) => void;
   applyStyleToSelection: (style: ElementStyle) => void;
   reset: () => void;
@@ -82,6 +88,8 @@ export const useCanvasStore = create<CanvasState>()((set) => ({
   gridVisible: true,
   snapEnabled: true,
   minimapVisible: true,
+  readOnly: false,
+  commentMode: false,
   style: DEFAULT_STYLE,
   setElements: (elements) => set({ elements }),
   addElements: (elements) =>
@@ -119,6 +127,8 @@ export const useCanvasStore = create<CanvasState>()((set) => ({
   setSnapEnabled: (snapEnabled) => set({ snapEnabled }),
   toggleMinimap: () =>
     set((state) => ({ minimapVisible: !state.minimapVisible })),
+  setReadOnly: (readOnly) => set({ readOnly }),
+  setCommentMode: (commentMode) => set({ commentMode }),
   setStyle: (patch) =>
     set((state) => ({ style: { ...state.style, ...patch } })),
   applyStyleToSelection: (style) =>
@@ -158,6 +168,8 @@ export const useCanvasStore = create<CanvasState>()((set) => ({
       gridVisible: true,
       snapEnabled: true,
       minimapVisible: true,
+      readOnly: false,
+      commentMode: false,
       style: DEFAULT_STYLE,
     }),
 }));

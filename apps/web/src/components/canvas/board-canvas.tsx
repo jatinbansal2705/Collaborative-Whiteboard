@@ -2,12 +2,18 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Group, Layer, Stage } from 'react-konva';
+import type { KonvaEventObject } from 'konva/lib/Node';
 import { useTheme } from 'next-themes';
 import { CANVAS_COLORS } from '@/lib/canvas/constants';
+import { screenToWorld } from '@/lib/canvas/coords';
+import { emitCursorMove } from '@/lib/realtime/emit';
 import { useCameraStore } from '@/stores/camera-store';
 import { useCanvasStore } from '@/stores/canvas-store';
+import { useRealtimeStore } from '@/stores/realtime-store';
 import { useToolStore } from '@/stores/tool-store';
 import { useCanvasInteraction } from '@/hooks/use-canvas-interaction';
+import { CommentMarkers } from '@/components/realtime/comment-markers';
+import { LiveCursorsLayer } from '@/components/realtime/live-cursors-layer';
 import { CanvasContextMenu } from './canvas-context-menu';
 import { ElementNode } from './element-node';
 import { GridLayer } from './grid-layer';
@@ -15,6 +21,14 @@ import { GuidesLayer } from './guides-layer';
 import { RichTextEditor } from './rich-text-editor';
 import { SelectionLayer } from './selection-layer';
 import { StickyEditor } from './sticky-editor';
+
+interface BoardCanvasProps {
+  commentMode?: boolean;
+  onPlaceComment?: (x: number, y: number) => void;
+  onSelectThread?: (threadId: string) => void;
+}
+
+function noop(): void {}
 
 function canvasCursor(tool: string, dragging: boolean): string {
   if (dragging) {
@@ -30,7 +44,11 @@ function canvasCursor(tool: string, dragging: boolean): string {
 }
 
 /** Full-screen Konva stage implementing the infinite canvas viewport. */
-export function BoardCanvas() {
+export function BoardCanvas({
+  commentMode = false,
+  onPlaceComment = noop,
+  onSelectThread = noop,
+}: BoardCanvasProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const { stageRef, onPointerDown, onDoubleClick, onWheel, onTouchStart } =
     useCanvasInteraction();
@@ -83,6 +101,30 @@ export function BoardCanvas() {
     setMenuPosition({ x: event.clientX, y: event.clientY });
   }, []);
 
+  const handlePointerMove = useCallback(
+    (event: KonvaEventObject<PointerEvent>) => {
+      const activeBoardId = useRealtimeStore.getState().boardId;
+      if (activeBoardId === null) {
+        return;
+      }
+      const stage = event.target.getStage();
+      if (stage === null) {
+        return;
+      }
+      const pointer = stage.getPointerPosition();
+      if (pointer === null) {
+        return;
+      }
+      const world = screenToWorld(
+        useCameraStore.getState(),
+        pointer.x,
+        pointer.y,
+      );
+      emitCursorMove(activeBoardId, world.x, world.y);
+    },
+    [],
+  );
+
   return (
     <div
       ref={containerRef}
@@ -95,6 +137,7 @@ export function BoardCanvas() {
         width={viewportWidth}
         height={viewportHeight}
         onPointerDown={onPointerDown}
+        onPointerMove={handlePointerMove}
         onDblClick={onDoubleClick}
         onWheel={onWheel}
         onTouchStart={onTouchStart}
@@ -119,6 +162,12 @@ export function BoardCanvas() {
           </Group>
         </Layer>
       </Stage>
+      <LiveCursorsLayer />
+      <CommentMarkers
+        commentMode={commentMode}
+        onPlaceComment={onPlaceComment}
+        onSelectThread={onSelectThread}
+      />
       {editingId !== null ? (
         <>
           <RichTextEditor />
