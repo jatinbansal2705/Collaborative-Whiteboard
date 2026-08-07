@@ -166,7 +166,7 @@ model BoardVersion {
   id            String          @id @default(uuid()) @db.Uuid
   boardId       String          @map("board_id") @db.Uuid
   board         Board           @relation(fields: [boardId], references: [id], onDelete: Cascade)
-  versionNo     Int
+  versionNo     Int             @map("version_no")
   kind          BoardVersionKind @default(AUTO)
   note          String?         @db.VarChar(255)
   data          Json            @default("{}")

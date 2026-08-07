@@ -268,6 +268,7 @@ export function useCanvasInteraction() {
           }
         } else {
           drag.lastWorld = world;
+          points[1] = world;
         }
         const element = buildDrawElement(
           drag.drawingType as ToolId,

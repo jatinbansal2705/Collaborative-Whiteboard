@@ -8,6 +8,8 @@
     "prebuild": "npm run build --workspace @whiteboard/shared && prisma generate",
     "build": "nest build",
     "pretypecheck": "npm run build --workspace @whiteboard/shared",
+    "predev": "npm run build --workspace @whiteboard/shared",
+    "dev": "nest start --watch",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",

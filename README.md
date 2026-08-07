@@ -50,7 +50,7 @@ npm install
 docker compose -f apps/api/docker-compose.yml up -d   # added in Phase 2
 
 # 4. Run database migrations
-npm run db:migrate --workspace @whiteboard/api          # added in Phase 2
+npm run prisma:migrate --workspace @whiteboard/api     # prisma migrate dev
 
 # 5. Start both apps in development
 npm run dev                                             # runs web + api
