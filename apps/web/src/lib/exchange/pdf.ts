@@ -1,4 +1,3 @@
-import { PDFDocument } from 'pdf-lib';
 import type { WhiteboardDocument } from '@whiteboard/shared';
 import { rasterizeSvg } from './raster';
 import { documentToSvg } from './svg';
@@ -9,6 +8,7 @@ export async function documentToPdf(
   document: WhiteboardDocument,
   options: ExportOptions = {},
 ): Promise<Uint8Array> {
+  const { PDFDocument } = await import('pdf-lib');
   const svg = documentToSvg(document, options);
   const width = Number(/width="(\d+)"/.exec(svg)?.[1] ?? '100');
   const height = Number(/height="(\d+)"/.exec(svg)?.[1] ?? '100');

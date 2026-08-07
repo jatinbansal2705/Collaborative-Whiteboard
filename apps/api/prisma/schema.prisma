@@ -189,7 +189,7 @@ model BoardActivity {
   type      BoardActivityType
   actorId   String            @map("actor_id") @db.Uuid
   actor     User              @relation("BoardActivityActor", fields: [actorId], references: [id], onDelete: Restrict)
-  versionNo Int?
+  versionNo Int?           @map("version_no")
   details   Json              @default("{}")
   createdAt DateTime          @default(now()) @map("created_at")
 

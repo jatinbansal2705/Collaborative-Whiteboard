@@ -19,8 +19,8 @@ import {
   type ChatMessageResponseDto,
   type ChatReadReceiptResponseDto,
 } from './dto/chat-message.response.dto';
-import type { CreateChatMessageDto } from './dto/create-chat-message.dto';
-import type { ListChatMessagesQueryDto } from './dto/list-chat-messages.query.dto';
+import { CreateChatMessageDto } from './dto/create-chat-message.dto';
+import { ListChatMessagesQueryDto } from './dto/list-chat-messages.query.dto';
 
 @ApiTags('chat')
 @Controller('boards/:id/messages')

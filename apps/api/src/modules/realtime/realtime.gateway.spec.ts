@@ -6,12 +6,19 @@ import type { Socket as ClientSocket } from 'socket.io-client';
 import { io as ioc } from 'socket.io-client';
 import {
   BOARD_NAMESPACE,
+  PRESENCE_ACTIVITY,
   SOCKET_ERROR_CODES,
   SOCKET_EVENTS,
   type BoardDataPayload,
+  type ChatReadEvent,
+  type ChatTypingEvent,
   type CursorMoveEvent,
   type DrawPatchEvent,
+  type ElementCreateEvent,
+  type ElementDeleteEvent,
   type PresenceRosterPayload,
+  type PresenceUpdateEvent,
+  type SelectionUpdateEvent,
   type SocketAck,
 } from '@whiteboard/shared';
 import { RedisService } from '../../redis/redis.service';
@@ -48,6 +55,10 @@ const BOARD = () => ({
   deletedAt: null,
   data: { layers: [] },
 });
+
+const BOARD_1 = '11111111-1111-4111-8111-111111111111';
+const BOARD_2 = '22222222-2222-4222-8222-222222222222';
+const MESSAGE_1 = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 
 interface ConnectionErrorData {
   ok: boolean;
@@ -156,6 +167,12 @@ describe('RealtimeGateway (socket.io)', () => {
       id: 'user-1',
       name: 'Alice',
       avatarUrl: null,
+    });
+    chatService.recordReadReceipt.mockResolvedValue({
+      boardId: BOARD_1,
+      userId: 'user-1',
+      lastReadMessageId: MESSAGE_1,
+      lastReadAt: new Date('2026-08-02T00:00:00.000Z'),
     });
   });
 
@@ -288,7 +305,7 @@ describe('RealtimeGateway (socket.io)', () => {
       boardId: '11111111-1111-4111-8111-111111111111',
     });
     await emitAck(b, SOCKET_EVENTS.JOIN, {
-      boardId: '22222222-2222-4222-8222-222222222222',
+      boardId: BOARD_2,
     });
 
     const leaked = waitForEvent(b, SOCKET_EVENTS.DRAW_PATCH, 150).then(
@@ -433,5 +450,268 @@ describe('RealtimeGateway (socket.io)', () => {
     });
     await sleep(50);
     expect(a.connected).toBe(false);
+  });
+
+  it('leaves a board, acks ok and broadcasts the updated roster', async () => {
+    const a = await connect('token-user-1');
+    const b = await connect('token-user-2');
+    await emitAck(a, SOCKET_EVENTS.JOIN, { boardId: BOARD_1 });
+    await emitAck(b, SOCKET_EVENTS.JOIN, { boardId: BOARD_1 });
+
+    const rosterForB = waitForEvent<PresenceRosterPayload>(
+      b,
+      SOCKET_EVENTS.PRESENCE_ROSTER,
+    );
+    const ack = await emitAck<{ boardId: string }>(a, SOCKET_EVENTS.LEAVE, {
+      boardId: BOARD_1,
+    });
+    expect(ack).toEqual({ ok: true, data: { boardId: BOARD_1 } });
+
+    const roster = await rosterForB;
+    expect(roster.presence.map((m) => m.userId)).toEqual(['user-2']);
+
+    const again = await emitAck(a, SOCKET_EVENTS.LEAVE, { boardId: BOARD_1 });
+    expect(again.ok).toBe(false);
+    if (!again.ok) {
+      expect(again.error.code).toBe(SOCKET_ERROR_CODES.NOT_JOINED);
+    }
+  });
+
+  it('updates the presence roster when a member disconnects', async () => {
+    const a = await connect('token-user-1');
+    const b = await connect('token-user-2');
+    await emitAck(a, SOCKET_EVENTS.JOIN, { boardId: BOARD_1 });
+    await emitAck(b, SOCKET_EVENTS.JOIN, { boardId: BOARD_1 });
+
+    const rosterForB = waitForEvent<PresenceRosterPayload>(
+      b,
+      SOCKET_EVENTS.PRESENCE_ROSTER,
+    );
+    a.disconnect();
+
+    const roster = await rosterForB;
+    expect(roster.presence.map((m) => m.userId)).toEqual(['user-2']);
+  });
+
+  it('broadcasts presence updates to peers and acks', async () => {
+    const a = await connect('token-user-1');
+    const b = await connect('token-user-2');
+    await emitAck(a, SOCKET_EVENTS.JOIN, { boardId: BOARD_1 });
+    await emitAck(b, SOCKET_EVENTS.JOIN, { boardId: BOARD_1 });
+
+    const updateForB = waitForEvent<PresenceUpdateEvent>(
+      b,
+      SOCKET_EVENTS.PRESENCE_UPDATE,
+    );
+    const ack = await emitAck<{ activity: string; tool: string | null }>(
+      a,
+      SOCKET_EVENTS.PRESENCE_UPDATE,
+      { activity: PRESENCE_ACTIVITY.AWAY, tool: 'selector' },
+    );
+    expect(ack).toEqual({
+      ok: true,
+      data: { activity: PRESENCE_ACTIVITY.AWAY, tool: 'selector' },
+    });
+
+    const event = await updateForB;
+    expect(event).toMatchObject({
+      userId: 'user-1',
+      presence: { activity: PRESENCE_ACTIVITY.AWAY, tool: 'selector' },
+    });
+  });
+
+  it('broadcasts created elements to peers but not the sender', async () => {
+    const a = await connect('token-user-1');
+    const b = await connect('token-user-2');
+    await emitAck(a, SOCKET_EVENTS.JOIN, { boardId: BOARD_1 });
+    await emitAck(b, SOCKET_EVENTS.JOIN, { boardId: BOARD_1 });
+
+    const createForB = waitForEvent<ElementCreateEvent>(
+      b,
+      SOCKET_EVENTS.ELEMENT_CREATE,
+    );
+    const senderSeesOwn = waitForEvent(
+      a,
+      SOCKET_EVENTS.ELEMENT_CREATE,
+      150,
+    ).then(
+      () => true,
+      () => false,
+    );
+    const ack = await emitAck<{ id: string; version: number }>(
+      a,
+      SOCKET_EVENTS.ELEMENT_CREATE,
+      {
+        boardId: BOARD_1,
+        element: { id: 'element-1', type: 'rect', version: 1 },
+      },
+    );
+    expect(ack).toEqual({ ok: true, data: { id: 'element-1', version: 1 } });
+
+    const event = await createForB;
+    expect(event.element).toMatchObject({ id: 'element-1', type: 'rect' });
+    expect(await senderSeesOwn).toBe(false);
+  });
+
+  it('broadcasts element deletes to peers but not the sender', async () => {
+    const a = await connect('token-user-1');
+    const b = await connect('token-user-2');
+    await emitAck(a, SOCKET_EVENTS.JOIN, { boardId: BOARD_1 });
+    await emitAck(b, SOCKET_EVENTS.JOIN, { boardId: BOARD_1 });
+
+    const deleteForB = waitForEvent<ElementDeleteEvent>(
+      b,
+      SOCKET_EVENTS.ELEMENT_DELETE,
+    );
+    const senderSeesOwn = waitForEvent(
+      a,
+      SOCKET_EVENTS.ELEMENT_DELETE,
+      150,
+    ).then(
+      () => true,
+      () => false,
+    );
+    const ack = await emitAck<{ id: string; version: number }>(
+      a,
+      SOCKET_EVENTS.ELEMENT_DELETE,
+      { boardId: BOARD_1, id: 'element-1', version: 2 },
+    );
+    expect(ack).toEqual({ ok: true, data: { id: 'element-1', version: 2 } });
+
+    const event = await deleteForB;
+    expect(event).toMatchObject({ id: 'element-1', version: 2 });
+    expect(await senderSeesOwn).toBe(false);
+  });
+
+  it('broadcasts selection updates to peers', async () => {
+    const a = await connect('token-user-1');
+    const b = await connect('token-user-2');
+    await emitAck(a, SOCKET_EVENTS.JOIN, { boardId: BOARD_1 });
+    await emitAck(b, SOCKET_EVENTS.JOIN, { boardId: BOARD_1 });
+
+    const selectForB = waitForEvent<SelectionUpdateEvent>(
+      b,
+      SOCKET_EVENTS.SELECTION_UPDATE,
+    );
+    const ack = await emitAck<{ selectedIds: string[] }>(
+      a,
+      SOCKET_EVENTS.SELECTION_UPDATE,
+      { boardId: BOARD_1, selectedIds: ['element-1'] },
+    );
+    expect(ack).toEqual({ ok: true, data: { selectedIds: ['element-1'] } });
+
+    const event = await selectForB;
+    expect(event).toMatchObject({
+      boardId: BOARD_1,
+      userId: 'user-1',
+      selectedIds: ['element-1'],
+    });
+  });
+
+  it('broadcasts typing indicators and throttles rapid updates', async () => {
+    const a = await connect('token-user-1');
+    const b = await connect('token-user-2');
+    await emitAck(a, SOCKET_EVENTS.JOIN, { boardId: BOARD_1 });
+    await emitAck(b, SOCKET_EVENTS.JOIN, { boardId: BOARD_1 });
+
+    const typingForB = waitForEvent<ChatTypingEvent>(
+      b,
+      SOCKET_EVENTS.CHAT_TYPING,
+    );
+    const first = await emitAck<{ throttled: boolean }>(
+      a,
+      SOCKET_EVENTS.CHAT_TYPING,
+      { boardId: BOARD_1, isTyping: true },
+    );
+    const second = await emitAck<{ throttled: boolean }>(
+      a,
+      SOCKET_EVENTS.CHAT_TYPING,
+      { boardId: BOARD_1, isTyping: false },
+    );
+    expect(first).toEqual({ ok: true, data: { throttled: false } });
+    expect(second).toEqual({ ok: true, data: { throttled: true } });
+
+    const event = await typingForB;
+    expect(event).toMatchObject({
+      boardId: BOARD_1,
+      userId: 'user-1',
+      isTyping: true,
+    });
+  });
+
+  it('records and broadcasts a chat read receipt', async () => {
+    const a = await connect('token-user-1');
+    const b = await connect('token-user-2');
+    await emitAck(a, SOCKET_EVENTS.JOIN, { boardId: BOARD_1 });
+    await emitAck(b, SOCKET_EVENTS.JOIN, { boardId: BOARD_1 });
+
+    const readForB = waitForEvent<ChatReadEvent>(b, SOCKET_EVENTS.CHAT_READ);
+    const ack = await emitAck<{ lastReadMessageId: string; readAt: string }>(
+      a,
+      SOCKET_EVENTS.CHAT_READ,
+      { boardId: BOARD_1, lastReadMessageId: MESSAGE_1 },
+    );
+    expect(ack.ok).toBe(true);
+    if (ack.ok) {
+      expect(ack.data.lastReadMessageId).toBe(MESSAGE_1);
+    }
+
+    const event = await readForB;
+    expect(event).toMatchObject({
+      boardId: BOARD_1,
+      userId: 'user-1',
+      lastReadMessageId: MESSAGE_1,
+    });
+  });
+
+  it('acks MESSAGE_NOT_FOUND when a read receipt targets a missing message', async () => {
+    chatService.recordReadReceipt.mockResolvedValueOnce(null);
+    const a = await connect('token-user-1');
+    await emitAck(a, SOCKET_EVENTS.JOIN, { boardId: BOARD_1 });
+
+    const ack = await emitAck(a, SOCKET_EVENTS.CHAT_READ, {
+      boardId: BOARD_1,
+      lastReadMessageId: MESSAGE_1,
+    });
+    expect(ack.ok).toBe(false);
+    if (!ack.ok) {
+      expect(ack.error.code).toBe(SOCKET_ERROR_CODES.MESSAGE_NOT_FOUND);
+    }
+  });
+
+  it('rejects a malformed payload with INVALID_PAYLOAD', async () => {
+    const a = await connect('token-user-1');
+
+    const ack = await emitAck(a, SOCKET_EVENTS.JOIN, {});
+    expect(ack.ok).toBe(false);
+    if (!ack.ok) {
+      expect(ack.error.code).toBe(SOCKET_ERROR_CODES.INVALID_PAYLOAD);
+    }
+  });
+
+  it('rejects a draw patch with a stale version', async () => {
+    const a = await connect('token-user-1');
+    await emitAck(a, SOCKET_EVENTS.JOIN, { boardId: BOARD_1 });
+
+    const first = await emitAck(a, SOCKET_EVENTS.DRAW_PATCH, {
+      boardId: BOARD_1,
+      id: 'element-1',
+      patch: { points: [1] },
+      version: 5,
+      timestamp: 1,
+    });
+    expect(first.ok).toBe(true);
+
+    const stale = await emitAck(a, SOCKET_EVENTS.DRAW_PATCH, {
+      boardId: BOARD_1,
+      id: 'element-1',
+      patch: { points: [2] },
+      version: 5,
+      timestamp: 2,
+    });
+    expect(stale.ok).toBe(false);
+    if (!stale.ok) {
+      expect(stale.error.code).toBe(SOCKET_ERROR_CODES.STALE_VERSION);
+    }
   });
 });

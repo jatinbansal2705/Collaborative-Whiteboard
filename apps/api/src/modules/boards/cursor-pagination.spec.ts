@@ -106,14 +106,14 @@ describe('cursor-pagination', () => {
 
   describe('buildBoardOrderBy', () => {
     it('orders by the sort field then id', () => {
-      expect(buildBoardOrderBy('title', 'desc')).toEqual({
-        title: 'desc',
-        id: 'desc',
-      });
-      expect(buildBoardOrderBy('memberCount', 'asc')).toEqual({
-        memberCount: 'asc',
-        id: 'asc',
-      });
+      expect(buildBoardOrderBy('title', 'desc')).toEqual([
+        { title: 'desc' },
+        { id: 'desc' },
+      ]);
+      expect(buildBoardOrderBy('memberCount', 'asc')).toEqual([
+        { memberCount: 'asc' },
+        { id: 'asc' },
+      ]);
     });
   });
 

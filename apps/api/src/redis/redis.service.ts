@@ -38,9 +38,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     this.attachErrorHandlers(this.adapterPubClient, 'pub');
     this.attachErrorHandlers(this.adapterSubClient, 'sub');
     await Promise.all([
-      this.client.connect(),
-      this.adapterPubClient.connect(),
-      this.adapterSubClient.connect(),
+      this.ensureConnected(this.client),
+      this.ensureConnected(this.adapterPubClient),
+      this.ensureConnected(this.adapterSubClient),
     ]);
     this.logger.log('Redis connections established');
   }
@@ -51,6 +51,19 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       this.adapterPubClient.quit(),
       this.adapterSubClient.quit(),
     ]);
+  }
+
+  /**
+   * Connects a lazy client unless the Socket.IO Redis adapter already
+   * triggered a connect (subscribers auto-connect on first `subscribe()`,
+   * which happens during socket-server bootstrap before this hook runs).
+   * Calling `connect()` again would reject with "Redis is already
+   * connecting/connected".
+   */
+  private async ensureConnected(client: Redis): Promise<void> {
+    if (client.status === 'wait') {
+      await client.connect();
+    }
   }
 
   /** Pub/sub clients for `@socket.io/redis-adapter` (one connection each). */

@@ -73,6 +73,25 @@ npm run dev                                             # runs web + api
 - [Product Requirements Document](docs/PRD.md)
 - [Architecture & ADRs](docs/ARCHITECTURE.md)
 - [Phase Tracker](docs/PHASES.md)
+- [Performance budgets, measurements & load testing](docs/PERFORMANCE.md)
+
+## Testing
+
+| Layer          | Tool      | Location                                              |
+| -------------- | --------- | ----------------------------------------------------- |
+| Web unit       | Vitest    | `apps/web/src/**/*.spec.ts` (406 tests)               |
+| Web e2e        | Playwright| `apps/web/e2e/**/*.spec.ts` (needs API + `npx playwright install chromium`) |
+| API unit       | Jest      | `apps/api/src/**/*.spec.ts` (incl. socket harness)    |
+| API e2e        | Jest      | `apps/api/test/*.e2e-spec.ts`                         |
+| Load           | k6        | `apps/api/scripts/load-test.js`                       |
+| Perf + a11y    | Lighthouse | `apps/web/lighthouserc.js`                            |
+
+```bash
+npm run test          # all workspaces
+npm run test:e2e --workspace @whiteboard/api
+npm run test:e2e --workspace @whiteboard/web   # needs API running
+k6 run apps/api/scripts/load-test.js   # needs infra + API running
+```
 
 ## Roadmap
 

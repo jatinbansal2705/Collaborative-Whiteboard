@@ -331,7 +331,7 @@ export class BoardHistoryRepository {
   async findLatestVersion(boardId: string): Promise<BoardVersion | null> {
     return this.prisma.boardVersion.findFirst({
       where: { boardId },
-      orderBy: { versionNo: 'desc' },
+      orderBy: [{ versionNo: 'desc' }],
     });
   }
 
@@ -423,7 +423,7 @@ export class BoardHistoryRepository {
   ): Promise<void> {
     const keep = await tx.boardVersion.findMany({
       where: { boardId, kind: 'AUTO' },
-      orderBy: { versionNo: 'desc' },
+      orderBy: [{ versionNo: 'desc' }],
       select: { versionNo: true },
       take: VERSIONS_AUTO_RETENTION,
     });

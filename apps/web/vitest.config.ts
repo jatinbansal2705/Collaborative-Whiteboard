@@ -7,9 +7,12 @@ export default defineConfig({
       '@': path.resolve(__dirname, 'src'),
     },
   },
+  esbuild: {
+    jsx: 'automatic',
+  },
   test: {
     environment: 'jsdom',
-    include: ['src/**/*.spec.ts'],
+    include: ['src/**/*.spec.ts', 'src/**/*.spec.tsx'],
     exclude: ['node_modules/**', '.next/**', 'out/**'],
     setupFiles: ['src/test/setup.ts'],
     coverage: {

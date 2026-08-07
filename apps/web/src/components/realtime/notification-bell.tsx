@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { FixedSizeList, type ListChildComponentProps } from 'react-window';
 import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,6 +26,9 @@ const TYPE_LABELS: Record<string, string> = {
   CHAT_MENTION: 'Chat mention',
 };
 
+const NOTIFICATION_ROW_HEIGHT = 44;
+const NOTIFICATION_LIST_HEIGHT = 320;
+
 function describe(notification: AppNotification): string {
   const label = TYPE_LABELS[notification.type] ?? 'Notification';
   const title =
@@ -33,6 +37,44 @@ function describe(notification: AppNotification): string {
       : '';
   return `${label}${title}`;
 }
+
+interface NotificationRowData {
+  notifications: AppNotification[];
+  onMarkRead: (notification: AppNotification) => void;
+}
+
+const NotificationRow = function NotificationRow({
+  index,
+  style,
+  data,
+}: ListChildComponentProps<NotificationRowData>) {
+  const notification = data.notifications[index];
+  return (
+    <li style={style}>
+      <button
+        type="button"
+        className="hover:bg-accent flex h-full w-full items-start gap-2 px-3 py-2 text-left"
+        onClick={() => data.onMarkRead(notification)}
+      >
+        <span
+          className={
+            notification.readAt === null
+              ? 'bg-primary mt-1.5 size-2 shrink-0 rounded-full'
+              : 'mt-1.5 size-2 shrink-0 rounded-full bg-transparent'
+          }
+        />
+        <span className="min-w-0">
+          <span className="block truncate text-sm font-medium">
+            {describe(notification)}
+          </span>
+          <span className="block text-xs text-muted-foreground">
+            {new Date(notification.createdAt).toLocaleString()}
+          </span>
+        </span>
+      </button>
+    </li>
+  );
+};
 
 /** Notification bell with an unread badge and dropdown list. */
 export function NotificationBell() {
@@ -112,39 +154,25 @@ export function NotificationBell() {
             </button>
           ) : null}
         </div>
-        <div className="max-h-80 overflow-y-auto">
+        <div className="max-h-80">
           {notifications.length === 0 ? (
             <p className="p-4 text-sm text-muted-foreground">
               You&apos;re all caught up.
             </p>
           ) : (
-            <ul>
-              {notifications.map((notification) => (
-                <li key={notification.id}>
-                  <button
-                    type="button"
-                    className="hover:bg-accent flex w-full items-start gap-2 px-3 py-2 text-left"
-                    onClick={() => void handleMarkRead(notification)}
-                  >
-                    <span
-                      className={
-                        notification.readAt === null
-                          ? 'bg-primary mt-1.5 size-2 shrink-0 rounded-full'
-                          : 'mt-1.5 size-2 shrink-0 rounded-full bg-transparent'
-                      }
-                    />
-                    <span className="min-w-0">
-                      <span className="block truncate text-sm font-medium">
-                        {describe(notification)}
-                      </span>
-                      <span className="block text-xs text-muted-foreground">
-                        {new Date(notification.createdAt).toLocaleString()}
-                      </span>
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <FixedSizeList<NotificationRowData>
+              height={Math.min(
+                NOTIFICATION_LIST_HEIGHT,
+                notifications.length * NOTIFICATION_ROW_HEIGHT,
+              )}
+              width="100%"
+              itemCount={notifications.length}
+              itemSize={NOTIFICATION_ROW_HEIGHT}
+              overscanCount={4}
+              itemData={{ notifications, onMarkRead: handleMarkRead }}
+            >
+              {NotificationRow}
+            </FixedSizeList>
           )}
         </div>
       </DropdownMenuContent>

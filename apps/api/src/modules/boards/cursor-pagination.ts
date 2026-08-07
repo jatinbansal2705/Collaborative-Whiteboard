@@ -85,8 +85,8 @@ export function buildCursorWhere(
 export function buildBoardOrderBy(
   sortBy: BoardSortBy,
   order: BoardSortOrder,
-): Prisma.BoardOrderByWithRelationInput {
-  return { [sortBy]: order, id: order };
+): Prisma.BoardOrderByWithRelationInput[] {
+  return [{ [sortBy]: order }, { id: order }];
 }
 
 export function sortableCursorValue(

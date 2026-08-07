@@ -21,7 +21,7 @@ const THREAD_INCLUDE = {
   resolver: { select: { id: true, name: true, avatarUrl: true } },
   comments: {
     where: { deletedAt: null },
-    orderBy: { createdAt: 'asc' },
+    orderBy: [{ createdAt: 'asc' }],
     include: {
       author: { select: { id: true, name: true, avatarUrl: true } },
     },
@@ -48,7 +48,7 @@ export class CommentThreadRepository {
   async listByBoard(boardId: string): Promise<CommentThreadWithComments[]> {
     return this.prisma.commentThread.findMany({
       where: { boardId, deletedAt: null },
-      orderBy: { updatedAt: 'desc' },
+      orderBy: [{ updatedAt: 'desc' }],
       include: THREAD_INCLUDE,
     });
   }

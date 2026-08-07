@@ -29,7 +29,10 @@ export default function DashboardPage() {
     <div className="flex min-h-dvh flex-col">
       <DashboardHeader />
 
-      <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-8">
+      <main
+        id="main-content"
+        className="mx-auto w-full max-w-6xl flex-1 px-6 py-8"
+      >
         <div className="mb-8">
           <DashboardToolbar
             dashboard={dashboard}

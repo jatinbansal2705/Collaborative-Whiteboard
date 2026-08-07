@@ -215,6 +215,9 @@ export function RichTextEditor() {
           contentEditable
           suppressContentEditableWarning
           spellCheck={false}
+          role="textbox"
+          aria-multiline="true"
+          aria-label="Text element content"
           onInput={queueSync}
           onPaste={queueSync}
           onPointerDown={(event) => event.stopPropagation()}

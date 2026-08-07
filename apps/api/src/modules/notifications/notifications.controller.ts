@@ -6,7 +6,7 @@ import {
   type NotificationListResponseDto,
   type NotificationResponseDto,
 } from './dto/notification.response.dto';
-import type { ListNotificationsQueryDto } from './dto/list-notifications.query.dto';
+import { ListNotificationsQueryDto } from './dto/list-notifications.query.dto';
 import { NotificationsService } from './notifications.service';
 
 @ApiTags('notifications')

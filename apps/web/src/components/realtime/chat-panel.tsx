@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { VariableSizeList, type ListChildComponentProps } from 'react-window';
 import { Loader2, Send, X } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -18,6 +19,7 @@ import { toast } from '@/stores/toast-store';
 import type { ChatMessage } from '@/types/chat';
 
 const TYPING_STOP_DEBOUNCE_MS = 1200;
+const CHAT_ROW_ESTIMATE = 64;
 
 interface ChatPanelProps {
   boardId: string;
@@ -31,6 +33,48 @@ function formatTime(value: string): string {
     minute: '2-digit',
   });
 }
+
+interface ChatRowData {
+  messages: ChatMessage[];
+  onMeasure: (id: string, node: HTMLDivElement | null) => void;
+}
+
+const ChatRow = memo(function ChatRow({
+  index,
+  style,
+  data,
+}: ListChildComponentProps<ChatRowData>) {
+  const message = data.messages[index];
+  const color = userColor(message.author.id);
+  return (
+    <div style={style} className="flex items-start gap-2 pb-3">
+      <div
+        ref={(node) => data.onMeasure(message.id, node)}
+        className="flex min-w-0 gap-2"
+      >
+        <Avatar className="size-7">
+          {message.author.avatarUrl !== null ? (
+            <AvatarImage src={message.author.avatarUrl} alt="" />
+          ) : null}
+          <AvatarFallback style={{ backgroundColor: `${color}26`, color }}>
+            {userInitials(message.author.name)}
+          </AvatarFallback>
+        </Avatar>
+        <div className="min-w-0">
+          <div className="flex items-baseline gap-2">
+            <span className="text-xs font-semibold">
+              {message.author.name ?? 'Guest'}
+            </span>
+            <span className="text-[10px] text-muted-foreground">
+              {formatTime(message.createdAt)}
+            </span>
+          </div>
+          <p className="break-words text-sm">{message.body}</p>
+        </div>
+      </div>
+    </div>
+  );
+});
 
 /** Board chat: live messages, typing indicators and read receipts. */
 export function ChatPanel({ boardId, open, onOpenChange }: ChatPanelProps) {
@@ -46,7 +90,8 @@ export function ChatPanel({ boardId, open, onOpenChange }: ChatPanelProps) {
   const [loading, setLoading] = useState(true);
   const isTypingRef = useRef(false);
   const typingStopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const listRef = useRef<VariableSizeList<ChatRowData> | null>(null);
+  const rowHeightsRef = useRef<Map<string, number>>(new Map());
 
   const presenceById = new Map(
     presence.map((member) => [member.userId, member]),
@@ -77,12 +122,39 @@ export function ChatPanel({ boardId, open, onOpenChange }: ChatPanelProps) {
     void loadMessages();
   }, [open, boardId, clearUnread, loadMessages]);
 
+  const onMeasure = useCallback((id: string, node: HTMLDivElement | null) => {
+    if (node === null) {
+      return;
+    }
+    const height = node.getBoundingClientRect().height;
+    const previous = rowHeightsRef.current.get(id);
+    if (previous !== height) {
+      rowHeightsRef.current.set(id, height);
+      listRef.current?.resetAfterIndex(0);
+    }
+  }, []);
+
+  const getRowSize = useCallback(
+    (index: number): number => {
+      const message = messages[index];
+      return message === undefined
+        ? CHAT_ROW_ESTIMATE
+        : (rowHeightsRef.current.get(message.id) ?? CHAT_ROW_ESTIMATE);
+    },
+    [messages],
+  );
+
   useEffect(() => {
     if (!open) {
       return;
     }
-    bottomRef.current?.scrollIntoView({ block: 'end' });
-  }, [messages, open]);
+    const frame = requestAnimationFrame(() => {
+      if (messages.length > 0) {
+        listRef.current?.scrollToItem(messages.length - 1, 'end');
+      }
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [messages.length, open]);
 
   useEffect(() => {
     if (!open) {
@@ -196,7 +268,7 @@ export function ChatPanel({ boardId, open, onOpenChange }: ChatPanelProps) {
 
   return (
     <aside
-      className="absolute inset-y-0 right-0 z-30 flex w-80 flex-col border-l bg-background shadow-lg"
+      className="absolute inset-y-0 right-0 z-30 flex w-full flex-col border-l bg-background shadow-lg sm:w-80"
       aria-label="Chat"
     >
       <header className="flex h-12 shrink-0 items-center justify-between border-b px-3">
@@ -211,48 +283,31 @@ export function ChatPanel({ boardId, open, onOpenChange }: ChatPanelProps) {
           <X aria-hidden="true" />
         </Button>
       </header>
-      <div className="min-h-0 flex-1 overflow-y-auto p-3">
+      <div className="min-h-0 flex-1">
         {loading ? (
           <div className="flex h-full items-center justify-center">
             <Loader2 className="size-5 animate-spin text-muted-foreground" />
           </div>
         ) : messages.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            No messages yet. Say hello!
-          </p>
+          <div className="flex h-full items-center justify-center p-3">
+            <p className="text-sm text-muted-foreground">
+              No messages yet. Say hello!
+            </p>
+          </div>
         ) : (
-          <ul className="space-y-3">
-            {messages.map((message) => {
-              const color = userColor(message.author.id);
-              return (
-                <li key={message.id} className="flex items-start gap-2">
-                  <Avatar className="size-7">
-                    {message.author.avatarUrl !== null ? (
-                      <AvatarImage src={message.author.avatarUrl} alt="" />
-                    ) : null}
-                    <AvatarFallback
-                      style={{ backgroundColor: `${color}26`, color }}
-                    >
-                      {userInitials(message.author.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="min-w-0">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-xs font-semibold">
-                        {message.author.name ?? 'Guest'}
-                      </span>
-                      <span className="text-[10px] text-muted-foreground">
-                        {formatTime(message.createdAt)}
-                      </span>
-                    </div>
-                    <p className="break-words text-sm">{message.body}</p>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+          <VariableSizeList<ChatRowData>
+            ref={listRef}
+            height="100%"
+            width="100%"
+            itemCount={messages.length}
+            itemSize={getRowSize}
+            estimatedItemSize={CHAT_ROW_ESTIMATE}
+            overscanCount={4}
+            itemData={{ messages, onMeasure }}
+          >
+            {ChatRow}
+          </VariableSizeList>
         )}
-        <div ref={bottomRef} />
       </div>
       <footer className="shrink-0 border-t p-2">
         {typingNames.length > 0 ? (

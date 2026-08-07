@@ -1,8 +1,8 @@
 'use client';
 
 import { parseWhiteboardDocument } from '@whiteboard/shared';
+import dynamic from 'next/dynamic';
 import { use, useEffect, useState } from 'react';
-import { BoardCanvas } from '@/components/canvas/board-canvas';
 import { CanvasHeader } from '@/components/canvas/canvas-header';
 import { CanvasToolbar } from '@/components/canvas/canvas-toolbar';
 import { IconPicker } from '@/components/canvas/icon-picker';
@@ -35,6 +35,14 @@ import type { CommentThread } from '@/types/comment';
 interface BoardPageProps {
   params: Promise<{ id: string }>;
 }
+
+const BoardCanvas = dynamic(
+  () =>
+    import('@/components/canvas/board-canvas').then(
+      (module) => module.BoardCanvas,
+    ),
+  { ssr: false },
+);
 
 const READ_ONLY_ROLES: ReadonlySet<BoardMemberRole> = new Set([
   'COMMENTER',
@@ -185,7 +193,7 @@ export default function BoardPage({ params }: BoardPageProps) {
   }
 
   return (
-    <div className="flex h-dvh flex-col">
+    <div id="main-content" className="flex h-dvh flex-col">
       <CanvasHeader
         title={title}
         onOpenShortcuts={() => setShortcutsOpen(true)}
@@ -215,16 +223,16 @@ export default function BoardPage({ params }: BoardPageProps) {
           <TextStyleBar />
         </div>
         <div className="absolute right-3 bottom-3 flex flex-col items-end gap-2">
-          {minimapVisible ? <Minimap /> : null}
+          {minimapVisible ? <Minimap className="hidden sm:block" /> : null}
           <ZoomControls />
         </div>
         {layersPanelVisible ? (
-          <div className="absolute top-3 right-3 bottom-3 z-30 w-64">
+          <div className="absolute top-1/3 right-0 bottom-0 left-0 z-30 sm:top-3 sm:right-3 sm:bottom-3 sm:left-auto sm:w-64">
             <LayersPanel />
           </div>
         ) : null}
         {chatOpen ? (
-          <div className="absolute top-3 right-3 bottom-3 z-20 w-80">
+          <div className="absolute top-1/3 right-0 bottom-0 left-0 z-20 sm:top-3 sm:right-3 sm:bottom-3 sm:left-auto sm:w-80">
             <ChatPanel
               boardId={boardId}
               open={chatOpen}
@@ -233,7 +241,7 @@ export default function BoardPage({ params }: BoardPageProps) {
           </div>
         ) : null}
         {commentsOpen ? (
-          <div className="absolute top-3 right-3 bottom-3 z-20 w-80">
+          <div className="absolute top-1/3 right-0 bottom-0 left-0 z-20 sm:top-3 sm:right-3 sm:bottom-3 sm:left-auto sm:w-80">
             <CommentsPanel
               boardId={boardId}
               open={commentsOpen}

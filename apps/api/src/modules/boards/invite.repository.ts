@@ -21,7 +21,7 @@ export class InviteRepository {
   async findByBoard(boardId: string): Promise<PendingInvite[]> {
     return this.prisma.pendingInvite.findMany({
       where: { boardId },
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ createdAt: 'desc' }],
     });
   }
 

@@ -131,7 +131,14 @@ export function BoardCanvas({
       className="relative h-full w-full overflow-hidden"
       style={{ background, cursor: canvasCursor(tool, false) }}
       onContextMenu={handleContextMenu}
+      role="region"
+      aria-label="Drawing canvas"
+      aria-describedby="canvas-keyboard-hint"
     >
+      <p id="canvas-keyboard-hint" className="sr-only">
+        Drawing canvas. Tools and shortcuts are available with the keyboard:
+        press Shift + question mark to open the shortcut help dialog.
+      </p>
       <Stage
         ref={stageRef}
         width={viewportWidth}

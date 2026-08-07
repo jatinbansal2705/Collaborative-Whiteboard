@@ -36,10 +36,10 @@ export class NotificationRepository {
     cursor: DecodedDateCursor | null;
     limit: number;
   }): Promise<NotificationPage> {
-    const orderBy: Prisma.NotificationOrderByWithRelationInput = {
-      createdAt: 'desc',
-      id: 'desc',
-    };
+    const orderBy: Prisma.NotificationOrderByWithRelationInput[] = [
+      { createdAt: 'desc' },
+      { id: 'desc' },
+    ];
     const where: Prisma.NotificationWhereInput = {
       userId: args.userId,
       ...(args.cursor !== null

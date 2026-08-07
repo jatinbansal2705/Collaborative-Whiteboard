@@ -23,7 +23,7 @@ Build plan for the Collaborative Whiteboard platform. Each phase is an independe
 | 11 | Editing & Organization | Rich text, sticky notes, layers panel, grouping, alignment, z-order, lock/rotate/resize, connectors, images/icons/emoji | `feat(web): editing tools + layers` | ✅ Done |
 | 12 | Collaboration UI | Realtime cursors, presence, live drawing, comments panel, chat panel, share/invite dialog, link + expiry, conflicts | `feat(web): realtime cursors + chat + share` | ✅ Done |
 | 13 | History + Autosave + I/O | Snapshots, restore, timeline, debounced autosave, offline queue, conflict detection, export/import all formats | `feat(web): version history + export` | ✅ Done |
-| 14 | Polish + NFRs + Tests | WCAG AA, responsive, performance, virtualization, memoization, unit/integration/e2e/socket/load tests | `test: full test suite + a11y + perf` | ⬜ Pending |
+| 14 | Polish + NFRs + Tests | WCAG AA, responsive, performance, virtualization, memoization, unit/integration/e2e/socket/load tests | `test: full test suite + a11y + perf` | ✅ Done |
 | 15 | CI/CD + Deployment | Dockerfiles, compose, Nginx, GitHub Actions, deploy, secrets, Sentry, rollback, final docs | `chore(ci): docker + github actions + deploy` | ⬜ Pending |
 
 ## Working Rules

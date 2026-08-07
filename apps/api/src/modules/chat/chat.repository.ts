@@ -47,10 +47,10 @@ export class ChatRepository {
     cursor: DecodedDateCursor | null;
     limit: number;
   }): Promise<ChatMessagePage> {
-    const orderBy: Prisma.ChatMessageOrderByWithRelationInput = {
-      createdAt: 'desc',
-      id: 'desc',
-    };
+    const orderBy: Prisma.ChatMessageOrderByWithRelationInput[] = [
+      { createdAt: 'desc' },
+      { id: 'desc' },
+    ];
     const where: Prisma.ChatMessageWhereInput = {
       boardId: args.boardId,
       deletedAt: null,

@@ -16,7 +16,7 @@ import type { AuthenticatedUser } from '../../common/types/authenticated-user.ty
 import { BoardAccess } from './board-access.decorator';
 import { BoardAccessGuard } from './guards/board-access.guard';
 import { BoardsService } from './boards.service';
-import type { AddMemberDto } from './dto/add-member.dto';
+import { AddMemberDto } from './dto/add-member.dto';
 import type {
   AddMemberResult,
   BoardRosterItem,
@@ -29,16 +29,18 @@ import type {
   BoardSummaryDto,
   FavouriteStatusDto,
 } from './dto/board-response.dto';
-import type { CreateBoardDto } from './dto/create-board.dto';
-import type { CreateTemplateDto } from './dto/create-template.dto';
-import type { CreateVersionDto } from './dto/update-board-data.dto';
-import type { ListActivityQueryDto } from './dto/list-activity.query.dto';
-import type { ListBoardsQueryDto } from './dto/list-boards-query.dto';
-import type { ListVersionsQueryDto } from './dto/list-versions.query.dto';
-import type { ToggleFavouriteDto } from './dto/toggle-favourite.dto';
-import type { UpdateBoardDataDto } from './dto/update-board-data.dto';
-import type { UpdateBoardDto } from './dto/update-board.dto';
-import type { UpdateMemberRoleDto } from './dto/update-member-role.dto';
+import { CreateBoardDto } from './dto/create-board.dto';
+import { CreateTemplateDto } from './dto/create-template.dto';
+import {
+  CreateVersionDto,
+  UpdateBoardDataDto,
+} from './dto/update-board-data.dto';
+import { ListActivityQueryDto } from './dto/list-activity.query.dto';
+import { ListBoardsQueryDto } from './dto/list-boards-query.dto';
+import { ListVersionsQueryDto } from './dto/list-versions.query.dto';
+import { ToggleFavouriteDto } from './dto/toggle-favourite.dto';
+import { UpdateBoardDto } from './dto/update-board.dto';
+import { UpdateMemberRoleDto } from './dto/update-member-role.dto';
 import type {
   BoardActivityListResponseDto,
   BoardDataResponseDto,

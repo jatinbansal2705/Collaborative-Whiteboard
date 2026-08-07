@@ -315,6 +315,9 @@ const readSuccess = <T>(response: request.Response): ApiSuccessResponse<T> =>
 const readError = (response: request.Response): ApiErrorResponse =>
   response.body as ApiErrorResponse;
 
+const WELL_FORMED_FAKE_JWT =
+  'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJub3QtYS1yZWFsLXRva2VuIn0.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+
 interface AuthBody {
   accessToken: string;
   refreshToken: string;
@@ -464,7 +467,7 @@ describe('Auth (e2e)', () => {
   it('rejects an invalid verification token with INVALID_EMAIL_VERIFICATION_TOKEN', async () => {
     const response = await request(app.getHttpServer())
       .post('/api/v1/auth/verify-email')
-      .send({ token: 'not-a-real-token' })
+      .send({ token: WELL_FORMED_FAKE_JWT })
       .expect(400);
 
     expect(readError(response).error).toMatchObject({
@@ -595,7 +598,7 @@ describe('Auth (e2e)', () => {
     const response = await request(app.getHttpServer())
       .post('/api/v1/auth/reset-password')
       .send({
-        token: 'not-a-real-token',
+        token: WELL_FORMED_FAKE_JWT,
         password: 'NewPassw0rd2!',
         confirmPassword: 'NewPassw0rd2!',
       })
@@ -704,7 +707,7 @@ describe('Auth (e2e)', () => {
   it('rejects an invalid handoff code with INVALID_OAUTH_HANDOFF_CODE', async () => {
     const response = await request(app.getHttpServer())
       .post('/api/v1/auth/google/exchange')
-      .send({ code: 'not-a-real-code' })
+      .send({ code: WELL_FORMED_FAKE_JWT })
       .expect(400);
 
     expect(readError(response).error).toMatchObject({

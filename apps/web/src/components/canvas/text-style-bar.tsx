@@ -80,7 +80,7 @@ export function TextStyleBar() {
 
   return (
     <div
-      className="flex items-center gap-1 rounded-md border bg-background/90 px-2 py-1.5 shadow-md backdrop-blur"
+      className="flex max-w-[calc(100vw-4.5rem)] flex-wrap items-center justify-center gap-1 rounded-md border bg-background/90 px-2 py-1.5 shadow-md backdrop-blur"
       role="toolbar"
       aria-label="Text styles"
     >

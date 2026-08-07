@@ -135,7 +135,7 @@ export class BoardRepository {
   async listTemplates(): Promise<Board[]> {
     return this.prisma.board.findMany({
       where: { isTemplate: true, deletedAt: null },
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ createdAt: 'desc' }],
     });
   }
 

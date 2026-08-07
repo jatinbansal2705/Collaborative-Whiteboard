@@ -59,7 +59,7 @@ describe('TransformInterceptor', () => {
     expect(result).toBe('<html>swagger ui</html>');
   });
 
-  it('passes pre-wrapped payloads with meta through untouched', async () => {
+  it('wraps paginated payloads in the api envelope', async () => {
     const interceptor = new TransformInterceptor();
 
     const result = await lastValueFrom(
@@ -70,8 +70,8 @@ describe('TransformInterceptor', () => {
     );
 
     expect(result).toEqual({
-      data: [{ id: '1' }],
-      meta: { hasNextPage: true },
+      success: true,
+      data: { data: [{ id: '1' }], meta: { hasNextPage: true } },
     });
   });
 

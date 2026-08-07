@@ -9,9 +9,9 @@ import type {
   CommentResponseDto,
   CommentThreadResponseDto,
 } from './dto/comment.response.dto';
-import type { CreateCommentDto } from './dto/create-comment.dto';
-import type { CreateCommentThreadDto } from './dto/create-comment-thread.dto';
-import type { ResolveThreadDto } from './dto/resolve-thread.dto';
+import { CreateCommentDto } from './dto/create-comment.dto';
+import { CreateCommentThreadDto } from './dto/create-comment-thread.dto';
+import { ResolveThreadDto } from './dto/resolve-thread.dto';
 
 @ApiTags('comments')
 @Controller('boards/:id/comments')
