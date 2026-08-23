@@ -191,6 +191,34 @@ follows the template below. Sessions MUST read all entries before implementing.
 - **Decision**: Phase 14 closes the gap with four layers. **(1) Web unit** (Vitest + jsdom): every pure utility (canvas geometry, clipboard, commands, pdf build), API client service, and state component gets a spec — 406 tests. **(2) API unit + socket harness** (Jest): services are tested with typed Prisma fixtures (full model fields); realtime gateway behavior is exercised with a live `socket.io-client` against an in-process server over the shared Zod contracts, covering auth/join/leave/draw/cursor/presence/element/selection/typing/read/kick/validation/version conflicts — the full API suite is 19 suites / 261 tests. **(3) API e2e** (`apps/api/test/*.e2e-spec.ts`): bootstraps the Nest app with a fake Prisma service and supertest, covering the auth lifecycle end to end without Docker. **(4) Load** (k6, `apps/api/scripts/load-test.js`): read/write mixes plus socket presence with P95 budgets in `docs/PERFORMANCE.md`. A phase is not Done until lint, typecheck, build, and all test layers pass.
 - **Consequences**: Realtime regressions are caught without manual socket testing; e2e auth flows run in CI without a database; performance regressions are caught by budget assertions (Lighthouse) and load tests before deploy.
 
+### ADR-0024: Multi-stage Docker images on node:20-slim
+
+- **Status**: Accepted
+- **Context**: Phase 15 requires reproducible, deployable artifacts for both apps. The monorepo layout (npm workspaces, `@whiteboard/shared` consumed via its compiled `dist`, Prisma 7 generated client committed under `apps/api/src/generated/prisma`) must survive containerization, and the web app needs a small runtime surface.
+- **Decision**: Both apps build three-stage images (`deps → builder → runner`) on `node:20-slim` (glibc avoids argon2 native-module surprises on musl). The web image runs Next.js `output: 'standalone'` with `outputFileTracingRoot` pinned to the repo root so the traced server lands at `apps/web/server.js`; only `.next/standalone`, static assets and `public` ship to the runner. The API image ships `dist`, `prisma/` (schema + migrations), `prisma.config.ts` and a fresh `npm ci --omit=dev --ignore-scripts`; `prisma` CLI moved from devDependencies to dependencies so `prisma migrate deploy` can run inside the image via `docker-entrypoint.sh` (`RUN_MIGRATIONS=true`). NEXT_PUBLIC_* values are baked as build args; all secrets are runtime env only.
+- **Consequences**: Images are self-contained and non-root with built-in HEALTHCHECKs using Node's global `fetch` (no curl/wget needed). Trade-off: the API runtime install includes other workspaces' prod deps (npm workspaces limitation) — accepted for correctness over image size.
+
+### ADR-0025: Nginx edge proxy with TLS termination and websocket upgrade
+
+- **Status**: Accepted
+- **Context**: The platform needs one public origin terminating TLS, compressing responses, enforcing security headers, serving the SPA/API split and upgrading Socket.IO connections — independent of where web/api run.
+- **Decision**: `deploy/nginx` builds an `nginx:1.27-alpine` image with the Alpine brotli dynamic module. Port 80 serves ACME challenges plus `/health` and redirects everything else to HTTPS; port 443 terminates TLS 1.2/1.3, sets HSTS/nosniff/SAMEORIGIN/Referrer-Policy/Permissions-Policy/CSP, applies gzip+brotli, rate-limits `/api/` (30 r/s per IP with burst), proxies `/api/`, `/docs`, `/_health` to the API and `/socket.io/` with `Upgrade`/`Connection $connection_upgrade` headers and 7-day read timeouts; `/` proxies to the Next.js server which owns all SPA routing.
+- **Consequences**: Web and API stay stateless behind one origin; realtime works through the proxy without client changes. CSP allows `'unsafe-inline'/'unsafe-eval'` scripts/styles — pragmatic for Next.js inline hydration payloads; tightening requires nonces.
+
+### ADR-0026: Versioned deploy tags + health-gated pipeline rollback
+
+- **Status**: Accepted
+- **Context**: Production incidents need a deterministic, fast path back to a known-good release, and PRs must never merge broken code.
+- **Decision**: Two workflows. `ci.yml` gates every PR and push to main with lint → typecheck → test → build across workspaces. `deploy.yml` re-runs that quality gate on main, builds/pushes both images to GHCR tagged `<git-sha>`, `deploy/<run_number>` and `latest`, creates Sentry releases per project, deploys web to Vercel and triggers the API host (Render hook), then blocks on a health-check gate (`deploy/scripts/health-check.sh` against `/health` and the web root) before pushing the git tag `deploy/<run_number>`. Rollback = `gh workflow run deploy.yml -f ref=deploy/<previous-N>` — the same pipeline rebuilds from the old commit (see `deploy/ROLLBACK.md`). Optional steps degrade gracefully when their secrets are absent instead of failing the deploy.
+- **Consequences**: Deployment history is auditable via git tags; images are immutable and sha-addressable; a failed health gate leaves no deployment tag, signalling a further roll-back. Migrations are forward-only (`migrate deploy` is idempotent), so schema stays compatible for one release cycle.
+
+### ADR-0027: pino structured logging with ALS request-id correlation
+
+- **Status**: Accepted
+- **Context**: ADR-0009 established request-id middleware and Nest's default text logger; production needs machine-parseable JSON with the request id on every line — including logs emitted deep inside services — without touching call sites.
+- **Decision**: `PinoLogger` implements Nest's `LoggerService` over pino and is installed via `app.useLogger(...)` in `main.ts`, keeping every existing `new Logger()` call site unchanged. The request-id middleware now also wraps the handler chain in an `AsyncLocalStorage` context; a pino `mixin` reads it, so each JSON line carries `requestId`, `service`, `environment` and `context`. Level filtering mirrors `LOG_LEVEL` through the existing `getLogLevels` mapping. Errors ≥500 are additionally captured by Sentry inside `AllExceptionsFilter` (guarded by `Sentry.getClient()`, so unconfigured environments and tests no-op).
+- **Consequences**: One-line-per-request JSON ingestible by any log drain, correlated end-to-end with the `x-request-id` response header. No logger refactors were needed in services; the trade-off of ALS context storage per request is negligible.
+
 ## Scaling Strategy (summary)
 
 - **Stateless API** — horizontal scaling behind a load balancer.

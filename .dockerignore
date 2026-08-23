@@ -1,0 +1,59 @@
+# Dependencies (installed in the deps stage from the lockfile)
+node_modules
+**/node_modules
+
+# Build outputs
+apps/web/.next
+apps/web/out
+apps/web/build
+apps/api/dist
+apps/*/coverage
+coverage
+dist
+out
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# Workspace symlink targets inside the repo (only packages/shared is needed)
+packages/shared/node_modules
+
+# Environment & secrets — never baked into images except via --build-arg
+.env
+.env.*
+!.env.example
+apps/web/.env.local
+apps/api/.env
+apps/web/.env.production
+apps/web/.env.test
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# CI
+.github
+
+# Logs & artifacts
+*.log
+logs
+*.pem
+*.key
+*.crt
+*.pfx
+test-results
+playwright-report
+.lighthouseci
+.vercel
+
+# Docs
+docs
+
+# Local tooling
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+
+# Nginx local self-signed certs (generated locally, never committed)
+deploy/nginx/certs

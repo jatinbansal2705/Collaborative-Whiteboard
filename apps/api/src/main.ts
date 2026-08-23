@@ -5,6 +5,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { setupApp } from './app.setup';
 import { AppModule } from './app.module';
 import { getLogLevels } from './common/logger/log-levels';
+import { PinoLogger } from './common/logger/pino-logger';
+import { initSentry } from './common/sentry/sentry.config';
 import { SocketIoAdapter } from './modules/realtime/socket-io.adapter';
 import { RedisService } from './redis/redis.service';
 import {
@@ -20,9 +22,19 @@ async function bootstrap(): Promise<void> {
 
   const configService = app.get(ConfigService);
   const appConfig = configService.get<AppConfig['app']>('app');
+  const logLevel = appConfig?.logLevel ?? 'info';
   const logger = new Logger('Bootstrap');
 
-  app.useLogger(getLogLevels(appConfig?.logLevel ?? 'info'));
+  app.useLogger(
+    new PinoLogger({ level: logLevel, logLevels: getLogLevels(logLevel) }),
+  );
+
+  initSentry({
+    dsn: configService.get<AppConfig['sentry']>('sentry')?.dsn,
+    environment: appConfig?.env,
+    release: process.env.SENTRY_RELEASE,
+    tracesSampleRate: parseSamplesRate(process.env.SENTRY_TRACES_SAMPLE_RATE),
+  });
 
   setupApp(app);
 
@@ -69,6 +81,14 @@ async function bootstrap(): Promise<void> {
   logger.log(
     `Health check available at http://localhost:${port}/${HEALTH_PATH}`,
   );
+}
+
+function parseSamplesRate(value: string | undefined): number | undefined {
+  if (value === undefined || value.trim() === '') {
+    return undefined;
+  }
+  const parsed = Number.parseFloat(value);
+  return Number.isNaN(parsed) ? undefined : parsed;
 }
 
 void bootstrap();
