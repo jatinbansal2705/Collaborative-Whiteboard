@@ -30,7 +30,6 @@
     "@radix-ui/react-switch": "^1.2.4",
     "@radix-ui/react-tabs": "^1.1.21",
     "@radix-ui/react-toast": "^1.2.23",
-    "@sentry/nextjs": "^10.70.0",
     "@types/react-window": "^1.8.8",
     "@whiteboard/shared": "*",
     "class-variance-authority": "^0.7.1",

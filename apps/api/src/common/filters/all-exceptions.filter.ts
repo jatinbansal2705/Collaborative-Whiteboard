@@ -1,4 +1,3 @@
-import * as Sentry from '@sentry/node';
 import {
   ArgumentsHost,
   Catch,
@@ -10,7 +9,6 @@ import {
 import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
 import { Prisma } from '../../generated/prisma/client';
-import { isSentryEnabled } from '../sentry/sentry.config';
 import type { ApiErrorResponse } from '../types/api-response.type';
 
 interface ResolvedError {
@@ -88,29 +86,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       exception instanceof Error ? exception.stack : undefined,
     );
 
-    this.reportToSentry(exception, resolved, request);
-
     response.status(resolved.statusCode).json(body);
-  }
-
-  private reportToSentry(
-    exception: unknown,
-    resolved: ResolvedError,
-    request: Request,
-  ): void {
-    if (resolved.statusCode < 500 || !isSentryEnabled()) {
-      return;
-    }
-    const captured =
-      exception instanceof Error ? exception : new Error(String(exception));
-    Sentry.captureException(captured, {
-      tags: { code: resolved.code },
-      extra: {
-        method: request.method,
-        url: request.originalUrl,
-        requestId: request.id,
-      },
-    });
   }
 
   private resolveError(exception: unknown): ResolvedError {
